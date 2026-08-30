@@ -1,7 +1,7 @@
 # Lesson format specification
 
 One authoring format for every lesson: **Markdown with YAML front matter**.
-Any subject, any student, any age group. The theme changes how it looks; the file
+Any subject, any student, any age group. The format changes how it looks; the file
 never changes shape.
 
 This document is the contract between what the tutor writes and what the parser
@@ -18,7 +18,7 @@ date: 2026-08-26               # required — YYYY-MM-DD, orders the timeline
 title: One branch, and a function that calls itself   # required
 subtitle: Recursion — the idea the whole week rests on
 course: blender-python         # optional — groups lessons; created if missing
-theme: professional            # optional — kids | beginner | professional
+format: slide                  # optional — document | slide, default document
 hint_seconds: 240              # optional — default timer, default 30
 visible: false                 # optional — default false; tutor publishes
 time: "7:00 PM"
@@ -125,7 +125,6 @@ A branch 2 long starting at z = 0 ends at z = 2, so its middle is at z = 1.
 | `id` | **required.** Stable identifier. Progress rows point at it. |
 | `type` | `code` · `choice` · `step` · `answer`. Default `code`. |
 | `hint` | Seconds before SOLUTION unlocks. Falls back to `hint_seconds`. `hint=0` means reveal instantly. |
-| `runnable` | `type=code` only. Currently just `python`. Adds a live in-browser editor and Run button — see below. |
 
 ### Sections inside a task
 
@@ -137,7 +136,6 @@ which is always the task title.
 - `DONE WHEN` — the green self-check criterion
 - `SOLUTION` — revealed after the timer
 - `OPTIONS` — only for `type=choice`
-- `STARTER` — only for `runnable=python`; the code the editor opens with
 
 Everything between the title and the first keyword is body content: prose, code
 fences, tables, blanks, nested blocks.
@@ -145,40 +143,7 @@ fences, tables, blanks, nested blocks.
 ### Task types
 
 **`code`** — writes code elsewhere (Blender, Jupyter, MATLAB) and self-marks.
-Optionally has EXPECTED to compare against. For plain Python, add
-`runnable=python` instead of sending the student to a separate notebook —
-this renders a real code editor and a Run button on the page itself,
-executing entirely in the browser (nothing is sent to a server):
-
-```
-:::task id=r1 type=code runnable=python hint=30
-Double it
-
-STARTER
-```python
-def double(x):
-    return x
-
-print(double(3))
-```
-
-EXPECTED
-6
-
-DONE WHEN
-print(double(3)) shows 6
-
-SOLUTION
-```python
-def double(x):
-    return x * 2
-```
-:::
-```
-
-`STARTER` is literal code, not prose — fence it or leave it bare, either
-works. Only Python is supported; `runnable` on anything else is ignored with
-a warning, since Blender/MATLAB/Arduino code can't run in a browser tab.
+Optionally has EXPECTED to compare against.
 
 **`choice`** — multiple choice, instant feedback, marks itself complete on a
 correct answer. No timer.
@@ -269,81 +234,38 @@ because a recurring `raw` pattern is a missing block.
 
 ---
 
-## 6. Themes
+## 6. Formats
 
-Three, set on the student and overridable per lesson. **Same templates, different
-tokens plus a few flags.** Do not fork the template tree.
+Exactly two, set per lesson via `format:`. **Same templates, same tokens —
+format is a CSS skin, not a fork.** Do not build a third.
 
 ### Shared structure
 
-Every theme renders: header (eyebrow, title, subtitle, pills), sticky progress
-bar, body blocks, tasks, finish panel. Only tokens and flags differ.
+Every format renders: header (eyebrow, title, subtitle, pills), sticky progress
+bar, body blocks, tasks, finish panel. The markdown never changes shape between
+formats — only how it's styled.
 
-### `beginner` — the default
+### `document` — the default
 
-This is the approved house style, matching the existing Ward Round HTML. When in
-doubt, this is what everything should look like.
+Long-form, scrolling, dense enough to hold a full session: reference tables,
+code, tasks with timers, all visible at once. This is the approved house style,
+matching the original Ward Round HTML. When in doubt, this is what everything
+should look like.
 
-```
---ink:#0C2429  --deep:#04434A  --teal:#028090  --sea:#00A896  --mint:#02C39A
---paper:#F2F8F8  --card:#FFFFFF  --line:#D6E6E7  --muted:#5C7A82
---amber:#B36B00  --amberbg:#FFF4E0  --green:#0A7A45  --greenbg:#E3F6EC
---code:#0F3239  --codetext:#9FE8DC  --violet:#5B3E96  --violetbg:#F1ECFB
-display: Georgia, serif
-body: "Segoe UI", system-ui, sans-serif        base 16px / 1.6
-mono: "SFMono-Regular", Consolas, monospace
-radius: 12px    density: normal
-flags: tasks_all_visible, celebrate_on_complete
-```
+### `slide`
 
-### `kids`
-
-Warmer, larger, one task at a time so the page is never intimidating. Emoji
-allowed in headings. Same information, less of it on screen at once.
-
-```
---ink:#20303A  --deep:#1B6B63  --teal:#12897E  --sea:#00A896  --mint:#3FD9B8
---paper:#FFF9F0  --card:#FFFFFF  --line:#F0E2CE  --muted:#6E7F86
---coral:#F4845F  --coralbg:#FFEDE5  --sun:#FFC857  --sunbg:#FFF6DE
---amber:#C2681B  --amberbg:#FFF1DC  --green:#12894F  --greenbg:#E1F7EA
---code:#123A38  --codetext:#A8F0DE
-display: "Fredoka", "Baloo 2", Georgia, sans-serif
-body: "Nunito", "Segoe UI", sans-serif          base 17.5px / 1.7
-mono: "JetBrains Mono", Consolas, monospace
-radius: 18px    density: roomy
-accent for primary actions: --coral
-flags: tasks_one_at_a_time, celebrate_on_complete, big_task_numbers, show_emoji
-```
-
-`tasks_one_at_a_time`: within a section, show the current task; completed ones
-collapse to a single tick line; later ones are dimmed until reached. Never hide
-the reference material — only tasks.
-
-### `professional`
-
-Denser, quieter, everything on screen. No celebration animation. For university
-and adult learners.
-
-```
---ink:#0F1F24  --deep:#0B3B42  --teal:#0B6B78  --sea:#12808C  --mint:#1FA894
---paper:#F7FAFA  --card:#FFFFFF  --line:#DDE7E9  --muted:#5A7178
---amber:#8A5A12  --amberbg:#FBF3E4  --green:#12633F  --greenbg:#EAF4EE
---code:#0C2A30  --codetext:#8FD9CC  --violet:#4A3580  --violetbg:#EFEBF8
-display: "IBM Plex Serif", Georgia, serif
-body: "IBM Plex Sans", system-ui, sans-serif    base 15px / 1.55
-mono: "IBM Plex Mono", Consolas, monospace
-radius: 8px     density: compact
-flags: tasks_all_visible, no_celebration, compact_header
-```
+Same content, same constructs — restyled for a punchier, presentation-like
+read. Bigger type, more whitespace, and each major section (a `##` heading, a
+task, a block) reads as its own distinct beat in the scroll rather than
+blending into a dense page. Still one continuous page — no click-through
+slideshow, no JavaScript navigation, just a bolder rhythm.
 
 ### Implementation
 
-CSS custom properties on `<body class="theme-kids">`. One stylesheet, three
-`:root`-scoped variable sets, plus a handful of flag-driven rules. A fourth theme
-should be a ~40 line addition, not a new template directory.
-
-Per-lesson `accent: "#F4845F"` overrides the primary action colour only. Nothing
-in front matter may inject arbitrary CSS.
+CSS custom properties on `<body class="format-document">` / `class="format-slide"`.
+One stylesheet, tokens shared between the two, plus a slide-specific block of
+overrides for spacing and type scale. Per-lesson `accent: "#F4845F"` overrides
+the primary action colour only. Nothing in front matter may inject arbitrary CSS.
 
 ---
 
@@ -361,7 +283,7 @@ source of truth and what the tutor edits. Derive `Task` rows from it on every sa
 
 Never key progress on position. Blanks follow the same rule, keyed on blank id.
 
-**Preview before commit.** Every paste and upload shows: student, date, theme,
+**Preview before commit.** Every paste and upload shows: student, date, format,
 task count, blank count, any warnings, and the rendered body. Nothing saves until
 the tutor confirms. Prefilling the form from a filename (`Andy_W3D2_Topic.pptx`
 → student Andy, week 3, day D2) is fine; silent filing is not.

@@ -12,18 +12,13 @@ from django.views.decorators.http import require_POST
 
 from accounts.models import StudentProfile
 
-from .lesson_markdown import THEMES, parse_lesson
+from .lesson_markdown import FORMATS, parse_lesson
 from .lesson_save import LessonSaveError, resolve_save_plan, save_lesson
 from .models import BlankAnswer, ChecklistCheck, Course, HintReveal, Lesson, LessonFile, LessonProgress, Task
 from .services import (
     course_progress, enrolled_courses, get_accessible_lesson, get_enrolled_course, student_lessons,
 )
 
-THEME_FLAGS = {
-    "beginner": {"tasks_all_visible", "celebrate_on_complete"},
-    "kids": {"tasks_one_at_a_time", "celebrate_on_complete", "big_task_numbers", "show_emoji"},
-    "professional": {"tasks_all_visible", "no_celebration", "compact_header"},
-}
 SAMPLE_LESSON_PATH = settings.BASE_DIR / "skills" / "LESSON_TEMPLATE.md"
 
 
@@ -38,7 +33,7 @@ def _document_context(parsed, *, lesson=None, can_edit=False, preview_warnings=N
             task.hint_seconds if task.hint_seconds is not None else parsed.hint_seconds_default
         )
 
-    theme = parsed.theme if parsed.theme in THEMES else "beginner"
+    fmt = parsed.format if parsed.format in FORMATS else "document"
 
     initial_state = {"answers": {}, "completed": [], "checked": []}
     if lesson is not None and lesson.pk:
@@ -58,8 +53,7 @@ def _document_context(parsed, *, lesson=None, can_edit=False, preview_warnings=N
         "course": parsed.front_matter.get("course"),
         "nodes": parsed.nodes,
         "tasks": parsed.tasks,
-        "theme": theme,
-        "flags": THEME_FLAGS.get(theme, set()),
+        "format": fmt,
         "lesson_id": lesson.id if (lesson is not None and lesson.pk) else "",
         "can_edit": can_edit,
         "initial_state_json": json.dumps(initial_state),

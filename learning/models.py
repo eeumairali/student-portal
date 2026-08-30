@@ -63,7 +63,7 @@ class Enrollment(models.Model):
 
 
 class Lesson(models.Model):
-    THEMES = [("kids", "Kids"), ("beginner", "Beginner"), ("professional", "Professional")]
+    FORMATS = [("document", "Document / project"), ("slide", "Slide")]
 
     # Shared curriculum lesson (Phase 1): course set, student blank, ordered by `order`.
     # Personal dated document (Phase 2): student + date set, markdown_source holds the
@@ -81,7 +81,7 @@ class Lesson(models.Model):
     description = models.TextField(blank=True, help_text="What the student will do this session. (Legacy field — new lessons use markdown_source.)")
     markdown_source = models.TextField(blank=True, help_text="The lesson document. See skills/FORMAT_SPEC.md.")
     meta = models.JSONField(default=dict, blank=True, help_text="Unknown front-matter keys, rendered as header pills.")
-    theme = models.CharField(max_length=20, choices=THEMES, blank=True, help_text="Blank uses the beginner theme.")
+    format = models.CharField(max_length=20, choices=FORMATS, blank=True, help_text="Blank uses the document/project format.")
     hint_seconds_default = models.PositiveIntegerField(default=30)
     is_published = models.BooleanField(default=True, help_text="Locked (unticked) lessons are invisible to the student.")
 

@@ -1,7 +1,9 @@
 /* Lesson document renderer — themed via CSS custom properties.
-   Beginner tokens below match the approved house style (the Ward Round
-   practice sheet) exactly. A new theme is a `.theme-<name>{ --token:... }`
-   block plus a handful of flag-driven rules — never a new template. */
+   Tokens below match the approved house style (the Ward Round practice
+   sheet) exactly; this is the `document` format's look, and the default.
+   `slide` (see .format-slide below) is a styling pass on the SAME markup —
+   bigger type, more whitespace, bolder section breaks — never a template
+   fork. There are exactly two formats; do not add a third. */
 
 :root{
   --ink:#0C2429; --deep:#04434A; --teal:#028090; --sea:#00A896; --mint:#02C39A;
@@ -44,6 +46,70 @@ html.dark .lesson-doc .expect .mono{color:#BFF0D9}
 html.dark .lesson-doc .journey-item.now{background:#0F2426}
 html.dark .lesson-doc .task.done{background:#0F2624}
 
+/* ---------- slide format: same content, a bolder, colorful read ---------- */
+.format-slide{
+  --base-size:18px; --base-line:1.75; --radius:18px;
+  --ink:#20303A; --deep:#1B6B63; --teal:#12897E; --sea:#00A896; --mint:#3FD9B8;
+  --paper:#FFF9F0; --card:#FFFFFF; --line:#F0E2CE; --muted:#6E7F86;
+  --amber:#C2681B; --amberbg:#FFF1DC; --green:#12894F; --greenbg:#E1F7EA;
+  --code:#123A38; --codetext:#A8F0DE;
+  --coral:#F4845F; --coralbg:#FFEDE5; --sun:#FFC857; --sunbg:#FFF6DE;
+  --accent:var(--coral);
+}
+html.dark .lesson-doc.format-slide{
+  --ink:#FBEEE2; --deep:#12433D; --teal:#2BB8A6; --sea:#2FCBAE; --mint:#4CE8C4;
+  --paper:#1B1410; --card:#241C16; --line:#3A2C22; --muted:#C9AE99;
+  --amber:#F0B15C; --amberbg:#3A2A12; --green:#5AD99A; --greenbg:#123023;
+  --code:#160D0A; --codetext:#FFD9C2;
+  --coral:#FF9C78; --coralbg:#3A241A; --sun:#FFD478; --sunbg:#3A2E14;
+}
+.format-slide .wrap{max-width:1020px}
+.format-slide header.lhead{padding:64px 0 52px;
+  background:linear-gradient(135deg,var(--deep),var(--teal) 70%,var(--coral))}
+.format-slide h1.ltitle{font-size:clamp(34px,6vw,54px);line-height:1.08}
+.format-slide .lsub{font-size:19px;color:var(--sun)}
+.format-slide .lmeta-line{font-size:14.5px}
+.format-slide .pill{padding:8px 18px;font-size:14px;background:rgba(255,255,255,.16)}
+.format-slide .pill:nth-child(3n+1){background:var(--coral);color:#3A1206}
+.format-slide .pill:nth-child(3n+2){background:var(--sun);color:#3A2C06}
+.format-slide .pill:nth-child(3n+3){background:var(--mint);color:#04302A}
+.format-slide .section-head{margin:76px 0 22px;padding-bottom:18px;border-bottom:3px solid var(--coral)}
+.format-slide .section-head .section-eyebrow{font-size:14px;letter-spacing:2px;color:var(--coral)}
+.format-slide .section-head h2{font-size:34px}
+.format-slide .dbtn{background:var(--coral)}
+.format-slide .task.done .dbtn{background:var(--green)}
+.format-slide .fill{background:linear-gradient(90deg,var(--coral),var(--sun),var(--mint))}
+.format-slide .tnum{background:var(--coral)}
+.format-slide .task.done .tnum{background:var(--green)}
+.format-slide .opt:hover{border-color:var(--coral)}
+.format-slide .hbtn{background:var(--sunbg);border-color:var(--sun);color:#8A5A0E}
+html.dark .format-slide .hbtn{color:var(--sun)}
+.format-slide .prose{font-size:18px;line-height:1.75}
+.format-slide .prose pre{font-size:14.5px;padding:18px 20px}
+.format-slide .card,
+.format-slide .rule,
+.format-slide .push,
+.format-slide details.aside{padding:30px 32px;margin-bottom:28px}
+.format-slide .card h3,
+.format-slide .rule h3,
+.format-slide .push h3{font-size:23px}
+.format-slide .tip{padding:20px 24px;font-size:16px;margin-bottom:28px}
+.format-slide .task{padding:28px 30px;margin-bottom:28px}
+.format-slide .tnum{flex:0 0 36px;height:36px;font-size:15px}
+.format-slide .tq{font-size:20px}
+.format-slide .donewhen,.format-slide .tnote{font-size:15px}
+.format-slide .objectives li{padding:22px 26px;margin-bottom:14px}
+.format-slide .objectives .otext{font-size:17px}
+.format-slide .journey{gap:14px;margin-bottom:28px}
+.format-slide .journey-item{padding:18px 22px}
+.format-slide .rulegrid,.format-slide .grid{gap:20px}
+.format-slide .rulebox,.format-slide .gridbox{padding:20px 22px}
+.format-slide .figure{margin-bottom:28px}
+.format-slide .figure pre{padding:22px 24px;font-size:14.5px}
+.format-slide ol.steps li{padding:16px 0}
+.format-slide .finish{padding:34px 36px}
+.format-slide .finish h2{font-size:26px}
+
 *{box-sizing:border-box}
 .lesson-doc{
   background:var(--paper); color:var(--ink);
@@ -51,7 +117,7 @@ html.dark .lesson-doc .task.done{background:#0F2624}
 }
 body.lesson-doc{margin:0}
 .lesson-doc code, .lesson-doc .mono{ font-family:var(--font-mono) }
-.lesson-doc .wrap{max-width:860px;margin:0 auto;padding:0 20px 80px}
+.lesson-doc .wrap{max-width:1180px;margin:0 auto;padding:0 28px 80px}
 
 /* ---------- header ---------- */
 .lesson-doc header.lhead{background:var(--deep);color:#fff;padding:44px 0 38px;margin-bottom:34px}
@@ -207,23 +273,6 @@ body.lesson-doc{margin:0}
 .lesson-doc .expect .mono{color:#0D3D25}
 .lesson-doc .donewhen{margin-top:10px;font-size:13.5px;color:var(--muted)}
 .lesson-doc .donewhen b{color:var(--green);letter-spacing:.4px;margin-right:4px}
-
-/* ---------- runner (in-browser Python) ---------- */
-.lesson-doc .runner{margin-top:12px;border-radius:9px;overflow:hidden;border:1px solid var(--line)}
-.lesson-doc .runner-editor{display:block;width:100%;min-height:120px;resize:vertical;
-  background:var(--code);color:var(--codetext);font-family:var(--font-mono);font-size:13.5px;
-  line-height:1.55;border:none;padding:14px 16px;tab-size:4}
-.lesson-doc .runner-editor:focus-visible{outline:2px solid var(--mint);outline-offset:-2px}
-.lesson-doc .runner-controls{display:flex;align-items:center;gap:10px;background:#0A2A2F;padding:8px 12px}
-.lesson-doc .runner-run-btn{background:var(--mint);color:var(--code);font-weight:700;font-size:13px;padding:7px 14px}
-.lesson-doc .runner-run-btn:hover{background:#03d9a8}
-.lesson-doc .runner-run-btn:disabled{opacity:.6;cursor:wait}
-.lesson-doc .runner-status{font-size:12px;color:#9FE8DC}
-.lesson-doc .runner-status.error{color:#FFB3A7}
-.lesson-doc .runner-output{margin:0;background:#081F23;color:#D7F5EE;font-family:var(--font-mono);
-  font-size:13px;line-height:1.5;padding:12px 16px;border-top:1px solid rgba(255,255,255,.08);
-  white-space:pre-wrap;word-break:break-word;max-height:260px;overflow-y:auto}
-.lesson-doc .runner-output.error{color:#FFC9BE}
 
 /* ---------- hint / timer ---------- */
 .lesson-doc .hintrow{margin-top:14px;display:flex;align-items:center;gap:12px;flex-wrap:wrap}

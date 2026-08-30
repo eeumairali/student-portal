@@ -11,7 +11,7 @@ from dataclasses import dataclass, field
 from django.contrib.auth.models import User
 from django.utils.text import slugify
 
-from .lesson_markdown import THEMES, ParsedLesson
+from .lesson_markdown import FORMATS, ParsedLesson
 from .models import Course, Enrollment, HintReveal, Lesson, Task
 
 
@@ -104,8 +104,8 @@ def save_lesson(parsed: ParsedLesson, raw_markdown: str, plan: SavePlan) -> Less
     lesson.subtitle = parsed.front_matter.get("subtitle") or ""
     lesson.markdown_source = raw_markdown
     lesson.meta = parsed.meta
-    theme = parsed.front_matter.get("theme")
-    lesson.theme = theme if theme in THEMES else ""
+    fmt = parsed.front_matter.get("format")
+    lesson.format = fmt if fmt in FORMATS else ""
     hint_default = parsed.front_matter.get("hint_seconds")
     try:
         lesson.hint_seconds_default = int(hint_default) if hint_default else 30

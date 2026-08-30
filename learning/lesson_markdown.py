@@ -19,11 +19,10 @@ from bleach.css_sanitizer import CSSSanitizer
 
 KNOWN_FRONT_MATTER_KEYS = {
     "student", "date", "title", "subtitle", "course",
-    "theme", "hint_seconds", "visible", "time", "duration", "accent",
+    "format", "hint_seconds", "visible", "time", "duration", "accent",
 }
-THEMES = {"kids", "beginner", "professional"}
+FORMATS = {"document", "slide"}
 TASK_TYPES = {"code", "choice", "step", "answer"}
-RUNNABLE_LANGS = {"python"}
 
 MD_EXTENSIONS = ["tables", "fenced_code", "sane_lists"]
 
@@ -31,8 +30,7 @@ BLANK_RE = re.compile(r"\{\{([a-zA-Z][a-zA-Z0-9_]*)(?:\|(wide|long))?\}\}")
 FRONT_MATTER_RE = re.compile(r"^---\s*\n(.*?\n)---[ \t]*\n?(.*)$", re.DOTALL)
 BLOCK_OPEN_RE = re.compile(r"^:::(\S+)(.*)$")
 HEADING_RE = re.compile(r"^(#{1,3})\s+(.*)$")
-KEYWORD_RE = re.compile(r"^(NOTE|EXPECTED|DONE WHEN|SOLUTION|OPTIONS|STARTER)\s*$")
-FENCE_STRIP_RE = re.compile(r"^```[^\n]*\n(.*?)\n?```\s*$", re.DOTALL)
+KEYWORD_RE = re.compile(r"^(NOTE|EXPECTED|DONE WHEN|SOLUTION|OPTIONS)\s*$")
 NUMBERED_RE = re.compile(r"^\d+\.\s+(.*)$")
 WHY_RE = re.compile(r"^WHY\s*[—-]\s*(.*)$")
 CHECK_RE = re.compile(r"^CHECK\s*[—-]\s*(.*)$")
@@ -248,8 +246,6 @@ class Task:
     solution: list | None
     options: list[ChoiceOption]
     has_solution: bool
-    runnable: str | None = None
-    starter_code: str = ""
     template_name: str = "learning/lesson/blocks/task.html"
 
 
@@ -263,8 +259,8 @@ class ParsedLesson:
     warnings: list[str]
 
     @property
-    def theme(self) -> str:
-        return self.front_matter.get("theme") or "beginner"
+    def format(self) -> str:
+        return self.front_matter.get("format") or "document"
 
     @property
     def hint_seconds_default(self) -> int:
@@ -319,10 +315,10 @@ def parse_lesson(raw_text: str) -> ParsedLesson:
     if date_value is not None and not isinstance(date_value, date_cls):
         warnings.append(f"date must be YYYY-MM-DD, got: {date_value!r}")
 
-    theme = front_matter.get("theme")
-    if theme and theme not in THEMES:
-        warnings.append(f"Unknown theme: {theme!r} — expected kids, beginner or professional.")
-        front_matter["theme"] = None
+    fmt = front_matter.get("format")
+    if fmt and fmt not in FORMATS:
+        warnings.append(f"Unknown format: {fmt!r} — expected document or slide.")
+        front_matter["format"] = None
 
     accent = front_matter.get("accent")
     if accent and not HEX_COLOUR_RE.match(str(accent)):
@@ -583,15 +579,6 @@ def split_task_sections(text: str) -> dict:
     return {k: "\n".join(v) for k, v in sections.items()}
 
 
-def extract_starter_code(text: str) -> str:
-    """STARTER holds literal code, not markdown — a ```fenced``` block or,
-    failing that, the raw lines as-is, so the tutor never has to think about
-    escaping it."""
-    stripped = text.strip("\n")
-    m = FENCE_STRIP_RE.match(stripped)
-    return m.group(1) if m else stripped
-
-
 def build_task(attrs: dict, content: str, tasks: list, all_blank_ids: list, warnings: list) -> Task:
     task_id = attrs.get("id")
     if not task_id:
@@ -647,23 +634,11 @@ def build_task(attrs: dict, content: str, tasks: list, all_blank_ids: list, warn
     elif task_type == "choice":
         warnings.append(f"Task {task_id}: type is 'choice' but has no OPTIONS section.")
 
-    runnable = attrs.get("runnable")
-    if runnable is not None:
-        if task_type != "code":
-            warnings.append(f"Task {task_id}: runnable= only applies to type=code, ignored.")
-            runnable = None
-        elif runnable not in RUNNABLE_LANGS:
-            warnings.append(f"Task {task_id}: runnable='{runnable}' isn't supported yet (only python), ignored.")
-            runnable = None
-
-    starter_code = extract_starter_code(sections["STARTER"]) if sections.get("STARTER", "").strip() else ""
-
     task = Task(
         task_id=task_id, type=task_type, hint_seconds=hint_seconds,
         title=title_html, note=note_nodes, body=body_nodes,
         expected=expected, done_when_html=done_when_html,
         solution=solution_nodes, options=options, has_solution=has_solution,
-        runnable=runnable, starter_code=starter_code,
     )
     tasks.append(task)
     return task

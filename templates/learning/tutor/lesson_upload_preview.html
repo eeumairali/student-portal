@@ -47,11 +47,10 @@
   </form>
 
   <div class="mt-8 overflow-hidden rounded-xl border border-line shadow-card">
-    <div class="lesson-doc theme-{{ theme }}{% if 'no_celebration' in flags %} no-celebration{% endif %}">
+    <div class="lesson-doc format-{{ format }}">
       {% include "learning/lesson/_document_body.html" %}
     </div>
   </div>
   <script src="{% static 'js/lesson.js' %}" defer></script>
-  <script src="{% static 'js/lesson-runner.js' %}" defer></script>
 {% endif %}
 {% endblock %}

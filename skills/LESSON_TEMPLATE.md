@@ -11,7 +11,7 @@ title: One branch, and a function that calls itself
 # ============================================================
 subtitle: Recursion — the idea the whole week rests on
 course: blender-python              # groups lessons into a course
-theme: professional                 # kids | beginner | professional
+format: slide                       # document | slide, default document
 hint_seconds: 240                   # default timer; per-task hint= overrides
 visible: false                      # publish from the admin when ready
 time: "7:00 PM"
@@ -309,43 +309,6 @@ have lost nothing. Then put the two lines back.
 
 DONE WHEN
 You have written down why it never stopped, and the two lines are back in place.
-:::
-
-
-<!-- ===================================================================
-     TASK type=code runnable=python — a real code editor and Run button,
-     executed entirely in the browser. STARTER is the code the editor
-     opens with. Python only — for Blender/MATLAB/robotics tasks, keep
-     using a plain code task and let the student run it elsewhere.
-=================================================================== -->
-
-:::task id=r1 type=code runnable=python hint=30
-Same idea, but runnable right here
-
-NOTE
-This does the same z-midpoint arithmetic as Task 1, except you can run it on
-this page instead of switching to Blender.
-
-STARTER
-```python
-def midpoint(z, length):
-    return z
-
-print(midpoint(0, 2))
-```
-
-EXPECTED
-1
-
-DONE WHEN
-print(midpoint(0, 2)) shows 1
-
-SOLUTION
-```python
-def midpoint(z, length):
-    return z + length / 2
-```
-Same rule as Task 1: the middle sits half the length above the start.
 :::
 
 

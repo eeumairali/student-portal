@@ -17,7 +17,7 @@ SIMPLE_LESSON_MD = """---
 student: {student}
 date: 2026-01-10
 title: {title}
-theme: beginner
+format: document
 visible: true
 ---
 
@@ -127,23 +127,12 @@ class LessonMarkdownParserTests(TestCase):
         self.assertEqual(parsed.meta, {"week": 4, "day": "D3", "platform": "direct", "homework": "none"})
         self.assertNotIn("week", parsed.front_matter)
 
-    def test_all_seven_tasks_found_with_correct_types(self):
+    def test_all_six_tasks_found_with_correct_types(self):
         parsed = parse_lesson(self.raw)
         types = {t.task_id: t.type for t in parsed.tasks}
         self.assertEqual(
-            types,
-            {"t1": "code", "t2": "code", "q1": "choice", "s1": "step", "t4": "answer", "t5": "answer", "r1": "code"},
+            types, {"t1": "code", "t2": "code", "q1": "choice", "s1": "step", "t4": "answer", "t5": "answer"}
         )
-
-    def test_runnable_python_task_has_starter_code_and_no_blanks_leak_from_it(self):
-        parsed = parse_lesson(self.raw)
-        r1 = next(t for t in parsed.tasks if t.task_id == "r1")
-        self.assertEqual(r1.runnable, "python")
-        self.assertIn("def midpoint(z, length):", r1.starter_code)
-        self.assertNotIn("{{", r1.starter_code)
-        # STARTER is literal code, not markdown-with-blanks — nothing from it
-        # should show up in the lesson's blank id list.
-        self.assertNotIn("z", parsed.blank_ids)
 
     def test_task_without_solution_has_no_hint(self):
         parsed = parse_lesson(self.raw)
@@ -214,7 +203,7 @@ class LessonMarkdownParserTests(TestCase):
 
 class LessonPreviewViewTests(TestCase):
     """The staff-only paste/preview page (Phase 2 step 1). No persistence
-    yet — this just proves the parser and beginner-theme renderer work
+    yet — this just proves the parser and document-format renderer work
     end to end on the real fixture."""
 
     def setUp(self):
@@ -248,10 +237,6 @@ class LessonPreviewViewTests(TestCase):
         self.assertIn("Full answer", content)
         self.assertIn('class="blank"', content)
         self.assertIn("static/js/lesson.js", content)
-        self.assertIn("static/js/lesson-runner.js", content)
-        self.assertIn('data-task-id="r1"', content)
-        self.assertIn('class="runner-editor"', content)
-        self.assertIn("def midpoint", content)
         self.assertNotIn("Preview warnings", content)
 
     def test_invalid_markdown_shows_warnings_not_a_crash(self):

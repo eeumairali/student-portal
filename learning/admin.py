@@ -47,7 +47,7 @@ class CourseAdmin(admin.ModelAdmin):
 @admin.register(Lesson)
 class LessonAdmin(admin.ModelAdmin):
     list_display = ("title", "student", "date", "course", "order", "file_count", "is_published")
-    list_filter = ("course", "is_published", "theme")
+    list_filter = ("course", "is_published", "format")
     search_fields = ("title", "description", "student__username")
     autocomplete_fields = ("student", "course")
     inlines = [LessonFileInline]
@@ -56,7 +56,7 @@ class LessonAdmin(admin.ModelAdmin):
         ("What the student sees (legacy shared lessons)", {"fields": ("description",)}),
         ("Dated document (Phase 2 — normally added via the Students page, not here)", {
             "classes": ("collapse",),
-            "fields": ("student", "date", "subtitle", "theme", "hint_seconds_default", "meta", "markdown_source"),
+            "fields": ("student", "date", "subtitle", "format", "hint_seconds_default", "meta", "markdown_source"),
         }),
     )
 
