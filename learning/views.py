@@ -382,7 +382,6 @@ def lesson_tutor_view(request, lesson_id):
     parsed = parse_lesson(lesson.markdown_source)
     context = _document_context(parsed, lesson=lesson, can_edit=False)
     context["lesson"] = lesson
-    context["reveals"] = HintReveal.objects.filter(lesson=lesson).order_by("-revealed_at")
     return render(request, "learning/tutor/lesson_tutor_view.html", context)
 
 

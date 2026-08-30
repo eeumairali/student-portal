@@ -30,7 +30,7 @@
   --coral:#FF9C78; --coralbg:#3A241A; --sun:#FFD478; --sunbg:#3A2E14;
   --accent:var(--coral);
 }
-.format-slide .wrap{max-width:1020px}
+.format-slide .wrap{max-width:1320px}
 .format-slide header.lhead{padding:64px 0 52px;
   background:linear-gradient(135deg,var(--deep),var(--teal) 70%,var(--coral))}
 .format-slide h1.ltitle{font-size:clamp(34px,6vw,54px);line-height:1.08}
