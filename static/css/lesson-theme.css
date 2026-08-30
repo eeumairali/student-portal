@@ -75,6 +75,22 @@
 .format-slide ol.steps li{padding:16px 0}
 .format-slide .finish{padding:34px 36px}
 .format-slide .finish h2{font-size:26px}
+@media(max-width:900px){
+  .format-slide header.lhead{padding:44px 0 36px}
+  .format-slide .section-head{margin:52px 0 20px}
+  .format-slide .section-head h2{font-size:27px}
+  .format-slide .card,.format-slide .rule,.format-slide .push,.format-slide details.aside{padding:22px 22px}
+  .format-slide .task{padding:20px 20px}
+  .format-slide .finish{padding:26px 24px}
+}
+@media(max-width:620px){
+  .format-slide header.lhead{padding:32px 0 28px}
+  .format-slide h1.ltitle{font-size:clamp(24px,7vw,32px)}
+  .format-slide .section-head{margin:38px 0 16px}
+  .format-slide .section-head h2{font-size:22px}
+  .format-slide .prose{font-size:16px}
+  .format-slide .tq{font-size:16px}
+}
 
 *{box-sizing:border-box}
 .lesson-doc{
@@ -84,6 +100,8 @@
 body.lesson-doc{margin:0}
 .lesson-doc code, .lesson-doc .mono{ font-family:var(--font-mono) }
 .lesson-doc .wrap{max-width:1180px;margin:0 auto;padding:0 28px 80px}
+@media(max-width:900px){.lesson-doc .wrap{padding:0 20px 60px}}
+@media(max-width:480px){.lesson-doc .wrap{padding:0 16px 44px}}
 
 /* ---------- header ---------- */
 .lesson-doc header.lhead{background:var(--deep);color:#fff;padding:44px 0 38px;margin-bottom:34px}
@@ -96,6 +114,8 @@ body.lesson-doc{margin:0}
 .lesson-doc .lmeta-line{color:#BFE8E2;font-size:13.5px;margin:0 0 16px}
 .lesson-doc .meta{display:flex;flex-wrap:wrap;gap:10px}
 .lesson-doc .pill{background:#0B5A63;border-radius:999px;padding:7px 15px;font-size:13px;font-weight:600}
+@media(max-width:900px){.lesson-doc header.lhead{padding:34px 0 28px;margin-bottom:26px}}
+@media(max-width:480px){.lesson-doc header.lhead{padding:26px 0 22px;margin-bottom:20px}}
 
 /* ---------- progress bar ---------- */
 .lesson-doc .bar{position:sticky;top:0;z-index:20;background:color-mix(in srgb, var(--paper) 94%, transparent);
@@ -129,11 +149,17 @@ body.lesson-doc{margin:0}
 .lesson-doc .section-head-part .section-eyebrow{font-size:22px;font-weight:800;letter-spacing:2px;
   color:var(--mint)}
 .lesson-doc .section-head-part h2{font-size:42px;line-height:1.15;margin-top:6px}
+@media(max-width:900px){
+  .lesson-doc .part-section-card{padding:26px 26px 30px}
+  .lesson-doc .part-break{height:44px}
+  .lesson-doc .section-head-part .section-eyebrow{font-size:19px}
+  .lesson-doc .section-head-part h2{font-size:34px}
+}
 @media(max-width:620px){
-  .lesson-doc .part-section-card{padding:22px 20px 26px}
-  .lesson-doc .part-break{height:36px}
-  .lesson-doc .section-head-part .section-eyebrow{font-size:17px}
-  .lesson-doc .section-head-part h2{font-size:30px}
+  .lesson-doc .part-section-card{padding:20px 18px 24px}
+  .lesson-doc .part-break{height:32px}
+  .lesson-doc .section-head-part .section-eyebrow{font-size:16px}
+  .lesson-doc .section-head-part h2{font-size:26px}
 }
 
 /* ---------- blanks ---------- */
@@ -311,12 +337,23 @@ body.lesson-doc{margin:0}
 .lesson-doc .done-msg p{margin:0;color:var(--mint);font-size:14px}
 .lesson-doc.no-celebration .done-msg{display:none !important}
 
-@media(max-width:620px){
+@media(max-width:700px){
   .lesson-doc .rulegrid,.lesson-doc .grid{grid-template-columns:1fr}
+}
+@media(max-width:620px){
   .lesson-doc .quiz{flex-direction:column}
   .lesson-doc .opt{width:100%;text-align:left}
   .lesson-doc .journey-item{flex-direction:column;gap:4px}
   .lesson-doc .journey-item .jlabel{flex:none}
+  .lesson-doc .task{padding:16px 17px}
+  .lesson-doc .card,.lesson-doc details.aside{padding:18px 19px}
+  .lesson-doc .rule,.lesson-doc .push{padding:19px 20px}
+  .lesson-doc .tq{font-size:14.5px}
+  .lesson-doc h1.ltitle{font-size:clamp(24px,7vw,32px)}
+}
+@media(max-width:480px){
+  .lesson-doc .meta{gap:8px}
+  .lesson-doc .pill{padding:6px 12px;font-size:12px}
 }
 @media(prefers-reduced-motion:reduce){
   .lesson-doc *,.lesson-doc *::before,.lesson-doc *::after{animation:none!important;transition:none!important}
