@@ -177,7 +177,7 @@
         var tick = function () {
           var m = Math.floor(left / 60), s = left % 60;
           label.textContent = "Keep trying — answer in " + m + ":" + String(s).padStart(2, "0");
-          ring.style.background = "conic-gradient(var(--amber) " + ((holdSeconds - left) / holdSeconds * 360) + "deg,#EAD9B8 0deg)";
+          ring.style.background = "conic-gradient(var(--amber) " + ((holdSeconds - left) / holdSeconds * 360) + "deg,var(--amberbg) 0deg)";
           if (left <= 0) {
             clearInterval(iv);
             timer.remove();
@@ -188,6 +188,32 @@
         };
         tick();
         var iv = setInterval(tick, 1000);
+      });
+    });
+
+    // ---- copy-code buttons on every code block ----
+    document.querySelectorAll(".lesson-doc pre").forEach(function (pre) {
+      if (pre.closest(".code-block")) return;
+      var wrap = document.createElement("div");
+      wrap.className = "code-block";
+      pre.parentNode.insertBefore(wrap, pre);
+      wrap.appendChild(pre);
+
+      var btn = document.createElement("button");
+      btn.type = "button";
+      btn.className = "copy-btn";
+      btn.textContent = "Copy";
+      wrap.appendChild(btn);
+
+      btn.addEventListener("click", function () {
+        navigator.clipboard.writeText(pre.textContent).then(function () {
+          btn.textContent = "Copied";
+          btn.classList.add("copied");
+          setTimeout(function () {
+            btn.textContent = "Copy";
+            btn.classList.remove("copied");
+          }, 1500);
+        });
       });
     });
 

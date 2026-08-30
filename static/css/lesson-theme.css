@@ -6,12 +6,12 @@
    fork. There are exactly two formats; do not add a third. */
 
 :root{
-  --ink:#0C2429; --deep:#04434A; --teal:#028090; --sea:#00A896; --mint:#02C39A;
-  --paper:#F2F8F8; --card:#FFFFFF; --line:#D6E6E7; --muted:#5C7A82;
-  --amber:#B36B00; --amberbg:#FFF4E0; --red:#A82C2C; --redbg:#FBEAEA;
-  --green:#0A7A45; --greenbg:#E3F6EC; --code:#0F3239; --codetext:#9FE8DC;
-  --violet:#5B3E96; --violetbg:#F1ECFB;
-  --shadow:0 1px 2px rgba(4,58,64,.06),0 6px 20px rgba(4,58,64,.07);
+  --ink:#E7F3F1; --deep:#04434A; --teal:#1AA8B8; --sea:#12BFA8; --mint:#1EDBB5;
+  --paper:#0B1B1D; --card:#132A2C; --line:#244245; --muted:#8FB0AC;
+  --amber:#E8A93D; --amberbg:#2E2410; --red:#E27B72; --redbg:#331616;
+  --green:#3FD08A; --greenbg:#0F2B1E; --code:#08191B; --codetext:#9FE8DC;
+  --violet:#B79CF0; --violetbg:#241A3D;
+  --shadow:0 1px 2px rgba(0,0,0,.4),0 8px 24px -12px rgba(0,0,0,.6);
   --font-display:Georgia,"Times New Roman",serif;
   --font-body:"Segoe UI",-apple-system,BlinkMacSystemFont,Roboto,sans-serif;
   --font-mono:"SFMono-Regular",Consolas,"Liberation Mono",Menlo,monospace;
@@ -20,48 +20,15 @@
   --accent:var(--teal);
 }
 
-/* Dark mode follows the site-wide toggle (the `dark` class on <html> —
-   see base.html). Same token names, so every rule below needs no change. */
-html.dark .lesson-doc{
-  --ink:#E7F3F1; --deep:#04434A; --teal:#1AA8B8; --sea:#12BFA8; --mint:#1EDBB5;
-  --paper:#0B1B1D; --card:#132A2C; --line:#244245; --muted:#8FB0AC;
-  --amber:#E8A93D; --amberbg:#2E2410; --red:#E27B72; --redbg:#331616;
-  --green:#3FD08A; --greenbg:#0F2B1E; --code:#08191B; --codetext:#9FE8DC;
-  --violet:#B79CF0; --violetbg:#241A3D;
-  --shadow:0 1px 2px rgba(0,0,0,.4),0 8px 24px -12px rgba(0,0,0,.6);
-}
-/* A few rules below assume a light tinted background with dark text
-   (amberbg/greenbg/redbg go dark in dark mode, so that text must flip too),
-   or hardcode white — those get a targeted override here rather than a new
-   token, since they're one-off touches, not part of the palette. */
-html.dark .lesson-doc .blank{background:#0F2426;color:var(--ink)}
-html.dark .lesson-doc .tip{border-color:#5A4419;color:#E9C77E}
-html.dark .lesson-doc .opt{background:#0F2426;color:var(--ink)}
-html.dark .lesson-doc .opt:hover{background:#153A3D}
-html.dark .lesson-doc .why.ok{color:#BFF0D9}
-html.dark .lesson-doc .why.no{color:#FFD2C9}
-html.dark .lesson-doc .hint .prose p{color:#E9C77E}
-html.dark .lesson-doc .preview-warnings{color:#FFD2C9}
-html.dark .lesson-doc .expect .mono{color:#BFF0D9}
-html.dark .lesson-doc .journey-item.now{background:#0F2426}
-html.dark .lesson-doc .task.done{background:#0F2624}
-
 /* ---------- slide format: same content, a bolder, colorful read ---------- */
 .format-slide{
   --base-size:18px; --base-line:1.75; --radius:18px;
-  --ink:#20303A; --deep:#1B6B63; --teal:#12897E; --sea:#00A896; --mint:#3FD9B8;
-  --paper:#FFF9F0; --card:#FFFFFF; --line:#F0E2CE; --muted:#6E7F86;
-  --amber:#C2681B; --amberbg:#FFF1DC; --green:#12894F; --greenbg:#E1F7EA;
-  --code:#123A38; --codetext:#A8F0DE;
-  --coral:#F4845F; --coralbg:#FFEDE5; --sun:#FFC857; --sunbg:#FFF6DE;
-  --accent:var(--coral);
-}
-html.dark .lesson-doc.format-slide{
   --ink:#FBEEE2; --deep:#12433D; --teal:#2BB8A6; --sea:#2FCBAE; --mint:#4CE8C4;
   --paper:#1B1410; --card:#241C16; --line:#3A2C22; --muted:#C9AE99;
   --amber:#F0B15C; --amberbg:#3A2A12; --green:#5AD99A; --greenbg:#123023;
   --code:#160D0A; --codetext:#FFD9C2;
   --coral:#FF9C78; --coralbg:#3A241A; --sun:#FFD478; --sunbg:#3A2E14;
+  --accent:var(--coral);
 }
 .format-slide .wrap{max-width:1020px}
 .format-slide header.lhead{padding:64px 0 52px;
@@ -82,8 +49,7 @@ html.dark .lesson-doc.format-slide{
 .format-slide .tnum{background:var(--coral)}
 .format-slide .task.done .tnum{background:var(--green)}
 .format-slide .opt:hover{border-color:var(--coral)}
-.format-slide .hbtn{background:var(--sunbg);border-color:var(--sun);color:#8A5A0E}
-html.dark .format-slide .hbtn{color:var(--sun)}
+.format-slide .hbtn{background:var(--sunbg);border-color:var(--sun);color:var(--sun)}
 .format-slide .prose{font-size:18px;line-height:1.75}
 .format-slide .prose pre{font-size:14.5px;padding:18px 20px}
 .format-slide .card,
@@ -153,9 +119,26 @@ body.lesson-doc{margin:0}
   color:var(--teal);letter-spacing:1.5px;text-transform:uppercase;display:block;margin-bottom:2px}
 .lesson-doc .section-head h2{font-family:var(--font-display);font-size:22px;margin:0;font-weight:700}
 
+/* ---------- part sections: each "Part" heading starts a new slide-like card ---------- */
+.lesson-doc .part-section{margin-bottom:22px}
+.lesson-doc .part-section-card{background:var(--card);border:1px solid var(--line);
+  border-radius:var(--radius);box-shadow:var(--shadow);padding:32px 34px 36px}
+.lesson-doc .part-break{height:56px}
+.lesson-doc .part-section-card .section-head{margin-top:0;border-bottom:none;padding-bottom:0}
+.lesson-doc .part-section-card .section-head.section-head-part{margin-bottom:26px}
+.lesson-doc .section-head-part .section-eyebrow{font-size:22px;font-weight:800;letter-spacing:2px;
+  color:var(--mint)}
+.lesson-doc .section-head-part h2{font-size:42px;line-height:1.15;margin-top:6px}
+@media(max-width:620px){
+  .lesson-doc .part-section-card{padding:22px 20px 26px}
+  .lesson-doc .part-break{height:36px}
+  .lesson-doc .section-head-part .section-eyebrow{font-size:17px}
+  .lesson-doc .section-head-part h2{font-size:30px}
+}
+
 /* ---------- blanks ---------- */
 .lesson-doc .blank{font:inherit;font-family:var(--font-mono);font-size:13.5px;color:var(--ink);
-  background:#fff;border:1.5px solid var(--line);border-radius:6px;padding:6px 9px;
+  background:#0F2426;border:1.5px solid var(--line);border-radius:6px;padding:6px 9px;
   width:110px;max-width:100%}
 .lesson-doc .blank:focus-visible{outline:none;border-color:var(--teal);box-shadow:0 0 0 3px rgba(2,128,144,.15)}
 .lesson-doc .blank.blank-wide{width:100%;display:block;margin-top:6px}
@@ -164,8 +147,8 @@ body.lesson-doc{margin:0}
 .lesson-doc .save-state.show{opacity:1}
 
 /* ---------- tip / card / aside ---------- */
-.lesson-doc .tip{background:var(--amberbg);border:1px solid #E8C88A;border-left:4px solid var(--amber);
-  border-radius:9px;padding:14px 17px;margin-bottom:20px;font-size:14.5px;color:#5A3900}
+.lesson-doc .tip{background:var(--amberbg);border:1px solid #5A4419;border-left:4px solid var(--amber);
+  border-radius:9px;padding:14px 17px;margin-bottom:20px;font-size:14.5px;color:#E9C77E}
 .lesson-doc .card{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);
   padding:22px 24px;box-shadow:var(--shadow);margin-bottom:22px}
 .lesson-doc .card h3{margin:0 0 10px;font-size:17px;font-family:var(--font-display)}
@@ -193,6 +176,19 @@ body.lesson-doc{margin:0}
 .lesson-doc .gridbox .prose{margin:0;font-size:14px}
 .lesson-doc .gridbox .prose p{margin:0}
 
+/* ---------- code blocks: copy button ---------- */
+.lesson-doc .code-block{position:relative}
+.lesson-doc .code-block pre{padding-right:76px}
+.lesson-doc .copy-btn{position:absolute;top:10px;right:10px;background:rgba(255,255,255,.08);
+  color:var(--codetext);border:1px solid rgba(255,255,255,.18);border-radius:6px;
+  font-family:var(--font-mono);font-size:12px;font-weight:600;padding:5px 10px;
+  cursor:pointer;transition:.15s;opacity:0;line-height:1}
+.lesson-doc .code-block:hover .copy-btn,
+.lesson-doc .copy-btn:focus-visible{opacity:1}
+.lesson-doc .copy-btn:hover{background:rgba(255,255,255,.16)}
+.lesson-doc .copy-btn.copied{background:var(--green);color:#04302A;border-color:var(--green);opacity:1}
+@media(max-width:620px){.lesson-doc .copy-btn{opacity:1}}
+
 /* ---------- figure ---------- */
 .lesson-doc .figure{margin-bottom:22px}
 .lesson-doc .figure pre{background:var(--code);color:var(--codetext);border-radius:9px;padding:16px 18px;
@@ -219,7 +215,7 @@ body.lesson-doc{margin:0}
 .lesson-doc .journey{display:flex;flex-direction:column;gap:10px;margin-bottom:22px}
 .lesson-doc .journey-item{display:flex;gap:14px;align-items:baseline;background:var(--card);
   border:1px solid var(--line);border-radius:9px;padding:12px 16px}
-.lesson-doc .journey-item.now{border-color:var(--teal);background:#F0FAFA}
+.lesson-doc .journey-item.now{border-color:var(--teal);background:#0F2426}
 .lesson-doc .journey-item.done{opacity:.65}
 .lesson-doc .journey-item .jlabel{font-weight:700;font-size:13px;color:var(--teal);flex:0 0 130px}
 .lesson-doc .journey-item .jfocus{font-weight:600;flex:1}
@@ -242,19 +238,15 @@ body.lesson-doc{margin:0}
 .lesson-doc .raw{margin-bottom:20px}
 
 /* ---------- preview-only chrome ---------- */
-.lesson-doc .preview-warnings{border-color:#E8A8A8;background:var(--redbg);color:#6B1A1A;border-left-color:var(--red)}
+.lesson-doc .preview-warnings{border-color:#E8A8A8;background:var(--redbg);color:#FFD2C9;border-left-color:var(--red)}
 .lesson-doc .preview-warnings ul{margin:8px 0 0;padding-left:18px}
 .lesson-doc .back-to-editor{margin:0 0 20px;font-family:var(--font-mono);font-size:13px}
 .lesson-doc .back-to-editor a{color:var(--teal)}
-.theme-toggle-float{position:fixed;top:14px;right:14px;z-index:30;width:34px;height:34px;
-  border-radius:50%;border:1px solid rgba(255,255,255,.3);background:rgba(255,255,255,.08);
-  color:#fff;font-size:16px;line-height:1;cursor:pointer;display:grid;place-items:center}
-.theme-toggle-float:hover{background:rgba(255,255,255,.16)}
 
 /* ---------- tasks ---------- */
 .lesson-doc .task{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);
   padding:20px 22px;margin-bottom:14px;box-shadow:var(--shadow)}
-.lesson-doc .task.done{border-color:var(--mint);background:#FAFEFD}
+.lesson-doc .task.done{border-color:var(--mint);background:#0F2624}
 .lesson-doc .ttop{display:flex;gap:13px;align-items:flex-start}
 .lesson-doc .tnum{flex:0 0 27px;height:27px;border-radius:50%;background:var(--teal);color:#fff;
   font-size:12.5px;font-weight:700;display:grid;place-items:center;margin-top:1px}
@@ -267,45 +259,45 @@ body.lesson-doc{margin:0}
 .lesson-doc .tnote .prose p{margin:0 0 8px}
 .lesson-doc .tnote .blank{margin-top:4px}
 .lesson-doc .task-body .prose:last-child{margin-bottom:0}
-.lesson-doc .expect{background:var(--greenbg);border:1px solid #B9E4CC;border-radius:8px;
+.lesson-doc .expect{background:var(--greenbg);border:1px solid #1F5C3D;border-radius:8px;
   padding:9px 13px;margin-top:12px;font-size:13px}
 .lesson-doc .expect b{color:var(--green);font-size:11px;letter-spacing:.6px;display:block;margin-bottom:3px}
-.lesson-doc .expect .mono{color:#0D3D25}
+.lesson-doc .expect .mono{color:#BFF0D9}
 .lesson-doc .donewhen{margin-top:10px;font-size:13.5px;color:var(--muted)}
 .lesson-doc .donewhen b{color:var(--green);letter-spacing:.4px;margin-right:4px}
 
 /* ---------- hint / timer ---------- */
 .lesson-doc .hintrow{margin-top:14px;display:flex;align-items:center;gap:12px;flex-wrap:wrap}
 .lesson-doc button{font:inherit;cursor:pointer;border-radius:8px;border:1px solid transparent}
-.lesson-doc .hbtn{background:var(--amberbg);border-color:#E8C88A;color:var(--amber);
+.lesson-doc .hbtn{background:var(--amberbg);border-color:#5A4419;color:var(--amber);
   font-size:13.5px;font-weight:600;padding:9px 15px;transition:.15s}
-.lesson-doc .hbtn:hover{background:#FFEBC7}
+.lesson-doc .hbtn:hover{background:#3A2E14}
 .lesson-doc .hbtn:disabled{cursor:default;opacity:.95}
 .lesson-doc .dbtn{background:var(--teal);color:#fff;font-size:13.5px;font-weight:600;padding:9px 17px}
 .lesson-doc .dbtn:hover{background:#026C79}
 .lesson-doc .task.done .dbtn{background:var(--green)}
 .lesson-doc .timer{display:flex;align-items:center;gap:9px;font-size:13.5px;color:var(--amber);font-weight:600}
 .lesson-doc .ring{width:26px;height:26px;border-radius:50%;flex:0 0 26px;
-  background:conic-gradient(var(--amber) 0deg,#EAD9B8 0deg)}
-.lesson-doc .hint{margin-top:13px;background:var(--amberbg);border:1px solid #E8C88A;
+  background:conic-gradient(var(--amber) 0deg,#3A2E14 0deg)}
+.lesson-doc .hint{margin-top:13px;background:var(--amberbg);border:1px solid #5A4419;
   border-radius:9px;padding:15px 17px;display:none}
 .lesson-doc .hint.show{display:block;animation:lesson-drop .3s ease}
 @keyframes lesson-drop{from{opacity:0;transform:translateY(-7px)}to{opacity:1;transform:none}}
 .lesson-doc .hint h4{margin:0 0 8px;font-size:11px;letter-spacing:.8px;color:var(--amber);text-transform:uppercase}
 .lesson-doc .hint pre{margin:0}
-.lesson-doc .hint .prose p{margin:9px 0 0;font-size:13.5px;color:#5A3900}
+.lesson-doc .hint .prose p{margin:9px 0 0;font-size:13.5px;color:#E9C77E}
 
 /* ---------- quiz ---------- */
 .lesson-doc .quiz{display:flex;gap:10px;margin-top:13px;flex-wrap:wrap}
-.lesson-doc .opt{background:#fff;border:1.5px solid var(--line);padding:11px 17px;
+.lesson-doc .opt{background:#0F2426;border:1.5px solid var(--line);padding:11px 17px;
   font-family:var(--font-mono);font-size:14px;transition:.14s;color:var(--ink)}
-.lesson-doc .opt:hover{border-color:var(--teal);background:#F0FAFA}
+.lesson-doc .opt:hover{border-color:var(--teal);background:#153A3D}
 .lesson-doc .opt.right{background:var(--greenbg);border-color:var(--green);color:var(--green);font-weight:700}
 .lesson-doc .opt.wrong{background:var(--redbg);border-color:var(--red);color:var(--red);text-decoration:line-through}
 .lesson-doc .why{margin-top:11px;font-size:13.5px;padding:11px 14px;border-radius:8px;display:none}
 .lesson-doc .why.show{display:block}
-.lesson-doc .why.ok{background:var(--greenbg);color:#0D3D25}
-.lesson-doc .why.no{background:var(--redbg);color:#6B1A1A}
+.lesson-doc .why.ok{background:var(--greenbg);color:#BFF0D9}
+.lesson-doc .why.no{background:var(--redbg);color:#FFD2C9}
 
 /* ---------- finish ---------- */
 .lesson-doc .finish{background:var(--card);border:2px solid var(--mint);border-radius:var(--radius);

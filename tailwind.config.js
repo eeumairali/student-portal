@@ -1,7 +1,6 @@
 /** Rebuild CSS after template edits:  npm run css
  *  The built file (static/css/app.css) is committed, so deployment needs no Node. */
 module.exports = {
-  darkMode: "class",
   content: ["./templates/**/*.html", "./learning/**/*.py"],
   theme: {
     extend: {
@@ -23,7 +22,7 @@ module.exports = {
         body: ['"Inter"', "system-ui", "sans-serif"],
         mono: ['"JetBrains Mono"', "ui-monospace", "monospace"],
       },
-      boxShadow: { card: "0 1px 2px rgba(18,49,46,.06), 0 8px 24px -16px rgba(18,49,46,.25)" },
+      boxShadow: { card: "0 1px 2px rgba(0,0,0,.4), 0 8px 24px -16px rgba(0,0,0,.6)" },
     },
   },
   plugins: [],

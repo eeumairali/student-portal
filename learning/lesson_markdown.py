@@ -118,6 +118,7 @@ class Prose:
 class Heading:
     eyebrow: str | None
     title: str
+    is_part: bool = False
     template_name: str = "learning/lesson/blocks/heading.html"
 
 
@@ -328,6 +329,7 @@ def parse_lesson(raw_text: str) -> ParsedLesson:
     tasks: list[Task] = []
     all_blank_ids: list[str] = []
     nodes = parse_body(body_text, tasks, all_blank_ids, warnings)
+    number_parts(nodes)
 
     seen_ids: dict[str, int] = {}
     for t in tasks:
@@ -383,6 +385,33 @@ def split_fences(text: str):
             i += 1
     if buf:
         yield ("text", None, None, "\n".join(buf))
+
+
+PART_EYEBROW_RE = re.compile(r"^part\b", re.IGNORECASE)
+
+
+def number_parts(nodes: list) -> None:
+    """Renumber every heading whose eyebrow starts with "Part" as "Part N of
+    total", so the count in the label always matches how many parts the
+    lesson actually has, however the author numbered (or didn't) them."""
+    parts = [n for n in nodes if isinstance(n, Heading) and n.eyebrow and PART_EYEBROW_RE.match(n.eyebrow.strip())]
+    total = len(parts)
+    for i, node in enumerate(parts, start=1):
+        node.eyebrow = f"Part {i} of {total}"
+        node.is_part = True
+
+
+def group_into_sections(nodes: list) -> list[dict]:
+    """Group flat nodes into slide-like sections: everything before the first
+    "Part" heading is one section, then each "Part" heading starts a new one.
+    Lessons with no Part headings come back as a single section."""
+    sections: list[dict] = [{"is_part": False, "nodes": []}]
+    for node in nodes:
+        if isinstance(node, Heading) and node.is_part:
+            sections.append({"is_part": True, "nodes": [node]})
+        else:
+            sections[-1]["nodes"].append(node)
+    return [s for s in sections if s["nodes"]]
 
 
 def parse_body(text: str, tasks: list, all_blank_ids: list, warnings: list) -> list:

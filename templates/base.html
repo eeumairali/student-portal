@@ -4,23 +4,8 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="robots" content="noindex, nofollow">
+<meta name="color-scheme" content="dark">
 <title>{% block title %}Student portal{% endblock %}</title>
-<script>
-  // Runs before first paint so there's no flash of the wrong theme. Each
-  // browser remembers its own choice; with nothing saved yet, dark is the
-  // default (see the design decision: "default to dark mode").
-  (function () {
-    var stored = localStorage.getItem("theme");
-    var dark = stored ? stored === "dark" : true;
-    document.documentElement.classList.toggle("dark", dark);
-  })();
-
-  function toggleTheme() {
-    var dark = !document.documentElement.classList.contains("dark");
-    document.documentElement.classList.toggle("dark", dark);
-    localStorage.setItem("theme", dark ? "dark" : "light");
-  }
-</script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400&display=swap" rel="stylesheet">
@@ -46,16 +31,6 @@
           <a class="text-teal-600 hover:underline" href="/admin/">Admin</a>
         {% endif %}
       {% endif %}
-      <button type="button" onclick="toggleTheme()" class="theme-toggle" aria-label="Switch between light and dark mode">
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-             stroke-linecap="round" stroke-linejoin="round" class="hidden h-[18px] w-[18px] dark:block">
-          <circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/>
-        </svg>
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-             stroke-linecap="round" stroke-linejoin="round" class="h-[18px] w-[18px] dark:hidden">
-          <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79Z"/>
-        </svg>
-      </button>
       {% if user.is_authenticated %}
         <form method="post" action="{% url 'logout' %}">{% csrf_token %}
           <button class="text-slate-500 hover:text-ink">Sign out</button>

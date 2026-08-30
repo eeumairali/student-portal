@@ -34,8 +34,13 @@
   {% if preview_markdown is not None %}
     <p class="back-to-editor"><a href="{{ back_to_editor_url }}">&larr; back to editor</a></p>
   {% endif %}
-  {% for node in nodes %}
-    {% include node.template_name with node=node %}
+  {% for section in sections %}
+    {% if section.is_part %}<div class="part-break"></div>{% endif %}
+    <div class="part-section{% if section.is_part %} part-section-card{% endif %}">
+      {% for node in section.nodes %}
+        {% include node.template_name with node=node %}
+      {% endfor %}
+    </div>
   {% endfor %}
 
   {% if tasks %}

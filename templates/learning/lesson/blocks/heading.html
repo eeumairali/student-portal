@@ -1,4 +1,4 @@
-<div class="section-head">
+<div class="section-head{% if node.is_part %} section-head-part{% endif %}">
   {% if node.eyebrow %}<span class="section-eyebrow">{{ node.eyebrow }}</span>{% endif %}
   <h2>{{ node.title }}</h2>
 </div>

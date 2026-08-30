@@ -12,7 +12,7 @@ from django.views.decorators.http import require_POST
 
 from accounts.models import StudentProfile
 
-from .lesson_markdown import FORMATS, parse_lesson
+from .lesson_markdown import FORMATS, group_into_sections, parse_lesson
 from .lesson_save import LessonSaveError, resolve_save_plan, save_lesson
 from .models import BlankAnswer, ChecklistCheck, Course, HintReveal, Lesson, LessonFile, LessonProgress, Task
 from .services import (
@@ -52,6 +52,7 @@ def _document_context(parsed, *, lesson=None, can_edit=False, preview_warnings=N
         "meta_pills": [(k.replace("_", " ").capitalize(), v) for k, v in parsed.meta.items()],
         "course": parsed.front_matter.get("course"),
         "nodes": parsed.nodes,
+        "sections": group_into_sections(parsed.nodes),
         "tasks": parsed.tasks,
         "format": fmt,
         "lesson_id": lesson.id if (lesson is not None and lesson.pk) else "",
