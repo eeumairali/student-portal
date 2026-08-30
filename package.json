@@ -1,0 +1,17 @@
+{
+  "name": "student-portal",
+  "version": "1.0.0",
+  "description": "",
+  "scripts": {
+    "css": "tailwindcss -i static/css/input.css -o static/css/app.css --minify",
+    "css:watch": "tailwindcss -i static/css/input.css -o static/css/app.css --watch"
+  },
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "alpinejs": "^3.16.3",
+    "htmx.org": "^1.9.12",
+    "tailwindcss": "^3.4.19"
+  },
+  "private": true
+}

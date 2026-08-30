@@ -1,0 +1,51 @@
+<header class="lhead">
+  <div class="wrap">
+    <p class="eyebrow">{% if course %}{{ course }}{% else %}Lesson{% endif %}</p>
+    <h1 class="ltitle">{{ front_matter.title }}</h1>
+    {% if front_matter.subtitle %}<p class="lsub">{{ front_matter.subtitle }}</p>{% endif %}
+    {% if front_matter.time or front_matter.duration %}
+      <p class="lmeta-line">
+        {{ front_matter.date|date:"l j F" }}{% if front_matter.time %} · {{ front_matter.time }}{% endif %}{% if front_matter.duration %} · {{ front_matter.duration }}{% endif %}
+      </p>
+    {% endif %}
+    <div class="meta">
+      <span class="pill">{{ tasks|length }} task{{ tasks|length|pluralize }}</span>
+      {% for key, value in meta_pills %}<span class="pill">{{ key }}: {{ value }}</span>{% endfor %}
+    </div>
+  </div>
+</header>
+
+<div class="bar">
+  <div class="wrap">
+    <div class="track"><div class="fill" id="lesson-fill"></div></div>
+    <div class="count" id="lesson-count">0 / {{ tasks|length }}</div>
+  </div>
+</div>
+
+<div class="wrap" id="lesson-root" data-lesson-id="{{ lesson_id|default:'' }}" data-can-edit="{% if can_edit %}1{% else %}0{% endif %}">
+  {% if preview_warnings %}
+    <div class="tip preview-warnings">
+      <strong>Preview warnings — not shown to students:</strong>
+      <ul>
+        {% for w in preview_warnings %}<li>{{ w }}</li>{% endfor %}
+      </ul>
+    </div>
+  {% endif %}
+  {% if preview_markdown is not None %}
+    <p class="back-to-editor"><a href="{{ back_to_editor_url }}">&larr; back to editor</a></p>
+  {% endif %}
+  {% for node in nodes %}
+    {% include node.template_name with node=node %}
+  {% endfor %}
+
+  {% if tasks %}
+  <div class="done-msg" id="lesson-donemsg">
+    <h3>All {{ tasks|length }} done.</h3>
+    <p>Nice work — bring anything you got stuck on to the next session.</p>
+  </div>
+  {% endif %}
+</div>
+
+{% if lesson_id %}
+<script id="lesson-state" type="application/json">{{ initial_state_json|safe }}</script>
+{% endif %}

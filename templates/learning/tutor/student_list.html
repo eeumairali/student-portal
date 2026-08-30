@@ -1,0 +1,39 @@
+{% extends "base.html" %}
+{% block title %}Students{% endblock %}
+{% block content %}
+<div class="flex flex-wrap items-start justify-between gap-4">
+  <div>
+    <p class="eyebrow">Tutor view</p>
+    <h1 class="mt-1 font-display text-3xl">Students</h1>
+    <p class="mt-2 text-sm text-slate-500">Open one to see their notes, add a new one, or lock/unlock a lesson.</p>
+  </div>
+  <a href="{% url 'student_create' %}" class="btn-primary shrink-0">+ Add student</a>
+</div>
+
+<div class="mt-8 divide-y divide-line overflow-hidden rounded-xl border border-line bg-card shadow-card">
+  {% for row in rows %}
+    <a href="{% url 'student_detail' row.profile.user.id %}" class="flex items-center justify-between gap-4 p-4 transition hover:bg-paper">
+      <div class="min-w-0">
+        <p class="font-medium">{{ row.profile.display_name }} <span class="font-mono text-xs text-slate-500">@{{ row.profile.user.username }}</span></p>
+        <p class="mt-0.5 text-xs text-slate-500">
+          {{ row.profile.get_platform_display }}{% if row.profile.is_minor %} · minor — guardian on file{% endif %}
+          {% if row.last_date %} · last note {{ row.last_date }}{% endif %}
+        </p>
+      </div>
+      <span class="shrink-0 rounded-full bg-paper px-2.5 py-1 text-[11px] font-medium text-slate-500">{{ row.lesson_count }} note{{ row.lesson_count|pluralize }}</span>
+    </a>
+  {% empty %}
+    <p class="p-6 text-sm text-slate-500">No students yet — click "+ Add student" above.</p>
+  {% endfor %}
+</div>
+
+{% if unlinked %}
+  <div class="card mt-6 p-4 text-sm">
+    <p class="font-medium">{{ unlinked|length }} account{{ unlinked|length|pluralize }} not set up as a student yet:</p>
+    <p class="mt-1 text-slate-500">
+      {% for u in unlinked %}{{ u.username }}{% if not forloop.last %}, {% endif %}{% endfor %}
+    </p>
+    <a href="{% url 'student_create' %}" class="mt-2 inline-block text-teal-600 hover:underline">Link one of these &rarr;</a>
+  </div>
+{% endif %}
+{% endblock %}

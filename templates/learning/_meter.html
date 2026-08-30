@@ -1,0 +1,9 @@
+<div class="flex items-baseline gap-3">
+  <span class="font-display text-2xl leading-none">{{ done }}<span class="text-slate-500">/{{ total }}</span></span>
+  <span class="eyebrow">lessons done</span>
+</div>
+<div class="mt-2 h-1.5 w-full overflow-hidden rounded-full bg-line" role="progressbar"
+     aria-valuenow="{{ percent }}" aria-valuemin="0" aria-valuemax="100"
+     aria-label="Course progress">
+  <div class="h-full rounded-full bg-mint-400 transition-all duration-500" style="width: {{ percent }}%"></div>
+</div>

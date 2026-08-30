@@ -1,0 +1,58 @@
+{% extends "base.html" %}
+{% block title %}{{ profile.display_name|default:student.username }} · Students{% endblock %}
+{% block content %}
+<a href="{% url 'student_list' %}" class="text-sm text-slate-500 hover:text-ink">&larr; All students</a>
+
+<div class="mt-4 flex flex-wrap items-start justify-between gap-4">
+  <div>
+    <p class="eyebrow">{% if profile %}{{ profile.get_platform_display }}{% else %}No profile{% endif %}{% if profile.is_minor %} · minor{% endif %}</p>
+    <h1 class="mt-1 font-display text-3xl">{{ profile.display_name|default:student.username }}</h1>
+    <p class="mt-1 font-mono text-xs text-slate-500">@{{ student.username }}{% if profile.guardian_email %} · guardian: {{ profile.guardian_email }}{% endif %}</p>
+  </div>
+  <a href="{% url 'lesson_upload' student.id %}" class="btn-primary shrink-0">+ Add a note</a>
+</div>
+
+{% if courses %}
+  <p class="mt-4 text-sm text-slate-500">Enrolled in: {% for c in courses %}{{ c.title }}{% if not forloop.last %}, {% endif %}{% endfor %}</p>
+{% endif %}
+
+{% if profile %}
+<form method="post" class="card mt-6 p-5">
+  {% csrf_token %}
+  <input type="hidden" name="action" value="save_profile">
+  <label class="eyebrow" for="notes">Teaching notes <span class="normal-case text-slate-400">(private — not shown to the student)</span></label>
+  <textarea id="notes" name="notes" rows="4" class="mt-2 w-full rounded-lg border border-line bg-paper p-3 text-sm focus:outline-none focus:ring-2 focus:ring-teal-600">{{ profile.notes }}</textarea>
+  <button type="submit" class="btn-quiet mt-3">Save</button>
+</form>
+{% endif %}
+
+<h2 class="mt-10 eyebrow">Session notes</h2>
+{% if lessons %}
+  <ol class="mt-4 divide-y divide-line overflow-hidden rounded-xl border border-line bg-card shadow-card">
+    {% for lesson in lessons %}
+      <li class="flex items-center gap-2 p-4">
+        <a href="{% url 'lesson_tutor_view' lesson.id %}" class="flex min-w-0 flex-1 items-center justify-between gap-4 transition hover:opacity-80">
+          <div class="min-w-0">
+            <p class="font-mono text-xs text-slate-500">{{ lesson.date|default:"No date" }}{% if lesson.course %} · {{ lesson.course.title }}{% endif %}</p>
+            <p class="mt-0.5 font-medium">{{ lesson.title }}</p>
+          </div>
+          <span class="shrink-0 rounded-full px-2.5 py-1 text-[11px] font-medium {% if lesson.is_published %}bg-mint-100 text-teal-700{% else %}bg-paper text-slate-500{% endif %}">
+            {% if lesson.is_published %}Unlocked{% else %}Locked{% endif %}
+          </span>
+        </a>
+        <a href="{% url 'lesson_edit' student.id lesson.id %}" class="btn-quiet shrink-0 px-3 py-1.5 text-xs">Edit</a>
+        <form method="post" action="{% url 'lesson_delete' lesson.id %}"
+              onsubmit="return confirm('Delete “{{ lesson.title }}”? This removes the student’s saved answers too. This cannot be undone.');">
+          {% csrf_token %}
+          <button type="submit" class="btn-quiet shrink-0 px-3 py-1.5 text-xs text-red-600 hover:border-red-300">Delete</button>
+        </form>
+      </li>
+    {% endfor %}
+  </ol>
+{% else %}
+  <div class="card mt-4 p-8 text-center">
+    <p class="font-display text-xl">No notes yet</p>
+    <p class="mt-2 text-sm text-slate-500">Add the first one — paste or upload a Markdown file.</p>
+  </div>
+{% endif %}
+{% endblock %}

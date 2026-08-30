@@ -1,0 +1,65 @@
+<div class="task" data-task-id="{{ node.task_id }}" data-type="{{ node.type }}"
+     {% if node.has_solution %}data-has-solution="1" data-hint-seconds="{{ node.effective_hint_seconds }}"{% endif %}>
+  <div class="ttop">
+    <div class="tnum"><span class="tnum-index">{{ node.index }}</span></div>
+    <div class="tbody">
+      <p class="tq">{{ node.title|safe }}</p>
+
+      {% if node.note %}
+        <div class="tnote">
+          {% for n in node.note %}{% include n.template_name with node=n %}{% endfor %}
+        </div>
+      {% endif %}
+
+      {% if node.body %}
+        <div class="task-body">
+          {% for n in node.body %}{% include n.template_name with node=n %}{% endfor %}
+        </div>
+      {% endif %}
+
+      {% if node.runnable == "python" %}
+        <div class="runner" data-runner data-lang="python">
+          <textarea class="runner-editor" spellcheck="false" autocapitalize="off" autocorrect="off"
+                    aria-label="Python code editor for this task">{{ node.starter_code }}</textarea>
+          <div class="runner-controls">
+            <button type="button" class="runner-run-btn">&#9654; Run</button>
+            <span class="runner-status"></span>
+          </div>
+          <pre class="runner-output" hidden></pre>
+        </div>
+      {% endif %}
+
+      {% if node.expected %}
+        <div class="expect"><b>Expected</b><span class="mono">{{ node.expected }}</span></div>
+      {% endif %}
+
+      {% if node.type == "choice" %}
+        <div class="quiz">
+          {% for opt in node.options %}
+            <button type="button" class="opt" data-correct="{% if opt.correct %}1{% else %}0{% endif %}"
+                    data-feedback="{{ opt.feedback_html|escape }}">{{ opt.html|safe }}</button>
+          {% endfor %}
+        </div>
+        <div class="why"></div>
+      {% else %}
+        {% if node.done_when_html %}
+          <p class="donewhen"><b>Done when</b>{{ node.done_when_html|safe }}</p>
+        {% endif %}
+
+        <div class="hintrow">
+          {% if node.has_solution %}
+            <button type="button" class="hbtn">I'm stuck — start hint timer</button>
+          {% endif %}
+          <button type="button" class="dbtn">Mark done</button>
+        </div>
+
+        {% if node.has_solution %}
+          <div class="hint">
+            <h4>Full answer</h4>
+            {% for n in node.solution %}{% include n.template_name with node=n %}{% endfor %}
+          </div>
+        {% endif %}
+      {% endif %}
+    </div>
+  </div>
+</div>

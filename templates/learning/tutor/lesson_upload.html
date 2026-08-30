@@ -1,0 +1,34 @@
+{% extends "base.html" %}
+{% block title %}{% if editing_lesson %}Edit note{% else %}Add a note{% endif %} · {{ student.username }}{% endblock %}
+{% block content %}
+<a href="{% url 'student_detail' student.id %}" class="text-sm text-slate-500 hover:text-ink">&larr; {{ student.username }}</a>
+<p class="mt-4 font-mono text-xs text-slate-500">Nothing saves until you confirm the preview.</p>
+<h1 class="mt-1 font-display text-3xl">
+  {% if editing_lesson %}Editing "{{ editing_lesson.title }}"{% else %}Add a note for {{ student.username }}{% endif %}
+</h1>
+<p class="mt-3 max-w-2xl text-slate-500">
+  {% if editing_lesson %}
+    Change anything — title, date, tasks, wording — then preview and confirm. This updates the
+    existing note in place; the student keeps their saved answers unless you remove a task they've answered.
+  {% else %}
+    Paste Markdown, or upload a <span class="font-mono">.md</span> file — see
+    <span class="font-mono">skills/FORMAT_SPEC.md</span> for the format. The
+    <span class="font-mono">student:</span> field must say
+    <span class="font-mono">{{ student.username }}</span>, or it will be rejected rather than filed under the wrong name.
+  {% endif %}
+</p>
+
+<form method="post" enctype="multipart/form-data"
+      action="{% if editing_lesson %}{% url 'lesson_edit' student.id editing_lesson.id %}{% else %}{% url 'lesson_upload' student.id %}{% endif %}"
+      class="mt-6">
+  {% csrf_token %}
+  <div class="flex flex-wrap items-center gap-3">
+    <input type="file" name="file" accept=".md,text/markdown,text/plain" class="text-sm">
+    <span class="text-xs text-slate-500">or paste below</span>
+  </div>
+  <textarea name="markdown" rows="26" spellcheck="false"
+    class="mt-3 w-full rounded-xl border border-line bg-card p-4 font-mono text-xs leading-relaxed shadow-card focus:outline-none focus:ring-2 focus:ring-teal-600"
+  >{{ markdown }}</textarea>
+  <button type="submit" class="btn-primary mt-4">Preview &rarr;</button>
+</form>
+{% endblock %}

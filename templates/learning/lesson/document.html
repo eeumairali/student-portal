@@ -1,0 +1,33 @@
+{% load static %}<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="robots" content="noindex, nofollow">
+    <title>{{ front_matter.title }}{% if course %} · {{ course }}{% endif %}</title>
+    <script>
+      // Same site-wide preference as base.html — kept in sync via the same
+      // localStorage key so the toggle in the site chrome and this
+      // standalone lesson page always agree. Defaults to dark.
+      (function () {
+        var stored = localStorage.getItem("theme");
+        document.documentElement.classList.toggle("dark", stored ? stored === "dark" : true);
+      })();
+      function toggleTheme() {
+        var dark = !document.documentElement.classList.contains("dark");
+        document.documentElement.classList.toggle("dark", dark);
+        localStorage.setItem("theme", dark ? "dark" : "light");
+      }
+    </script>
+    <link rel="stylesheet" href="{% static 'css/lesson-theme.css' %}">
+    {% if front_matter.accent %}
+    <style>:root{--accent:{{ front_matter.accent }};} .lesson-doc .dbtn{background:{{ front_matter.accent }}} .lesson-doc .fill{background:linear-gradient(90deg,{{ front_matter.accent }},var(--mint))}</style>
+    {% endif %}
+</head>
+<body class="lesson-doc theme-{{ theme }}{% if 'no_celebration' in flags %} no-celebration{% endif %}">
+    <button type="button" onclick="toggleTheme()" class="theme-toggle-float" aria-label="Switch between light and dark mode">&#9680;</button>
+    {% include "learning/lesson/_document_body.html" %}
+<script src="{% static 'js/lesson.js' %}" defer></script>
+<script src="{% static 'js/lesson-runner.js' %}" defer></script>
+</body>
+</html>

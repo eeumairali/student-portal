@@ -1,0 +1,40 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  /* Light is the default in case JS is disabled; the inline snippet in
+     base.html sets .dark on <html> before first paint, defaulting to dark,
+     so this :root set is really the "light mode chosen" palette. */
+  :root {
+    --c-ink: 18 49 46;
+    --c-paper: 250 248 244;
+    --c-card: 255 255 255;
+    --c-line: 228 226 219;
+    --c-slate-500: 93 115 112;
+  }
+  .dark {
+    --c-ink: 230 240 237;
+    --c-paper: 12 19 19;
+    --c-card: 23 33 33;
+    --c-line: 42 54 53;
+    --c-slate-500: 150 170 166;
+  }
+
+  body { @apply bg-paper text-ink font-body antialiased; }
+  :focus-visible { @apply outline-none ring-2 ring-teal-600 ring-offset-2 ring-offset-paper rounded; }
+}
+
+@layer components {
+  .btn { @apply inline-flex items-center gap-2 rounded-lg px-4 py-2.5 text-sm font-medium transition; }
+  .btn-primary { @apply btn bg-teal-600 text-white hover:bg-teal-700; }
+  .btn-quiet { @apply btn border border-line bg-card text-ink hover:border-mint-400; }
+  .card { @apply rounded-xl border border-line bg-card shadow-card; }
+  .dark .card { box-shadow: 0 1px 2px rgba(0,0,0,.4), 0 8px 24px -16px rgba(0,0,0,.6); }
+  .eyebrow { @apply text-[11px] font-semibold uppercase tracking-[0.14em] text-slate-500; }
+  .theme-toggle { @apply grid h-9 w-9 shrink-0 place-items-center rounded-lg border border-line bg-card text-ink transition hover:border-mint-400; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation-duration: .01ms !important; transition-duration: .01ms !important; }
+}

@@ -1,0 +1,283 @@
+/* Lesson document renderer — themed via CSS custom properties.
+   Beginner tokens below match the approved house style (the Ward Round
+   practice sheet) exactly. A new theme is a `.theme-<name>{ --token:... }`
+   block plus a handful of flag-driven rules — never a new template. */
+
+:root{
+  --ink:#0C2429; --deep:#04434A; --teal:#028090; --sea:#00A896; --mint:#02C39A;
+  --paper:#F2F8F8; --card:#FFFFFF; --line:#D6E6E7; --muted:#5C7A82;
+  --amber:#B36B00; --amberbg:#FFF4E0; --red:#A82C2C; --redbg:#FBEAEA;
+  --green:#0A7A45; --greenbg:#E3F6EC; --code:#0F3239; --codetext:#9FE8DC;
+  --violet:#5B3E96; --violetbg:#F1ECFB;
+  --shadow:0 1px 2px rgba(4,58,64,.06),0 6px 20px rgba(4,58,64,.07);
+  --font-display:Georgia,"Times New Roman",serif;
+  --font-body:"Segoe UI",-apple-system,BlinkMacSystemFont,Roboto,sans-serif;
+  --font-mono:"SFMono-Regular",Consolas,"Liberation Mono",Menlo,monospace;
+  --base-size:16px; --base-line:1.6;
+  --radius:12px;
+  --accent:var(--teal);
+}
+
+/* Dark mode follows the site-wide toggle (the `dark` class on <html> —
+   see base.html). Same token names, so every rule below needs no change. */
+html.dark .lesson-doc{
+  --ink:#E7F3F1; --deep:#04434A; --teal:#1AA8B8; --sea:#12BFA8; --mint:#1EDBB5;
+  --paper:#0B1B1D; --card:#132A2C; --line:#244245; --muted:#8FB0AC;
+  --amber:#E8A93D; --amberbg:#2E2410; --red:#E27B72; --redbg:#331616;
+  --green:#3FD08A; --greenbg:#0F2B1E; --code:#08191B; --codetext:#9FE8DC;
+  --violet:#B79CF0; --violetbg:#241A3D;
+  --shadow:0 1px 2px rgba(0,0,0,.4),0 8px 24px -12px rgba(0,0,0,.6);
+}
+/* A few rules below assume a light tinted background with dark text
+   (amberbg/greenbg/redbg go dark in dark mode, so that text must flip too),
+   or hardcode white — those get a targeted override here rather than a new
+   token, since they're one-off touches, not part of the palette. */
+html.dark .lesson-doc .blank{background:#0F2426;color:var(--ink)}
+html.dark .lesson-doc .tip{border-color:#5A4419;color:#E9C77E}
+html.dark .lesson-doc .opt{background:#0F2426;color:var(--ink)}
+html.dark .lesson-doc .opt:hover{background:#153A3D}
+html.dark .lesson-doc .why.ok{color:#BFF0D9}
+html.dark .lesson-doc .why.no{color:#FFD2C9}
+html.dark .lesson-doc .hint .prose p{color:#E9C77E}
+html.dark .lesson-doc .preview-warnings{color:#FFD2C9}
+html.dark .lesson-doc .expect .mono{color:#BFF0D9}
+html.dark .lesson-doc .journey-item.now{background:#0F2426}
+html.dark .lesson-doc .task.done{background:#0F2624}
+
+*{box-sizing:border-box}
+.lesson-doc{
+  background:var(--paper); color:var(--ink);
+  font:var(--base-size)/var(--base-line) var(--font-body);
+}
+body.lesson-doc{margin:0}
+.lesson-doc code, .lesson-doc .mono{ font-family:var(--font-mono) }
+.lesson-doc .wrap{max-width:860px;margin:0 auto;padding:0 20px 80px}
+
+/* ---------- header ---------- */
+.lesson-doc header.lhead{background:var(--deep);color:#fff;padding:44px 0 38px;margin-bottom:34px}
+.lesson-doc header.lhead .wrap{padding-bottom:0}
+.lesson-doc .eyebrow{color:var(--mint);font-family:var(--font-mono);font-size:12px;
+  letter-spacing:.6px;text-transform:uppercase;margin:0 0 10px}
+.lesson-doc h1.ltitle{font-family:var(--font-display);font-size:clamp(28px,5vw,40px);
+  margin:0 0 8px;letter-spacing:-.5px;font-weight:700}
+.lesson-doc .lsub{color:var(--mint);font-size:16px;margin:0 0 20px}
+.lesson-doc .lmeta-line{color:#BFE8E2;font-size:13.5px;margin:0 0 16px}
+.lesson-doc .meta{display:flex;flex-wrap:wrap;gap:10px}
+.lesson-doc .pill{background:#0B5A63;border-radius:999px;padding:7px 15px;font-size:13px;font-weight:600}
+
+/* ---------- progress bar ---------- */
+.lesson-doc .bar{position:sticky;top:0;z-index:20;background:color-mix(in srgb, var(--paper) 94%, transparent);
+  -webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px);border-bottom:1px solid var(--line);padding:11px 0;margin-bottom:30px}
+.lesson-doc .bar .wrap{padding-bottom:0;display:flex;align-items:center;gap:14px}
+.lesson-doc .track{flex:1;height:7px;background:var(--line);border-radius:99px;overflow:hidden}
+.lesson-doc .fill{height:100%;width:0;background:linear-gradient(90deg,var(--teal),var(--mint));
+  border-radius:99px;transition:width .45s cubic-bezier(.4,0,.2,1)}
+.lesson-doc .count{font-size:13px;font-weight:700;color:var(--teal);white-space:nowrap}
+
+/* ---------- prose / heading ---------- */
+.lesson-doc .prose{margin-bottom:20px}
+.lesson-doc .prose p{margin:0 0 12px}
+.lesson-doc .prose pre{background:var(--code);color:var(--codetext);border-radius:9px;padding:14px 16px;
+  overflow-x:auto;font-size:13.5px;line-height:1.55}
+.lesson-doc .prose table{border-collapse:collapse;width:100%;margin:0 0 12px}
+.lesson-doc .prose th,.lesson-doc .prose td{border:1px solid var(--line);padding:8px 10px;text-align:left;font-size:14px}
+.lesson-doc .prose th{background:var(--card);font-weight:600}
+.lesson-doc .section-head{margin:44px 0 6px;padding-bottom:9px;border-bottom:2px solid var(--deep)}
+.lesson-doc .section-head .section-eyebrow{font-family:var(--font-display);font-size:13px;font-weight:700;
+  color:var(--teal);letter-spacing:1.5px;text-transform:uppercase;display:block;margin-bottom:2px}
+.lesson-doc .section-head h2{font-family:var(--font-display);font-size:22px;margin:0;font-weight:700}
+
+/* ---------- blanks ---------- */
+.lesson-doc .blank{font:inherit;font-family:var(--font-mono);font-size:13.5px;color:var(--ink);
+  background:#fff;border:1.5px solid var(--line);border-radius:6px;padding:6px 9px;
+  width:110px;max-width:100%}
+.lesson-doc .blank:focus-visible{outline:none;border-color:var(--teal);box-shadow:0 0 0 3px rgba(2,128,144,.15)}
+.lesson-doc .blank.blank-wide{width:100%;display:block;margin-top:6px}
+.lesson-doc textarea.blank{width:100%;display:block;margin-top:6px;resize:vertical;font-family:var(--font-body)}
+.lesson-doc .save-state{font-size:11.5px;color:var(--muted);margin-left:8px;opacity:0;transition:opacity .3s}
+.lesson-doc .save-state.show{opacity:1}
+
+/* ---------- tip / card / aside ---------- */
+.lesson-doc .tip{background:var(--amberbg);border:1px solid #E8C88A;border-left:4px solid var(--amber);
+  border-radius:9px;padding:14px 17px;margin-bottom:20px;font-size:14.5px;color:#5A3900}
+.lesson-doc .card{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);
+  padding:22px 24px;box-shadow:var(--shadow);margin-bottom:22px}
+.lesson-doc .card h3{margin:0 0 10px;font-size:17px;font-family:var(--font-display)}
+.lesson-doc .card > .prose:last-child{margin-bottom:0}
+.lesson-doc details.aside{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);
+  padding:16px 20px;margin-bottom:20px}
+.lesson-doc details.aside summary{cursor:pointer;font-weight:600;font-size:14.5px;list-style:none}
+.lesson-doc details.aside summary::-webkit-details-marker{display:none}
+.lesson-doc details.aside summary::before{content:"+ ";color:var(--teal);font-weight:700}
+.lesson-doc details.aside[open] summary::before{content:"– "}
+.lesson-doc details.aside .prose{margin-top:12px;margin-bottom:0}
+
+/* ---------- rule / grid ---------- */
+.lesson-doc .rule{background:var(--deep);color:#fff;border-radius:var(--radius);padding:24px 26px;margin-bottom:22px}
+.lesson-doc .rule h3{margin:0 0 14px;font-family:var(--font-display);font-size:19px}
+.lesson-doc .rulegrid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.lesson-doc .rulebox{background:#0B5A63;border-radius:9px;padding:15px 17px}
+.lesson-doc .rulebox b{color:var(--mint);font-size:11.5px;letter-spacing:.7px;display:block;margin-bottom:8px;text-transform:uppercase}
+.lesson-doc .rulebox .prose{color:#BFE8E2;font-size:13.5px;margin:0}
+.lesson-doc .rulebox .prose p{margin:0}
+.lesson-doc .rulebox code{color:#fff}
+.lesson-doc .grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:22px}
+.lesson-doc .gridbox{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:16px 18px}
+.lesson-doc .gridbox b{display:block;font-size:11.5px;letter-spacing:.7px;color:var(--teal);margin-bottom:8px;text-transform:uppercase}
+.lesson-doc .gridbox .prose{margin:0;font-size:14px}
+.lesson-doc .gridbox .prose p{margin:0}
+
+/* ---------- figure ---------- */
+.lesson-doc .figure{margin-bottom:22px}
+.lesson-doc .figure pre{background:var(--code);color:var(--codetext);border-radius:9px;padding:16px 18px;
+  overflow-x:auto;font-size:13px;line-height:1.5;margin:0}
+.lesson-doc .figure figcaption{color:var(--muted);font-size:13px;font-style:italic;margin-top:8px}
+
+/* ---------- steps ---------- */
+.lesson-doc ol.steps{list-style:none;margin:0 0 22px;padding:0;counter-reset:step}
+.lesson-doc ol.steps li{counter-increment:step;display:flex;gap:14px;align-items:flex-start;
+  padding:10px 0;border-bottom:1px solid var(--line)}
+.lesson-doc ol.steps li:last-child{border-bottom:none}
+.lesson-doc ol.steps li::before{content:counter(step);flex:0 0 30px;height:30px;border-radius:50%;
+  background:var(--teal);color:#fff;font-weight:700;font-size:14px;display:grid;place-items:center}
+
+/* ---------- objectives ---------- */
+.lesson-doc .objectives{list-style:none;margin:0 0 22px;padding:0}
+.lesson-doc .objectives li{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);
+  padding:16px 20px;margin-bottom:10px;box-shadow:var(--shadow)}
+.lesson-doc .objectives .otext{font-weight:600;margin:0 0 8px}
+.lesson-doc .objectives .owhy,.lesson-doc .objectives .ocheck{font-size:13px;margin:4px 0 0;color:var(--muted)}
+.lesson-doc .objectives .owhy b,.lesson-doc .objectives .ocheck b{color:var(--teal);letter-spacing:.4px}
+
+/* ---------- journey ---------- */
+.lesson-doc .journey{display:flex;flex-direction:column;gap:10px;margin-bottom:22px}
+.lesson-doc .journey-item{display:flex;gap:14px;align-items:baseline;background:var(--card);
+  border:1px solid var(--line);border-radius:9px;padding:12px 16px}
+.lesson-doc .journey-item.now{border-color:var(--teal);background:#F0FAFA}
+.lesson-doc .journey-item.done{opacity:.65}
+.lesson-doc .journey-item .jlabel{font-weight:700;font-size:13px;color:var(--teal);flex:0 0 130px}
+.lesson-doc .journey-item .jfocus{font-weight:600;flex:1}
+.lesson-doc .journey-item .joutcome{color:var(--muted);font-size:13px;flex:1}
+
+/* ---------- push ---------- */
+.lesson-doc .push{background:var(--deep);color:#fff;border-radius:var(--radius);padding:24px 26px;margin-bottom:22px}
+.lesson-doc .push h3{margin:0 0 12px;font-family:var(--font-display);font-size:19px}
+.lesson-doc .push .prose{color:#E7F5F3}
+.lesson-doc .push .prose p{margin:0 0 12px}
+.lesson-doc .push .blank{background:rgba(255,255,255,.95)}
+
+/* ---------- checklist ---------- */
+.lesson-doc .checklist{list-style:none;margin:0 0 22px;padding:0}
+.lesson-doc .checklist li{display:flex;gap:10px;align-items:flex-start;padding:8px 0}
+.lesson-doc .checklist input[type=checkbox]{margin-top:3px;width:17px;height:17px;accent-color:var(--teal)}
+.lesson-doc .checklist label.checked{text-decoration:line-through;color:var(--muted)}
+
+/* ---------- raw ---------- */
+.lesson-doc .raw{margin-bottom:20px}
+
+/* ---------- preview-only chrome ---------- */
+.lesson-doc .preview-warnings{border-color:#E8A8A8;background:var(--redbg);color:#6B1A1A;border-left-color:var(--red)}
+.lesson-doc .preview-warnings ul{margin:8px 0 0;padding-left:18px}
+.lesson-doc .back-to-editor{margin:0 0 20px;font-family:var(--font-mono);font-size:13px}
+.lesson-doc .back-to-editor a{color:var(--teal)}
+.theme-toggle-float{position:fixed;top:14px;right:14px;z-index:30;width:34px;height:34px;
+  border-radius:50%;border:1px solid rgba(255,255,255,.3);background:rgba(255,255,255,.08);
+  color:#fff;font-size:16px;line-height:1;cursor:pointer;display:grid;place-items:center}
+.theme-toggle-float:hover{background:rgba(255,255,255,.16)}
+
+/* ---------- tasks ---------- */
+.lesson-doc .task{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);
+  padding:20px 22px;margin-bottom:14px;box-shadow:var(--shadow)}
+.lesson-doc .task.done{border-color:var(--mint);background:#FAFEFD}
+.lesson-doc .ttop{display:flex;gap:13px;align-items:flex-start}
+.lesson-doc .tnum{flex:0 0 27px;height:27px;border-radius:50%;background:var(--teal);color:#fff;
+  font-size:12.5px;font-weight:700;display:grid;place-items:center;margin-top:1px}
+.lesson-doc .task.done .tnum{background:var(--green)}
+.lesson-doc .task.done .tnum .tnum-index{display:none}
+.lesson-doc .task.done .tnum::after{content:"✓"}
+.lesson-doc .tbody{flex:1;min-width:0}
+.lesson-doc .tq{font-weight:600;margin:0 0 4px;font-size:15.5px}
+.lesson-doc .tnote{color:var(--muted);font-size:13.5px}
+.lesson-doc .tnote .prose p{margin:0 0 8px}
+.lesson-doc .tnote .blank{margin-top:4px}
+.lesson-doc .task-body .prose:last-child{margin-bottom:0}
+.lesson-doc .expect{background:var(--greenbg);border:1px solid #B9E4CC;border-radius:8px;
+  padding:9px 13px;margin-top:12px;font-size:13px}
+.lesson-doc .expect b{color:var(--green);font-size:11px;letter-spacing:.6px;display:block;margin-bottom:3px}
+.lesson-doc .expect .mono{color:#0D3D25}
+.lesson-doc .donewhen{margin-top:10px;font-size:13.5px;color:var(--muted)}
+.lesson-doc .donewhen b{color:var(--green);letter-spacing:.4px;margin-right:4px}
+
+/* ---------- runner (in-browser Python) ---------- */
+.lesson-doc .runner{margin-top:12px;border-radius:9px;overflow:hidden;border:1px solid var(--line)}
+.lesson-doc .runner-editor{display:block;width:100%;min-height:120px;resize:vertical;
+  background:var(--code);color:var(--codetext);font-family:var(--font-mono);font-size:13.5px;
+  line-height:1.55;border:none;padding:14px 16px;tab-size:4}
+.lesson-doc .runner-editor:focus-visible{outline:2px solid var(--mint);outline-offset:-2px}
+.lesson-doc .runner-controls{display:flex;align-items:center;gap:10px;background:#0A2A2F;padding:8px 12px}
+.lesson-doc .runner-run-btn{background:var(--mint);color:var(--code);font-weight:700;font-size:13px;padding:7px 14px}
+.lesson-doc .runner-run-btn:hover{background:#03d9a8}
+.lesson-doc .runner-run-btn:disabled{opacity:.6;cursor:wait}
+.lesson-doc .runner-status{font-size:12px;color:#9FE8DC}
+.lesson-doc .runner-status.error{color:#FFB3A7}
+.lesson-doc .runner-output{margin:0;background:#081F23;color:#D7F5EE;font-family:var(--font-mono);
+  font-size:13px;line-height:1.5;padding:12px 16px;border-top:1px solid rgba(255,255,255,.08);
+  white-space:pre-wrap;word-break:break-word;max-height:260px;overflow-y:auto}
+.lesson-doc .runner-output.error{color:#FFC9BE}
+
+/* ---------- hint / timer ---------- */
+.lesson-doc .hintrow{margin-top:14px;display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.lesson-doc button{font:inherit;cursor:pointer;border-radius:8px;border:1px solid transparent}
+.lesson-doc .hbtn{background:var(--amberbg);border-color:#E8C88A;color:var(--amber);
+  font-size:13.5px;font-weight:600;padding:9px 15px;transition:.15s}
+.lesson-doc .hbtn:hover{background:#FFEBC7}
+.lesson-doc .hbtn:disabled{cursor:default;opacity:.95}
+.lesson-doc .dbtn{background:var(--teal);color:#fff;font-size:13.5px;font-weight:600;padding:9px 17px}
+.lesson-doc .dbtn:hover{background:#026C79}
+.lesson-doc .task.done .dbtn{background:var(--green)}
+.lesson-doc .timer{display:flex;align-items:center;gap:9px;font-size:13.5px;color:var(--amber);font-weight:600}
+.lesson-doc .ring{width:26px;height:26px;border-radius:50%;flex:0 0 26px;
+  background:conic-gradient(var(--amber) 0deg,#EAD9B8 0deg)}
+.lesson-doc .hint{margin-top:13px;background:var(--amberbg);border:1px solid #E8C88A;
+  border-radius:9px;padding:15px 17px;display:none}
+.lesson-doc .hint.show{display:block;animation:lesson-drop .3s ease}
+@keyframes lesson-drop{from{opacity:0;transform:translateY(-7px)}to{opacity:1;transform:none}}
+.lesson-doc .hint h4{margin:0 0 8px;font-size:11px;letter-spacing:.8px;color:var(--amber);text-transform:uppercase}
+.lesson-doc .hint pre{margin:0}
+.lesson-doc .hint .prose p{margin:9px 0 0;font-size:13.5px;color:#5A3900}
+
+/* ---------- quiz ---------- */
+.lesson-doc .quiz{display:flex;gap:10px;margin-top:13px;flex-wrap:wrap}
+.lesson-doc .opt{background:#fff;border:1.5px solid var(--line);padding:11px 17px;
+  font-family:var(--font-mono);font-size:14px;transition:.14s;color:var(--ink)}
+.lesson-doc .opt:hover{border-color:var(--teal);background:#F0FAFA}
+.lesson-doc .opt.right{background:var(--greenbg);border-color:var(--green);color:var(--green);font-weight:700}
+.lesson-doc .opt.wrong{background:var(--redbg);border-color:var(--red);color:var(--red);text-decoration:line-through}
+.lesson-doc .why{margin-top:11px;font-size:13.5px;padding:11px 14px;border-radius:8px;display:none}
+.lesson-doc .why.show{display:block}
+.lesson-doc .why.ok{background:var(--greenbg);color:#0D3D25}
+.lesson-doc .why.no{background:var(--redbg);color:#6B1A1A}
+
+/* ---------- finish ---------- */
+.lesson-doc .finish{background:var(--card);border:2px solid var(--mint);border-radius:var(--radius);
+  padding:26px 28px;box-shadow:var(--shadow);text-align:center}
+.lesson-doc .finish h2{font-family:var(--font-display);margin:0 0 8px;font-size:22px}
+.lesson-doc .finish p{margin:0;color:var(--muted)}
+.lesson-doc .done-msg{margin-top:26px;padding:20px 24px;background:var(--deep);color:#fff;
+  border-radius:var(--radius);display:none}
+.lesson-doc .done-msg.show{display:block;animation:lesson-drop .4s ease}
+.lesson-doc .done-msg h3{margin:0 0 6px;font-family:var(--font-display);font-size:20px}
+.lesson-doc .done-msg p{margin:0;color:var(--mint);font-size:14px}
+.lesson-doc.no-celebration .done-msg{display:none !important}
+
+@media(max-width:620px){
+  .lesson-doc .rulegrid,.lesson-doc .grid{grid-template-columns:1fr}
+  .lesson-doc .quiz{flex-direction:column}
+  .lesson-doc .opt{width:100%;text-align:left}
+  .lesson-doc .journey-item{flex-direction:column;gap:4px}
+  .lesson-doc .journey-item .jlabel{flex:none}
+}
+@media(prefers-reduced-motion:reduce){
+  .lesson-doc *,.lesson-doc *::before,.lesson-doc *::after{animation:none!important;transition:none!important}
+}
+.lesson-doc :focus-visible{outline:2px solid var(--teal);outline-offset:2px}

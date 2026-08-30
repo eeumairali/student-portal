@@ -1,0 +1,16 @@
+<div id="lesson-status" class="card p-5">
+  <div class="sm:flex sm:items-center sm:justify-between sm:gap-6">
+    <form hx-post="{% url 'toggle_lesson' lesson.id %}" hx-target="#lesson-status" hx-swap="outerHTML" method="post"
+          action="{% url 'toggle_lesson' lesson.id %}">
+      {% csrf_token %}
+      <button class="{% if is_complete %}btn-quiet{% else %}btn-primary{% endif %}">
+        {% if is_complete %}
+          <span aria-hidden="true">✓</span> Marked complete — undo
+        {% else %}
+          Mark this lesson complete
+        {% endif %}
+      </button>
+    </form>
+    <div class="mt-5 sm:mt-0 sm:w-52">{% include "learning/_meter.html" %}</div>
+  </div>
+</div>

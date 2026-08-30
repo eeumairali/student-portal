@@ -1,0 +1,9 @@
+<div class="journey">
+  {% for item in node.items %}
+    <div class="journey-item{% if item.state %} {{ item.state }}{% endif %}">
+      <span class="jlabel">{{ item.label|safe }}</span>
+      <span class="jfocus">{{ item.focus|safe }}</span>
+      <span class="joutcome">{{ item.outcome|safe }}</span>
+    </div>
+  {% endfor %}
+</div>

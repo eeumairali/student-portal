@@ -1,0 +1,9 @@
+<ul class="objectives">
+  {% for item in node.items %}
+    <li>
+      <p class="otext">{{ item.text|safe }}</p>
+      {% if item.why %}<p class="owhy"><b>WHY</b> {{ item.why|safe }}</p>{% endif %}
+      {% if item.check %}<p class="ocheck"><b>CHECK</b> {{ item.check|safe }}</p>{% endif %}
+    </li>
+  {% endfor %}
+</ul>
