@@ -30,7 +30,7 @@ BLANK_RE = re.compile(r"\{\{([a-zA-Z][a-zA-Z0-9_]*)(?:\|(wide|long))?\}\}")
 FRONT_MATTER_RE = re.compile(r"^---\s*\n(.*?\n)---[ \t]*\n?(.*)$", re.DOTALL)
 BLOCK_OPEN_RE = re.compile(r"^:::(\S+)(.*)$")
 HEADING_RE = re.compile(r"^(#{1,3})\s+(.*)$")
-KEYWORD_RE = re.compile(r"^(NOTE|EXPECTED|DONE WHEN|SOLUTION|OPTIONS)\s*$")
+KEYWORD_RE = re.compile(r"^(NOTE|EXPECTED|DONE WHEN|SOLUTION|OPTIONS|STARTER)\s*$")
 NUMBERED_RE = re.compile(r"^\d+\.\s+(.*)$")
 WHY_RE = re.compile(r"^WHY\s*[—-]\s*(.*)$")
 CHECK_RE = re.compile(r"^CHECK\s*[—-]\s*(.*)$")
@@ -243,6 +243,8 @@ class Task:
     note: list
     body: list
     expected: str | None
+    starter_code: str
+    practice_kind: str
     done_when_html: str | None
     solution: list | None
     options: list[ChoiceOption]
@@ -647,6 +649,15 @@ def build_task(attrs: dict, content: str, tasks: list, all_blank_ids: list, warn
     if sections.get("EXPECTED", "").strip():
         expected = sections["EXPECTED"].strip()
 
+    # STARTER is deliberately plain text rather than Markdown. It lets an
+    # author give a small editable starting point without displaying a full
+    # worked answer in the task body.
+    starter_code = sections.get("STARTER", "").strip("\n")
+    practice_kind = "self" if (
+        attrs.get("phase", "").lower() in {"self", "self-practice"}
+        or task_id.lower().startswith("sp")
+    ) else "guided"
+
     done_when_html = None
     if sections.get("DONE WHEN", "").strip():
         done_when_html, ids = render_inline(sections["DONE WHEN"])
@@ -666,7 +677,8 @@ def build_task(attrs: dict, content: str, tasks: list, all_blank_ids: list, warn
     task = Task(
         task_id=task_id, type=task_type, hint_seconds=hint_seconds,
         title=title_html, note=note_nodes, body=body_nodes,
-        expected=expected, done_when_html=done_when_html,
+        expected=expected, starter_code=starter_code, practice_kind=practice_kind,
+        done_when_html=done_when_html,
         solution=solution_nodes, options=options, has_solution=has_solution,
     )
     tasks.append(task)

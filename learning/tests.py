@@ -12,6 +12,7 @@ from learning.lesson_markdown import parse_lesson
 from learning.models import BlankAnswer, ChecklistCheck, Course, Enrollment, HintReveal, Lesson, LessonFile, LessonProgress, Task
 
 LESSON_TEMPLATE_PATH = settings.BASE_DIR / "skills" / "LESSON_TEMPLATE.md"
+W5D1_KMEANS_PATH = settings.BASE_DIR / "skills" / "W5D1_KMEANS.md"
 
 SIMPLE_LESSON_MD = """---
 student: {student}
@@ -200,6 +201,17 @@ class LessonMarkdownParserTests(TestCase):
         self.assertNotIn("<script", node.html)
         self.assertIn("safe", node.html)
 
+    def test_w5d1_kmeans_guided_and_self_practice_format(self):
+        parsed = parse_lesson(W5D1_KMEANS_PATH.read_text(encoding="utf-8"))
+        self.assertEqual(parsed.warnings, [])
+        guided, self_practice = parsed.tasks
+        self.assertEqual(guided.starter_code, "points = [3, 5, 7]\n# Print the mean of points.")
+        self.assertEqual(guided.expected, "5.0")
+        self.assertEqual(guided.practice_kind, "guided")
+        self.assertEqual(self_practice.practice_kind, "self")
+        self.assertEqual(self_practice.hint_seconds, 60)
+        self.assertEqual(self_practice.expected, "8.0")
+
 
 class LessonPreviewViewTests(TestCase):
     """The staff-only paste/preview page (Phase 2 step 1). No persistence
@@ -238,6 +250,19 @@ class LessonPreviewViewTests(TestCase):
         self.assertIn('class="blank"', content)
         self.assertIn("static/js/lesson.js", content)
         self.assertNotIn("Preview warnings", content)
+
+    def test_w5d1_kmeans_renders_editable_guided_and_self_practice(self):
+        self.client.force_login(self.staff)
+        raw = W5D1_KMEANS_PATH.read_text(encoding="utf-8")
+        response = self.client.post(reverse("lesson_preview"), {"markdown": raw})
+        content = response.content.decode()
+        self.assertEqual(response.status_code, 200)
+        self.assertIn('data-task-id="t1"', content)
+        self.assertIn('data-task-id="sp1"', content)
+        self.assertIn('class="code-editor"', content)
+        self.assertIn("Run code", content)
+        self.assertIn("Submit &amp; check", content)
+        self.assertIn("pyodide.js", content)
 
     def test_invalid_markdown_shows_warnings_not_a_crash(self):
         self.client.force_login(self.staff)

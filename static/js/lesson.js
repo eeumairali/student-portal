@@ -47,6 +47,7 @@
       var dbtn = task.querySelector(".dbtn");
       if (dbtn) dbtn.textContent = done ? "Done" : "Mark done";
       refresh();
+      updateTaskLocks();
       if (save !== false) {
         post("/lesson/" + lessonId + "/task/" + task.dataset.taskId + "/complete/", { complete: done });
       }
@@ -73,6 +74,134 @@
         var label = document.querySelector('label[for="' + checkId + '"]');
         if (label) label.classList.add("checked");
       }
+    });
+
+    // ---- code practice: browser-local Python, output checks, and unlocks ----
+    // Pyodide runs inside the learner's browser. Their code is never sent to
+    // Django or executed on the portal server.
+    var pyodidePromise = null;
+    function getPyodide() {
+      if (!window.loadPyodide) return Promise.reject(new Error("The Python runner could not load. Check your connection and refresh."));
+      if (!pyodidePromise) pyodidePromise = window.loadPyodide({ indexURL: "https://cdn.jsdelivr.net/pyodide/v0.27.7/full/" });
+      return pyodidePromise;
+    }
+    function packagesUsedBy(code) {
+      // These packages are part of Pyodide's published package set. Loading
+      // them here is browser-local: no pip install and no server access.
+      var packageNames = {
+        numpy: "numpy", pandas: "pandas", matplotlib: "matplotlib",
+        scipy: "scipy", sklearn: "scikit-learn", statsmodels: "statsmodels",
+        networkx: "networkx"
+      };
+      var used = {};
+      var re = /^\s*(?:from|import)\s+([A-Za-z_][A-Za-z0-9_]*)/gm;
+      var match;
+      while ((match = re.exec(code)) !== null) {
+        var packageName = packageNames[match[1]];
+        if (packageName) used[packageName] = true;
+      }
+      return Object.keys(used);
+    }
+    function normaliseOutput(value) {
+      return String(value || "").replace(/\r\n/g, "\n").split("\n").map(function (line) { return line.replace(/\s+$/g, ""); }).join("\n").trim();
+    }
+    function showResult(task, message, ok) {
+      var result = task.querySelector(".code-result");
+      if (!result) return;
+      result.textContent = message;
+      result.className = "code-result show " + (ok ? "ok" : "no");
+    }
+    function startSelfPracticeTimer(task) {
+      if (task.dataset.timerStarted === "1" || task.dataset.practiceKind !== "self") return;
+      task.dataset.timerStarted = "1";
+      var label = task.querySelector(".practice-timer");
+      var seconds = parseInt(task.dataset.practiceSeconds, 10);
+      if (isNaN(seconds) || seconds < 1) seconds = 60;
+      var left = seconds;
+      function tick() {
+        if (task.classList.contains("done")) return;
+        var m = Math.floor(left / 60), s = left % 60;
+        if (label) label.textContent = "Time remaining: " + m + ":" + String(s).padStart(2, "0");
+        if (left <= 0) {
+          if (label) label.textContent = "Time is up — you can still submit, retry, or ask for a hint.";
+          showResult(task, "Time is up. Keep going and submit your own code when ready.", false);
+          return;
+        }
+        left--;
+        setTimeout(tick, 1000);
+      }
+      tick();
+    }
+    function updateTaskLocks() {
+      var waiting = false;
+      tasks.forEach(function (task) {
+        var available = !waiting;
+        task.classList.toggle("locked", !available);
+        task.querySelectorAll("button, textarea").forEach(function (control) { control.disabled = !available; });
+        if (available) startSelfPracticeTimer(task);
+        if (!task.classList.contains("done")) waiting = true;
+      });
+    }
+    tasks.filter(function (task) { return task.dataset.type === "code"; }).forEach(function (task) {
+      var editor = task.querySelector(".code-editor");
+      var runButton = task.querySelector(".runbtn");
+      var resetButton = task.querySelector(".resetbtn");
+      var checkButton = task.querySelector(".checkbtn");
+      var consoleEl = task.querySelector(".console");
+      var practice = task.querySelector(".code-practice");
+      var starter = editor ? editor.value : "";
+      var lastOutput = null;
+
+      function runCode() {
+        if (!editor || !consoleEl) return Promise.resolve(null);
+        runButton.disabled = true;
+        consoleEl.textContent = "Running…";
+        return getPyodide().then(function (pyodide) {
+          var escaped = JSON.stringify(editor.value);
+          var packages = packagesUsedBy(editor.value);
+          if (packages.length) consoleEl.textContent = "Loading " + packages.join(", ") + "…";
+          return pyodide.loadPackage(packages).then(function () { return pyodide.runPythonAsync(
+            "import io, sys, traceback\n" +
+            "_portal_output = io.StringIO()\n" +
+            "_portal_stdout = sys.stdout\n" +
+            "sys.stdout = _portal_output\n" +
+            "try:\n exec(" + escaped + ", {'__name__': '__main__'})\n" +
+            "except Exception:\n traceback.print_exc(file=_portal_output)\n" +
+            "finally:\n sys.stdout = _portal_stdout\n" +
+            "_portal_output.getvalue()"
+          ); });
+        }).then(function (output) {
+          lastOutput = String(output || "");
+          consoleEl.textContent = lastOutput || "(No output)";
+          return lastOutput;
+        }).catch(function (error) {
+          lastOutput = null;
+          consoleEl.textContent = "Runner error: " + error.message;
+          showResult(task, "❌ Your code could not run. Fix the error and try again.", false);
+          return null;
+        }).finally(function () { runButton.disabled = false; });
+      }
+      if (runButton) runButton.addEventListener("click", runCode);
+      if (resetButton) resetButton.addEventListener("click", function () {
+        editor.value = starter;
+        lastOutput = null;
+        consoleEl.textContent = "Run your code to see its output.";
+        var result = task.querySelector(".code-result");
+        if (result) { result.textContent = ""; result.className = "code-result"; }
+      });
+      if (checkButton) checkButton.addEventListener("click", function () {
+        runCode().then(function (output) {
+          if (output === null) return;
+          var expected = practice ? practice.dataset.expected : "";
+          var correct = !expected || normaliseOutput(output) === normaliseOutput(expected);
+          if (correct) {
+            showResult(task, "✅ Correct — next task unlocked.", true);
+            markDone(task, true);
+          } else {
+            showResult(task, "❌ Incorrect — compare your output with the expected result, then retry or ask for a hint.", false);
+          }
+        });
+      });
     });
 
     // ---- blanks: save on blur and on a debounce while typing ----
@@ -227,6 +356,7 @@
       });
     });
 
+    updateTaskLocks();
     refresh();
   });
 })();

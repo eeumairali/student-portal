@@ -145,6 +145,15 @@ fences, tables, blanks, nested blocks.
 **`code`** — writes code elsewhere (Blender, Jupyter, MATLAB) and self-marks.
 Optionally has EXPECTED to compare against.
 
+Interactive code tasks provide an editable Python editor, Run code, output
+console, Reset, and Submit / check. The learner's code runs locally in the
+browser and its normalised output is checked against `EXPECTED`. Add an
+optional `STARTER` section for a small scaffold only, never a full solution.
+
+For a timed self-practice task, use `phase=self` (or an `sp...` id such as
+`sp1`) with `hint=60`. The one-minute countdown begins when the task unlocks
+after the preceding task passes.
+
 **`choice`** — multiple choice, instant feedback, marks itself complete on a
 correct answer. No timer.
 

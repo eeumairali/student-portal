@@ -1,4 +1,4 @@
-<div class="task" data-task-id="{{ node.task_id }}" data-type="{{ node.type }}"
+<div class="task" data-task-id="{{ node.task_id }}" data-type="{{ node.type }}" data-practice-kind="{{ node.practice_kind }}" data-practice-seconds="{{ node.effective_hint_seconds }}"
      {% if node.has_solution %}data-has-solution="1" data-hint-seconds="{{ node.effective_hint_seconds }}"{% endif %}>
   <div class="ttop">
     <div class="tnum"><span class="tnum-index">{{ node.index }}</span></div>
@@ -30,6 +30,21 @@
         </div>
         <div class="why"></div>
       {% else %}
+        {% if node.type == "code" %}
+          <div class="code-practice" data-expected="{{ node.expected|default:'' }}">
+            <p class="practice-label">{% if node.practice_kind == "self" %}Self-practice{% else %}Student practice{% endif %}</p>
+            {% if node.practice_kind == "self" %}<p class="practice-timer" aria-live="polite">Starts when this practice unlocks.</p>{% endif %}
+            <label class="sr-only" for="code-{{ node.task_id }}">Write your Python code</label>
+            <textarea id="code-{{ node.task_id }}" class="code-editor" spellcheck="false" autocapitalize="off" autocomplete="off">{{ node.starter_code }}</textarea>
+            <div class="code-actions">
+              <button type="button" class="runbtn">Run code</button>
+              <button type="button" class="resetbtn">Reset</button>
+              <button type="button" class="checkbtn">{% if node.practice_kind == "self" %}Submit &amp; check{% else %}Submit / check{% endif %}</button>
+            </div>
+            <div class="code-output" aria-live="polite"><b>Output</b><pre class="console">Run your code to see its output.</pre></div>
+            <div class="code-result" aria-live="polite"></div>
+          </div>
+        {% endif %}
         {% if node.done_when_html %}
           <p class="donewhen"><b>Done when</b>{{ node.done_when_html|safe }}</p>
         {% endif %}
@@ -38,7 +53,7 @@
           {% if node.has_solution %}
             <button type="button" class="hbtn">I'm stuck — start hint timer</button>
           {% endif %}
-          <button type="button" class="dbtn">Mark done</button>
+          {% if node.type != "code" %}<button type="button" class="dbtn">Mark done</button>{% endif %}
         </div>
 
         {% if node.has_solution %}

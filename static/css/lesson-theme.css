@@ -312,6 +312,18 @@ body.lesson-doc{margin:0}
 .lesson-doc .hint h4{margin:0 0 8px;font-size:11px;letter-spacing:.8px;color:var(--amber);text-transform:uppercase}
 .lesson-doc .hint pre{margin:0}
 .lesson-doc .hint .prose p{margin:9px 0 0;font-size:13.5px;color:#E9C77E}
+.lesson-doc .code-practice{margin-top:16px;padding:14px;background:#101D2B;border:1px solid #29445A;border-radius:9px}
+.lesson-doc .practice-label{margin:0 0 8px;color:var(--mint);font-size:11px;font-weight:700;letter-spacing:.75px;text-transform:uppercase}
+.lesson-doc .practice-timer{margin:0 0 10px;color:var(--amber);font-size:13px;font-weight:600}
+.lesson-doc .code-editor{display:block;width:100%;min-height:150px;resize:vertical;box-sizing:border-box;padding:12px;border:1px solid #36536C;border-radius:6px;background:#07131F;color:#E9F5FF;font:13px/1.55 var(--font-mono,ui-monospace,SFMono-Regular,Consolas,monospace);tab-size:2}
+.lesson-doc .code-editor:focus{outline:2px solid var(--accent);outline-offset:1px}
+.lesson-doc .code-actions{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}
+.lesson-doc .runbtn,.lesson-doc .resetbtn,.lesson-doc .checkbtn{font-size:13px;font-weight:600;padding:8px 13px;border-radius:6px}
+.lesson-doc .runbtn{background:var(--teal);color:#fff}.lesson-doc .checkbtn{background:var(--accent);color:#fff}.lesson-doc .resetbtn{background:transparent;color:#C7D6E2;border:1px solid #466178}
+.lesson-doc .code-output{margin-top:12px;color:#A8BCCA;font-size:11px;letter-spacing:.6px;text-transform:uppercase}.lesson-doc .code-output pre{min-height:38px;max-height:220px;overflow:auto;margin:5px 0 0;padding:10px;background:#07131F;border-radius:6px;color:#E9F5FF;font:13px/1.45 var(--font-mono,ui-monospace,SFMono-Regular,Consolas,monospace);text-transform:none;letter-spacing:normal;white-space:pre-wrap}
+.lesson-doc .code-result{display:none;margin-top:10px;padding:9px 11px;border-radius:6px;font-size:13px}.lesson-doc .code-result.show{display:block}.lesson-doc .code-result.ok{background:var(--greenbg);border:1px solid #1F5C3D;color:#BFF0D9}.lesson-doc .code-result.no{background:#35231E;border:1px solid #714033;color:#F3C2B4}
+.lesson-doc .task.locked{opacity:.58}.lesson-doc .task.locked::after{content:"Complete the previous task to unlock this one.";display:block;margin:14px 0 0 46px;color:var(--muted);font-size:13px}.lesson-doc .task.locked button,.lesson-doc .task.locked textarea{cursor:not-allowed}
+.lesson-doc .sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
 
 /* ---------- quiz ---------- */
 .lesson-doc .quiz{display:flex;gap:10px;margin-top:13px;flex-wrap:wrap}
