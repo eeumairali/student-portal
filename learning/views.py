@@ -266,7 +266,10 @@ def student_detail(request, user_id):
         profile.save(update_fields=["notes"])
         return redirect("student_detail", user_id=student.id)
 
-    lessons = Lesson.objects.filter(student=student).order_by("-date", "-id")
+    lessons = sorted(
+        Lesson.objects.filter(student=student).order_by("-date", "-id"),
+        key=lambda l: "project" not in l.meta,
+    )
     courses = Course.objects.filter(enrollments__student=student, enrollments__is_active=True)
     return render(request, "learning/tutor/student_detail.html", {
         "student": student, "profile": profile, "lessons": lessons, "courses": courses,

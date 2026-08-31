@@ -33,7 +33,7 @@
       <li class="flex items-center gap-2 p-4">
         <a href="{% url 'lesson_tutor_view' lesson.id %}" class="flex min-w-0 flex-1 items-center justify-between gap-4 transition hover:opacity-80">
           <div class="min-w-0">
-            <p class="font-mono text-xs text-slate-500">{{ lesson.date|default:"No date" }}{% if lesson.course %} · {{ lesson.course.title }}{% endif %}</p>
+            <p class="font-mono text-xs text-slate-500">{% if lesson.meta.project %}Project {{ lesson.meta.project }} · {% endif %}{{ lesson.date|default:"No date" }}{% if lesson.course %} · {{ lesson.course.title }}{% endif %}</p>
             <p class="mt-0.5 font-medium">{{ lesson.title }}</p>
           </div>
           <span class="shrink-0 rounded-full px-2.5 py-1 text-[11px] font-medium {% if lesson.is_published %}bg-mint-100 text-teal-700{% else %}bg-paper text-slate-500{% endif %}">
