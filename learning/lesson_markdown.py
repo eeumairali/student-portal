@@ -5,11 +5,14 @@ skills/LESSON_TEMPLATE.md for a worked example.
 Nothing in this module touches the database — it is pure text in, node tree
 out, so it can be reused for the admin preview and for the real save path.
 
-The whole format is deliberately small: front matter, then a sequence of
-``## `` blocks (auto-numbered "N of TOTAL"), each holding prose, an optional
-``:::example`` panel, an optional ``:::tip`` note, and zero or more
-``:::practice`` questions the student works out on their own computer. There
-is no in-browser code execution, no blanks, no quizzes, no checklists.
+Front matter, then a sequence of ``## `` blocks (auto-numbered "N of TOTAL"),
+each holding prose and any mix of: ``:::example``, ``:::tip``, ``:::practice``
+(a question worked out on the student's own computer, with hint/solution
+reveal), ``:::task ... type=choice`` (an ungraded multiple-choice warm-up),
+``:::journey``, ``:::figure``, ``:::objectives``, ``:::grid``, ``:::push``,
+and ``:::checklist``. See skills/FORMAT_SPEC.md for the exact syntax of each
+— that file is the single source of truth; don't invent new block names.
+There is still no in-browser code execution.
 """
 from __future__ import annotations
 
@@ -62,6 +65,68 @@ class Tip:
 
 
 @dataclass
+class Journey:
+    """A horizontal roadmap of stages. See :::journey in FORMAT_SPEC.md."""
+
+    steps: list
+    template_name: str = "learning/lesson/blocks/journey.html"
+
+
+@dataclass
+class Figure:
+    """Preformatted ASCII art / diagram with an optional caption."""
+
+    caption: str
+    art: str
+    template_name: str = "learning/lesson/blocks/figure.html"
+
+
+@dataclass
+class Objectives:
+    """A numbered list of goals, each with an optional CHECK success line."""
+
+    items: list
+    template_name: str = "learning/lesson/blocks/objectives.html"
+
+
+@dataclass
+class Grid:
+    """Two (or more) side-by-side columns, split by a lone `---` line."""
+
+    columns: list
+    template_name: str = "learning/lesson/blocks/grid.html"
+
+
+@dataclass
+class Push:
+    """A callout / call-to-action panel with a title and markdown body."""
+
+    title: str
+    html: str
+    template_name: str = "learning/lesson/blocks/push.html"
+
+
+@dataclass
+class Checklist:
+    """A self-check list the student can tick off (not saved to the server —
+    purely a client-side memory aid, unlike :::practice)."""
+
+    items: list
+    template_name: str = "learning/lesson/blocks/checklist.html"
+
+
+@dataclass
+class Quiz:
+    """An ungraded multiple-choice warm-up question. Each option carries its
+    own feedback, shown when clicked — nothing is saved server-side."""
+
+    quiz_id: str
+    question_html: str
+    options: list
+    template_name: str = "learning/lesson/blocks/quiz.html"
+
+
+@dataclass
 class Practice:
     """One self-practice question. The student writes/runs the code on their
     own computer, not on the site — the site only holds the prompt, the
@@ -93,6 +158,7 @@ class ParsedLesson:
     topics: list[str]
     blocks: list[Block]
     practices: list[Practice]
+    quizzes: list[Quiz]
     warnings: list[str]
 
     @property
@@ -159,7 +225,8 @@ def parse_lesson(raw_text: str) -> ParsedLesson:
     front_matter["topics"] = [str(t) for t in topics]
 
     practices: list[Practice] = []
-    blocks = parse_blocks(body_text, practices, warnings)
+    quizzes: list[Quiz] = []
+    blocks = parse_blocks(body_text, practices, quizzes, warnings)
 
     seen_ids: dict[str, int] = {}
     for p in practices:
@@ -168,7 +235,14 @@ def parse_lesson(raw_text: str) -> ParsedLesson:
     if dupes:
         warnings.append("Duplicate practice id(s), only the last will keep progress correctly: " + ", ".join(dupes))
 
-    return ParsedLesson(front_matter, meta, front_matter["topics"], blocks, practices, warnings)
+    seen_quiz_ids: dict[str, int] = {}
+    for q in quizzes:
+        seen_quiz_ids[q.quiz_id] = seen_quiz_ids.get(q.quiz_id, 0) + 1
+    quiz_dupes = [qid for qid, n in seen_quiz_ids.items() if n > 1]
+    if quiz_dupes:
+        warnings.append("Duplicate task id(s): " + ", ".join(quiz_dupes))
+
+    return ParsedLesson(front_matter, meta, front_matter["topics"], blocks, practices, quizzes, warnings)
 
 
 def parse_attrs(attr_str: str) -> dict:
@@ -216,7 +290,7 @@ def split_fences(text: str):
         yield ("text", None, None, "\n".join(buf))
 
 
-def parse_blocks(text: str, practices: list, warnings: list) -> list[Block]:
+def parse_blocks(text: str, practices: list, quizzes: list, warnings: list) -> list[Block]:
     """Split the body into ``## `` blocks. Content before the first ``## ``
     heading (if any) is folded into an unnumbered intro block so nothing
     written before the first heading is lost."""
@@ -245,11 +319,11 @@ def parse_blocks(text: str, practices: list, warnings: list) -> list[Block]:
     total = len(numbered)
     blocks: list[Block] = []
     for title, body in intro:
-        nodes = parse_body(body, practices, warnings)
+        nodes = parse_body(body, practices, quizzes, warnings)
         if nodes:
             blocks.append(Block(title="", index=0, total=total, nodes=nodes))
     for i, (title, body) in enumerate(numbered, start=1):
-        nodes = parse_body(body, practices, warnings)
+        nodes = parse_body(body, practices, quizzes, warnings)
         blocks.append(Block(title=title, index=i, total=total, nodes=nodes))
 
     if not numbered and not blocks:
@@ -258,7 +332,7 @@ def parse_blocks(text: str, practices: list, warnings: list) -> list[Block]:
     return blocks
 
 
-def parse_body(text: str, practices: list, warnings: list) -> list:
+def parse_body(text: str, practices: list, quizzes: list, warnings: list) -> list:
     nodes = []
     for kind, name, attrs, content in split_fences(text):
         if kind == "text":
@@ -266,7 +340,7 @@ def parse_body(text: str, practices: list, warnings: list) -> list:
             if html_out.strip():
                 nodes.append(Prose(html_out))
         else:
-            node = build_block(name, attrs, content, practices, warnings)
+            node = build_block(name, attrs, content, practices, quizzes, warnings)
             if node is not None:
                 nodes.append(node)
     return nodes
@@ -318,13 +392,172 @@ def build_practice(attrs: dict, content: str, practices: list, warnings: list) -
     return practice
 
 
-def build_block(name: str, attrs: dict, content: str, practices: list, warnings: list):
+def render_inline(text: str) -> str:
+    """Like render_markdown, but for a single line/phrase that shouldn't be
+    wrapped in a <p> — an option label, a feedback message, a check line."""
+    html_out = render_markdown(text)
+    if html_out.startswith("<p>") and html_out.endswith("</p>"):
+        html_out = html_out[3:-4]
+    return html_out
+
+
+DASH_SPLIT_RE = re.compile(r"\s+[—–]\s+|\s+--\s+|\s+-\s+")
+
+
+def split_label_feedback(text: str) -> tuple[str, str]:
+    """Split 'label — feedback' on the first em/en dash (or ` -- `/` - `
+    fallback) into (label, feedback). feedback is "" if there's no dash."""
+    m = DASH_SPLIT_RE.search(text)
+    if not m:
+        return text.strip(), ""
+    return text[:m.start()].strip(), text[m.end():].strip()
+
+
+def build_journey(content: str) -> Journey:
+    """- time/emoji | title | detail | now(optional) -- one line per stage."""
+    steps = []
+    for raw in content.split("\n"):
+        line = raw.strip()
+        if not line.startswith("-"):
+            continue
+        parts = [p.strip() for p in line[1:].split("|")]
+        steps.append({
+            "time": parts[0] if len(parts) > 0 else "",
+            "title": parts[1] if len(parts) > 1 else "",
+            "detail": parts[2] if len(parts) > 2 else "",
+            "current": len(parts) > 3 and parts[3].strip().lower() == "now",
+        })
+    return Journey(steps)
+
+
+def build_figure(attrs: dict, content: str) -> Figure:
+    return Figure(caption=attrs.get("caption", ""), art=content.strip("\n"))
+
+
+OBJECTIVE_ITEM_RE = re.compile(r"^\d+\.\s+(.*)$")
+
+
+def build_objectives(content: str) -> Objectives:
+    """1. goal text / CHECK — success criteria (CHECK line optional)."""
+    items: list[dict] = []
+    current = None
+    for raw in content.split("\n"):
+        line = raw.strip()
+        if not line:
+            continue
+        m = OBJECTIVE_ITEM_RE.match(line)
+        if m:
+            if current is not None:
+                items.append(current)
+            current = {"html": render_inline(m.group(1)), "check": ""}
+        elif line.upper().startswith("CHECK") and current is not None:
+            remainder = re.sub(r"^[—–-]+\s*", "", line[5:].strip())
+            current["check"] = remainder
+        elif current is not None:
+            current["html"] += " " + render_inline(line)
+    if current is not None:
+        items.append(current)
+    return Objectives(items)
+
+
+def build_grid(content: str) -> Grid:
+    """Two (or more) columns of plain lines, split by a lone `---` line.
+    Each column's first line is its heading, the rest are items."""
+    columns_raw: list[list[str]] = [[]]
+    for raw in content.split("\n"):
+        line = raw.strip()
+        if line == "---":
+            columns_raw.append([])
+            continue
+        if line:
+            columns_raw[-1].append(line)
+    columns = [{"heading": c[0], "items": c[1:]} for c in columns_raw if c]
+    return Grid(columns)
+
+
+def build_push(attrs: dict, content: str) -> Push:
+    return Push(title=attrs.get("title", ""), html=render_markdown(content))
+
+
+def build_checklist(content: str) -> Checklist:
+    items = []
+    for raw in content.split("\n"):
+        line = raw.strip()
+        if line.startswith("- "):
+            items.append(line[2:].strip())
+        elif line.startswith("-"):
+            items.append(line[1:].strip())
+    return Checklist(items)
+
+
+def build_quiz(attrs: dict, content: str, quizzes: list, warnings: list):
+    """Question text, then an OPTIONS line, then one `- label — feedback`
+    per choice; prefix the correct one's label with [x]."""
+    quiz_id = attrs.get("id")
+    if not quiz_id:
+        quiz_id = f"q{len(quizzes) + 1}"
+        warnings.append(f"A :::task block is missing id= — assigned a temporary id ({quiz_id}).")
+
+    question_lines: list[str] = []
+    option_lines: list[str] = []
+    seen_options = False
+    for raw in content.split("\n"):
+        if raw.strip().upper() == "OPTIONS":
+            seen_options = True
+            continue
+        (option_lines if seen_options else question_lines).append(raw)
+
+    options = []
+    for raw in option_lines:
+        line = raw.strip()
+        if not line.startswith("-"):
+            continue
+        line = line[1:].strip()
+        is_correct = False
+        if line[:3] in ("[x]", "[X]"):
+            is_correct = True
+            line = line[3:].strip()
+        elif line[:3] == "[ ]":
+            line = line[3:].strip()
+        label, feedback = split_label_feedback(line)
+        options.append({
+            "text_html": render_inline(label),
+            "feedback_html": render_inline(feedback),
+            "is_correct": is_correct,
+        })
+
+    if not options:
+        warnings.append(f"Task {quiz_id}: no OPTIONS found — skipped.")
+        return None
+    if not any(o["is_correct"] for o in options):
+        warnings.append(f"Task {quiz_id}: no option marked [x] as correct.")
+
+    quiz = Quiz(quiz_id=quiz_id, question_html=render_markdown("\n".join(question_lines)), options=options)
+    quizzes.append(quiz)
+    return quiz
+
+
+def build_block(name: str, attrs: dict, content: str, practices: list, quizzes: list, warnings: list):
     if name == "practice":
         return build_practice(attrs, content, practices, warnings)
     if name == "example":
         return Example(render_markdown(content))
     if name == "tip":
         return Tip(render_markdown(content))
+    if name == "journey":
+        return build_journey(content)
+    if name == "figure":
+        return build_figure(attrs, content)
+    if name == "objectives":
+        return build_objectives(content)
+    if name == "grid":
+        return build_grid(content)
+    if name == "push":
+        return build_push(attrs, content)
+    if name == "checklist":
+        return build_checklist(content)
+    if name == "task" and attrs.get("type") == "choice":
+        return build_quiz(attrs, content, quizzes, warnings)
 
     warnings.append(f"Unknown block type :::{name} — rendered as plain text so nothing is lost.")
     return Prose(render_markdown(content))

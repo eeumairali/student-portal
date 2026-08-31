@@ -1,0 +1,11 @@
+<div class="quiz" data-quiz-id="{{ node.quiz_id }}">
+  <p class="quiz-question">{{ node.question_html|safe }}</p>
+  <div class="quiz-options">
+    {% for opt in node.options %}
+      <div class="quiz-option-wrap">
+        <button type="button" class="quiz-option" data-correct="{% if opt.is_correct %}1{% else %}0{% endif %}">{{ opt.text_html|safe }}</button>
+        <div class="quiz-feedback">{{ opt.feedback_html|safe }}</div>
+      </div>
+    {% endfor %}
+  </div>
+</div>

@@ -214,3 +214,73 @@ body.lesson-doc{margin:0}
 }
 .lesson-doc :focus-visible{outline:2px solid var(--c4);outline-offset:2px}
 .lesson-doc .prose pre::selection,.lesson-doc .prose pre ::selection{background:#3B5BA5;color:#fff}
+
+/* ---------- journey ---------- */
+.lesson-doc .journey{display:flex;flex-wrap:wrap;gap:10px;margin-bottom:20px}
+.lesson-doc .journey-step{flex:1 1 160px;background:var(--paper);border:1px solid var(--line);
+  border-left:4px solid var(--c4);border-radius:10px;padding:12px 14px}
+.lesson-doc .journey-step.current{border-left-color:var(--green);background:var(--greenbg)}
+.lesson-doc .journey-time{display:block;font-family:var(--font-mono);font-size:11px;
+  font-weight:700;letter-spacing:.4px;color:var(--muted);margin-bottom:4px}
+.lesson-doc .journey-title{display:block;font-weight:700}
+.lesson-doc .journey-detail{display:block;font-size:13px;color:var(--muted);margin-top:2px}
+
+/* ---------- figure ---------- */
+.lesson-doc .lfigure{margin:0 0 20px;padding:0}
+.lesson-doc .lfigure pre{background:var(--code);color:var(--codetext);border-radius:10px;
+  padding:15px 17px;overflow-x:auto;font-size:13px;line-height:1.5;margin:0}
+.lesson-doc .lfigure figcaption{margin-top:8px;font-size:13px;color:var(--muted);
+  text-align:center;font-style:italic}
+
+/* ---------- objectives ---------- */
+.lesson-doc .objectives{margin:0 0 20px;padding:0;list-style:none;counter-reset:obj}
+.lesson-doc .objectives li{counter-increment:obj;position:relative;padding:2px 0 14px 38px;
+  border-left:2px solid var(--line);margin-left:13px}
+.lesson-doc .objectives li:last-child{border-left-color:transparent;padding-bottom:0}
+.lesson-doc .objectives li::before{content:counter(obj);position:absolute;left:-13px;top:0;
+  width:26px;height:26px;border-radius:50%;background:var(--c4);color:#fff;
+  font-size:12.5px;font-weight:700;display:grid;place-items:center}
+.lesson-doc .obj-text{font-weight:500}
+.lesson-doc .obj-check{margin-top:6px;font-size:13px;color:var(--muted)}
+.lesson-doc .obj-check b{color:var(--green);letter-spacing:.4px;text-transform:uppercase;font-size:11px;margin-right:4px}
+
+/* ---------- grid ---------- */
+.lesson-doc .lgrid{display:flex;flex-wrap:wrap;gap:14px;margin-bottom:20px}
+.lesson-doc .lgrid-col{flex:1 1 200px;background:var(--card);border:1px solid var(--line);
+  border-radius:12px;padding:16px 18px}
+.lesson-doc .lgrid-heading{font-weight:700;margin:0 0 10px}
+.lesson-doc .lgrid-col ul{margin:0;padding:0;list-style:none}
+.lesson-doc .lgrid-col li{padding:4px 0;font-size:14px}
+
+/* ---------- push ---------- */
+.lesson-doc .push{background:var(--c5bg);border:1px solid var(--c5);border-radius:14px;
+  padding:20px 22px;margin-bottom:20px}
+.lesson-doc .push-title{font-family:var(--font-display);font-size:20px;font-weight:700;
+  margin:0 0 8px;color:var(--c5)}
+.lesson-doc .push-body p{margin:0 0 8px}
+.lesson-doc .push-body p:last-child{margin-bottom:0}
+
+/* ---------- checklist ---------- */
+.lesson-doc .checklist{margin:0 0 20px;padding:0;list-style:none}
+.lesson-doc .checklist-item{display:flex;align-items:center;gap:11px;padding:8px 0}
+.lesson-doc .checklist-check{flex:0 0 22px;width:22px;height:22px;border-radius:6px;
+  border:1.5px solid var(--line);background:var(--card);padding:0;position:relative}
+.lesson-doc .checklist-item.done .checklist-check{background:var(--green);border-color:var(--green)}
+.lesson-doc .checklist-item.done .checklist-check::after{content:"✓";position:absolute;inset:0;
+  display:grid;place-items:center;color:#fff;font-size:13px}
+.lesson-doc .checklist-item.done span{color:var(--muted);text-decoration:line-through}
+
+/* ---------- quiz (ungraded warm-up) ---------- */
+.lesson-doc .quiz{background:var(--card);border:1px solid var(--line);border-radius:14px;
+  padding:18px 20px;margin-bottom:20px}
+.lesson-doc .quiz-question{font-weight:500;margin:0 0 14px}
+.lesson-doc .quiz-options{display:flex;flex-direction:column;gap:9px}
+.lesson-doc .quiz-option{display:block;width:100%;text-align:left;background:var(--paper);
+  border:1.5px solid var(--line);border-radius:10px;padding:10px 14px;font-size:14.5px;
+  color:var(--ink);transition:.15s}
+.lesson-doc .quiz-option:hover{border-color:var(--c4)}
+.lesson-doc .quiz-option.picked.correct{border-color:var(--green);background:var(--greenbg)}
+.lesson-doc .quiz-option.picked.incorrect{border-color:var(--redline);background:var(--redbg)}
+.lesson-doc .quiz-feedback{max-height:0;overflow:hidden;opacity:0;font-size:13.5px;
+  color:var(--muted);padding:0 14px;transition:.2s}
+.lesson-doc .quiz-feedback.show{max-height:80px;opacity:1;padding:6px 14px 0}

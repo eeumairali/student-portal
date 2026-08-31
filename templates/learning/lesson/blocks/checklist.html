@@ -1,0 +1,8 @@
+<ul class="checklist">
+  {% for item in node.items %}
+    <li class="checklist-item">
+      <button type="button" class="checklist-check" aria-pressed="false"></button>
+      <span>{{ item }}</span>
+    </li>
+  {% endfor %}
+</ul>

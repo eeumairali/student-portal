@@ -1,0 +1,8 @@
+<div class="lgrid">
+  {% for col in node.columns %}
+    <div class="lgrid-col">
+      <p class="lgrid-heading">{{ col.heading }}</p>
+      <ul>{% for item in col.items %}<li>{{ item }}</li>{% endfor %}</ul>
+    </div>
+  {% endfor %}
+</div>

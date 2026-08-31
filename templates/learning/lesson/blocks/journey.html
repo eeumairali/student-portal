@@ -1,0 +1,9 @@
+<div class="journey">
+  {% for step in node.steps %}
+    <div class="journey-step{% if step.current %} current{% endif %}">
+      <span class="journey-time">{{ step.time }}</span>
+      <span class="journey-title">{{ step.title }}</span>
+      {% if step.detail %}<span class="journey-detail">{{ step.detail }}</span>{% endif %}
+    </div>
+  {% endfor %}
+</div>

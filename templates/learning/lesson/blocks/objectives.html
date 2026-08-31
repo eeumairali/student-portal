@@ -1,0 +1,8 @@
+<ol class="objectives">
+  {% for item in node.items %}
+    <li>
+      <div class="obj-text">{{ item.html|safe }}</div>
+      {% if item.check %}<div class="obj-check"><b>Check</b> {{ item.check }}</div>{% endif %}
+    </li>
+  {% endfor %}
+</ol>

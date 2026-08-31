@@ -152,6 +152,27 @@
       });
     });
 
+    // ---- quiz options: ungraded, click any option to see its feedback ----
+    document.querySelectorAll(".quiz-option").forEach(function (btn) {
+      btn.addEventListener("click", function () {
+        btn.classList.add("picked");
+        btn.classList.toggle("correct", btn.dataset.correct === "1");
+        btn.classList.toggle("incorrect", btn.dataset.correct !== "1");
+        var wrap = btn.closest(".quiz-option-wrap");
+        var feedback = wrap && wrap.querySelector(".quiz-feedback");
+        if (feedback) feedback.classList.add("show");
+      });
+    });
+
+    // ---- checklist: self-check only, not saved to the server ----
+    document.querySelectorAll(".checklist-check").forEach(function (btn) {
+      btn.addEventListener("click", function () {
+        var pressed = btn.getAttribute("aria-pressed") === "true";
+        btn.setAttribute("aria-pressed", String(!pressed));
+        btn.closest(".checklist-item").classList.toggle("done", !pressed);
+      });
+    });
+
     refresh();
   });
 })();
