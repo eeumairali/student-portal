@@ -429,6 +429,9 @@ def parse_body(text: str, tasks: list, all_blank_ids: list, warnings: list) -> l
 
 
 FENCE_RE = re.compile(r"^(```|~~~)")
+TASK_PYTHON_FENCE_RE = re.compile(
+    r"(?ms)^[ \t]*(```|~~~)(?:python|py)?[ \t]*\r?\n(.*?)(?:\r?\n)?^[ \t]*\1[ \t]*$"
+)
 
 
 def parse_text_chunk(text: str, all_blank_ids: list) -> list:
@@ -610,6 +613,17 @@ def split_task_sections(text: str) -> dict:
     return {k: "\n".join(v) for k, v in sections.items()}
 
 
+def extract_task_starter(text: str) -> tuple[str, str]:
+    """Remove the first Python fence from task instructions and return it as
+    editor starter code. This keeps older lessons that used ``# YOUR CODE
+    HERE`` fences interactive without requiring authors to rewrite them."""
+    match = TASK_PYTHON_FENCE_RE.search(text)
+    if not match:
+        return text, ""
+    remaining = text[:match.start()] + text[match.end():]
+    return remaining, match.group(2).strip("\r\n")
+
+
 def build_task(attrs: dict, content: str, tasks: list, all_blank_ids: list, warnings: list) -> Task:
     task_id = attrs.get("id")
     if not task_id:
@@ -639,20 +653,28 @@ def build_task(attrs: dict, content: str, tasks: list, all_blank_ids: list, warn
     rest = "\n".join(lines[idx + 1:])
 
     sections = split_task_sections(rest)
-    body_nodes = parse_body(sections.get(None, ""), tasks, all_blank_ids, warnings)
+    body_source = sections.get(None, "")
+    note_source = sections.get("NOTE", "")
+
+    # New lessons can use STARTER explicitly. For existing code lessons, a
+    # Python fence in the task instructions (or NOTE) is treated as the
+    # editable scaffold rather than a read-only example.
+    starter_code = sections.get("STARTER", "").strip("\n")
+    if task_type == "code" and not starter_code:
+        body_source, starter_code = extract_task_starter(body_source)
+        if not starter_code:
+            note_source, starter_code = extract_task_starter(note_source)
+
+    body_nodes = parse_body(body_source, tasks, all_blank_ids, warnings)
 
     note_nodes = []
-    if sections.get("NOTE", "").strip():
-        note_nodes = parse_body(sections["NOTE"], tasks, all_blank_ids, warnings)
+    if note_source.strip():
+        note_nodes = parse_body(note_source, tasks, all_blank_ids, warnings)
 
     expected = None
     if sections.get("EXPECTED", "").strip():
         expected = sections["EXPECTED"].strip()
 
-    # STARTER is deliberately plain text rather than Markdown. It lets an
-    # author give a small editable starting point without displaying a full
-    # worked answer in the task body.
-    starter_code = sections.get("STARTER", "").strip("\n")
     practice_kind = "self" if (
         attrs.get("phase", "").lower() in {"self", "self-practice"}
         or task_id.lower().startswith("sp")

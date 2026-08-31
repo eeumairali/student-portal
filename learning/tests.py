@@ -147,6 +147,12 @@ class LessonMarkdownParserTests(TestCase):
         self.assertTrue(t1.has_solution)
         self.assertEqual(t1.hint_seconds, 240)
 
+    def test_legacy_python_fence_becomes_editable_starter_code(self):
+        parsed = parse_lesson(self.raw)
+        t1 = next(t for t in parsed.tasks if t.task_id == "t1")
+        self.assertIn("YOUR CODE HERE", t1.starter_code)
+        self.assertNotIn("YOUR CODE HERE", "".join(getattr(n, "html", "") for n in t1.note))
+
     def test_blank_ids_collected_in_document_order(self):
         parsed = parse_lesson(self.raw)
         self.assertEqual(
