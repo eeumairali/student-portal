@@ -13,17 +13,16 @@ produces. `LESSON_TEMPLATE.md` is a working example of every construct below.
 
 ```yaml
 ---
+# before making anything confirm from user 
 student: andy                  # required — username of the student
 date: 2026-08-26               # required — YYYY-MM-DD, orders the timeline
-title: One branch, and a function that calls itself   # required
+title: One branch, and a function that calls itself   # required ask from user
 subtitle: Recursion — the idea the whole week rests on
 course: blender-python         # optional — groups lessons; created if missing
 format: slide                  # optional — document | slide, default document
-hint_seconds: 240              # optional — default timer, default 30
+hint_seconds: 30              # optional — default timer, default 30
 visible: false                 # optional — default false; tutor publishes
-time: "7:00 PM"
-duration: 45 min
-week: 3                        # unknown key — becomes a header pill
+duration: 50 min
 platform: preply               # unknown key — becomes a header pill
 ---
 ```
