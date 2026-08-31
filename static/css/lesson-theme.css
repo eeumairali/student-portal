@@ -10,7 +10,7 @@
   --deep:#1B2A4A;
   --amber:#C97A12; --amberbg:#FFF4E0; --amberline:#F0CE94;
   --green:#12805C; --greenbg:#E7F8F0; --greenline:#9FE0C4;
-  --code:#101826; --codetext:#D9E4F5;
+  --code:#0B1220; --codetext:#F1F5FC;
   --font-display:Georgia,"Times New Roman",serif;
   --font-body:"Segoe UI",-apple-system,BlinkMacSystemFont,Roboto,sans-serif;
   --font-mono:"SFMono-Regular",Consolas,"Liberation Mono",Menlo,monospace;
@@ -64,6 +64,7 @@ body.lesson-doc{margin:0}
 .lesson-doc .prose p{margin:0 0 12px}
 .lesson-doc .prose pre{background:var(--code);color:var(--codetext);border-radius:10px;padding:15px 17px;
   overflow-x:auto;font-size:13.5px;line-height:1.55}
+.lesson-doc .prose pre code,.lesson-doc .example-body pre code,.lesson-doc .hint pre code{color:inherit;background:none}
 .lesson-doc .prose table{border-collapse:collapse;width:100%;margin:0 0 12px}
 .lesson-doc .prose th,.lesson-doc .prose td{border:1px solid var(--line);padding:8px 10px;text-align:left;font-size:14px}
 .lesson-doc .prose th{background:var(--paper);font-weight:600}
@@ -94,9 +95,9 @@ body.lesson-doc{margin:0}
 .lesson-doc .example{background:var(--c4bg);border:1px solid var(--c4);border-left:5px solid var(--c4);
   border-radius:12px;padding:18px 20px;margin-bottom:20px}
 .lesson-doc .example-label{display:block;font-family:var(--font-mono);font-size:11.5px;font-weight:700;
-  letter-spacing:.7px;text-transform:uppercase;color:var(--c4);margin-bottom:10px}
+  letter-spacing:.7px;text-transform:uppercase;color:#0D5A6B;margin-bottom:10px}
 .lesson-doc .example-body .prose{margin-bottom:0}
-.lesson-doc .example-body pre{background:var(--code)}
+.lesson-doc .example-body pre{background:var(--code);color:var(--codetext)}
 
 /* ---------- tip ---------- */
 .lesson-doc .tip{background:var(--amberbg);border:1px solid var(--amberline);border-left:5px solid var(--amber);
@@ -180,3 +181,4 @@ body.lesson-doc{margin:0}
   .lesson-doc *,.lesson-doc *::before,.lesson-doc *::after{animation:none!important;transition:none!important}
 }
 .lesson-doc :focus-visible{outline:2px solid var(--c4);outline-offset:2px}
+.lesson-doc .prose pre::selection,.lesson-doc .prose pre ::selection{background:#3B5BA5;color:#fff}
