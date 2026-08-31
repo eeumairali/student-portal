@@ -6,19 +6,44 @@
    solution reveal. */
 
 :root{
-  --ink:#1B2430; --paper:#F6F7FB; --card:#FFFFFF; --line:#E3E7EF; --muted:#67718A;
-  --deep:#1B2A4A;
-  --amber:#C97A12; --amberbg:#FFF4E0; --amberline:#F0CE94;
-  --green:#12805C; --greenbg:#E7F8F0; --greenline:#9FE0C4;
+  /* Dark is the default palette; [data-theme="light"] below switches to the
+     original light one. Toggled and persisted by static/js/theme-toggle.js. */
+  --ink:#F2F4FA; --paper:#000000; --card:#0D0F14; --line:#2B2E36; --muted:#A3ACC0;
+  --deep:#0B1730;
+  --amber:#E3A64C; --amberbg:#2B2210; --amberline:#5C4820;
+  --green:#3FCB92; --greenbg:#0F2A21; --greenline:#1F5B45;
   --code:#0B1220; --codetext:#F1F5FC;
+  --examplelabel:#7FD4E8;
+  --ambertext:#F3D9A8; --amberhover:#3A2E15;
+  --greentext:#8FE8C0;
+  --redline:#5C2430; --redbg:#301419; --redtext:#F5A3AC;
   --font-display:Georgia,"Times New Roman",serif;
   --font-body:"Segoe UI",-apple-system,BlinkMacSystemFont,Roboto,sans-serif;
   --font-mono:"SFMono-Regular",Consolas,"Liberation Mono",Menlo,monospace;
   --base-size:16.5px; --base-line:1.65;
   --radius:16px;
-  --shadow:0 1px 2px rgba(20,30,60,.05),0 10px 26px -14px rgba(20,30,60,.22);
+  --shadow:0 1px 2px rgba(0,0,0,.25),0 10px 26px -14px rgba(0,0,0,.55);
 
   /* block accent cycle */
+  --c1:#F0637A; --c1bg:#3A1620;
+  --c2:#E3A64C; --c2bg:#332510;
+  --c3:#4FC178; --c3bg:#132B1D;
+  --c4:#3FB8D1; --c4bg:#0F2A31;
+  --c5:#8B90F2; --c5bg:#211F3D;
+  --c6:#C97AE8; --c6bg:#301F3A;
+  --c7:#D9A93E; --c7bg:#332810;
+}
+:root[data-theme="light"]{
+  --ink:#1B2430; --paper:#F6F7FB; --card:#FFFFFF; --line:#E3E7EF; --muted:#67718A;
+  --deep:#1B2A4A;
+  --amber:#C97A12; --amberbg:#FFF4E0; --amberline:#F0CE94;
+  --green:#12805C; --greenbg:#E7F8F0; --greenline:#9FE0C4;
+  --examplelabel:#0D5A6B;
+  --ambertext:#7A4E0C; --amberhover:#FCE7C3;
+  --greentext:#0E5C40;
+  --redline:#F0B4B4; --redbg:#FDECEC; --redtext:#7A1E1E;
+  --shadow:0 1px 2px rgba(20,30,60,.05),0 10px 26px -14px rgba(20,30,60,.22);
+
   --c1:#D9455F; --c1bg:#FDECEF;
   --c2:#C97A12; --c2bg:#FFF4E0;
   --c3:#2E9B4F; --c3bg:#EAF8EE;
@@ -29,7 +54,8 @@
 }
 
 *{box-sizing:border-box}
-.lesson-doc{background:var(--paper); color:var(--ink); font:var(--base-size)/var(--base-line) var(--font-body);}
+html:has(body.lesson-doc){background:var(--paper)}
+.lesson-doc{background:var(--paper); color:var(--ink); font:var(--base-size)/var(--base-line) var(--font-body); min-height:100vh}
 body.lesson-doc{margin:0}
 .lesson-doc code, .lesson-doc .mono{ font-family:var(--font-mono) }
 .lesson-doc .wrap{max-width:880px;margin:0 auto;padding:0 24px 90px}
@@ -48,6 +74,7 @@ body.lesson-doc{margin:0}
 .lesson-doc ul.topics li{background:rgba(255,255,255,.12);border-radius:999px;padding:6px 14px;font-size:13px}
 .lesson-doc .meta{display:flex;flex-wrap:wrap;gap:10px}
 .lesson-doc .pill{background:rgba(255,255,255,.14);border-radius:999px;padding:7px 15px;font-size:13px;font-weight:600}
+.lesson-doc .theme-toggle-btn{cursor:pointer;border:none;font:inherit}
 @media(max-width:700px){.lesson-doc header.lhead{padding:32px 0 26px;margin-bottom:22px}}
 
 /* ---------- progress bar ---------- */
@@ -95,13 +122,13 @@ body.lesson-doc{margin:0}
 .lesson-doc .example{background:var(--c4bg);border:1px solid var(--c4);border-left:5px solid var(--c4);
   border-radius:12px;padding:18px 20px;margin-bottom:20px}
 .lesson-doc .example-label{display:block;font-family:var(--font-mono);font-size:11.5px;font-weight:700;
-  letter-spacing:.7px;text-transform:uppercase;color:#0D5A6B;margin-bottom:10px}
+  letter-spacing:.7px;text-transform:uppercase;color:var(--examplelabel);margin-bottom:10px}
 .lesson-doc .example-body .prose{margin-bottom:0}
 .lesson-doc .example-body pre{background:var(--code);color:var(--codetext)}
 
 /* ---------- tip ---------- */
 .lesson-doc .tip{background:var(--amberbg);border:1px solid var(--amberline);border-left:5px solid var(--amber);
-  border-radius:12px;padding:15px 18px;margin-bottom:20px;font-size:14.5px;color:#7A4E0C}
+  border-radius:12px;padding:15px 18px;margin-bottom:20px;font-size:14.5px;color:var(--ambertext,#7A4E0C)}
 .lesson-doc .tip p{margin:0 0 8px}
 .lesson-doc .tip p:last-child{margin-bottom:0}
 
@@ -136,14 +163,14 @@ body.lesson-doc{margin:0}
 .lesson-doc .expect{background:var(--greenbg);border:1px solid var(--greenline);border-radius:8px;
   padding:9px 13px;margin-top:12px;font-size:13px}
 .lesson-doc .expect b{color:var(--green);font-size:11px;letter-spacing:.6px;display:block;margin-bottom:3px}
-.lesson-doc .expect .mono{color:#0E5C40}
+.lesson-doc .expect .mono{color:var(--greentext,#0E5C40)}
 
 /* ---------- hint / timer / mark done ---------- */
 .lesson-doc .practice-actions{margin-top:14px;display:flex;align-items:center;gap:12px;flex-wrap:wrap}
 .lesson-doc button{font:inherit;cursor:pointer;border-radius:8px;border:1px solid transparent}
 .lesson-doc .hbtn{background:var(--amberbg);border-color:var(--amberline);color:var(--amber);
   font-size:13.5px;font-weight:600;padding:9px 15px;transition:.15s}
-.lesson-doc .hbtn:hover{background:#FCE7C3}
+.lesson-doc .hbtn:hover{background:var(--amberhover,#FCE7C3)}
 .lesson-doc .hbtn:disabled{cursor:default;opacity:.95}
 .lesson-doc .dbtn{background:var(--deep);color:#fff;font-size:13.5px;font-weight:600;padding:9px 17px}
 .lesson-doc .dbtn:hover{background:#132039}
@@ -157,10 +184,10 @@ body.lesson-doc{margin:0}
 @keyframes lesson-drop{from{opacity:0;transform:translateY(-7px)}to{opacity:1;transform:none}}
 .lesson-doc .hint h4{margin:0 0 8px;font-size:11px;letter-spacing:.8px;color:var(--amber);text-transform:uppercase}
 .lesson-doc .hint pre{margin:0}
-.lesson-doc .hint p{margin:9px 0 0;font-size:13.5px;color:#7A4E0C}
+.lesson-doc .hint p{margin:9px 0 0;font-size:13.5px;color:var(--ambertext,#7A4E0C)}
 
 /* ---------- preview-only chrome ---------- */
-.lesson-doc .preview-warnings{border-color:#F0B4B4;background:#FDECEC;color:#7A1E1E;border-left-color:#D9455F}
+.lesson-doc .preview-warnings{border-color:var(--redline,#F0B4B4);background:var(--redbg,#FDECEC);color:var(--redtext,#7A1E1E);border-left-color:var(--c1)}
 .lesson-doc .preview-warnings ul{margin:8px 0 0;padding-left:18px}
 .lesson-doc .back-to-editor{margin:0 0 20px}
 .lesson-doc .back-to-editor a{display:inline-flex;align-items:center;gap:7px;
@@ -169,7 +196,6 @@ body.lesson-doc{margin:0}
   border-radius:999px;padding:7px 14px 7px 12px;text-decoration:none;
   box-shadow:var(--shadow);transition:.15s}
 .lesson-doc .back-to-editor a:hover{color:var(--deep);border-color:var(--c4);background:var(--c4bg)}
-.lesson-doc .back-to-editor a{color:var(--c4)}
 
 /* ---------- finish ---------- */
 .lesson-doc .done-msg{margin-top:26px;padding:22px 26px;background:var(--deep);color:#fff;

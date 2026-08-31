@@ -4,6 +4,8 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="robots" content="noindex, nofollow">
+    <meta name="color-scheme" content="dark">
+    <script>(function(){try{if(localStorage.getItem("theme")==="light"){document.documentElement.setAttribute("data-theme","light")}}catch(e){}})();</script>
     <title>{{ front_matter.title }}{% if course %} · {{ course }}{% endif %}</title>
     <link rel="stylesheet" href="{% static 'css/lesson-theme.css' %}">
     {% if front_matter.accent %}
@@ -13,5 +15,6 @@
 <body class="lesson-doc">
     {% include "learning/lesson/_document_body.html" %}
 <script src="{% static 'js/lesson.js' %}" defer></script>
+<script src="{% static 'js/theme-toggle.js' %}" defer></script>
 </body>
 </html>

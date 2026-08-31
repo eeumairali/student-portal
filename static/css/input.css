@@ -3,8 +3,16 @@
 @tailwind utilities;
 
 @layer base {
-  /* Dark is the only palette now — no light mode, no toggle. */
+  /* Dark is the default palette; [data-theme="light"] on <html> switches to
+     the light one. Toggled and persisted by static/js/theme-toggle.js. */
   :root {
+    --c-ink: 240 240 245;
+    --c-paper: 0 0 0;
+    --c-card: 15 15 20;
+    --c-line: 45 45 55;
+    --c-slate-500: 168 168 185;
+  }
+  :root[data-theme="light"] {
     --c-ink: 35 29 66;
     --c-paper: 247 247 255;
     --c-card: 255 255 255;
@@ -12,6 +20,7 @@
     --c-slate-500: 83 72 122;
   }
 
+  html { @apply bg-paper; }
   body { @apply bg-paper text-ink font-body antialiased; font-size: 18px; line-height: 1.65; }
   :focus-visible { @apply outline-none ring-2 ring-teal-600 ring-offset-2 ring-offset-paper rounded; }
 }
