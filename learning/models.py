@@ -63,8 +63,6 @@ class Enrollment(models.Model):
 
 
 class Lesson(models.Model):
-    FORMATS = [("document", "Document / project"), ("slide", "Slide")]
-
     # Shared curriculum lesson (Phase 1): course set, student blank, ordered by `order`.
     # Personal dated document (Phase 2): student + date set, markdown_source holds the
     # document. course is then just an optional grouping label. Never delete a Lesson —
@@ -81,8 +79,7 @@ class Lesson(models.Model):
     description = models.TextField(blank=True, help_text="What the student will do this session. (Legacy field — new lessons use markdown_source.)")
     markdown_source = models.TextField(blank=True, help_text="The lesson document. See skills/FORMAT_SPEC.md.")
     meta = models.JSONField(default=dict, blank=True, help_text="Unknown front-matter keys, rendered as header pills.")
-    format = models.CharField(max_length=20, choices=FORMATS, blank=True, help_text="Blank uses the document/project format.")
-    hint_seconds_default = models.PositiveIntegerField(default=30)
+    hint_seconds_default = models.PositiveIntegerField(default=20)
     is_published = models.BooleanField(default=True, help_text="Locked (unticked) lessons are invisible to the student.")
 
     class Meta:
@@ -139,17 +136,14 @@ class LessonFile(models.Model):
 
 
 class Task(models.Model):
-    """One row per :::task in a lesson's markdown_source. This is identity and
-    state only — content is re-parsed live from markdown_source on every view,
-    so it can never drift from what's on the page. A task removed from the
-    source is marked orphaned, never deleted, so a student's progress on it
-    is never silently lost."""
-
-    TYPES = [("code", "Code"), ("choice", "Choice"), ("step", "Step"), ("answer", "Answer")]
+    """One row per :::practice question in a lesson's markdown_source. This is
+    identity and state only — content is re-parsed live from markdown_source
+    on every view, so it can never drift from what's on the page. A practice
+    removed from the source is marked orphaned, never deleted, so a student's
+    progress on it is never silently lost."""
 
     lesson = models.ForeignKey(Lesson, on_delete=models.CASCADE, related_name="tasks")
     task_id = models.CharField(max_length=64)
-    type = models.CharField(max_length=20, choices=TYPES, default="code")
     order = models.PositiveIntegerField(default=1)
     is_orphaned = models.BooleanField(default=False, help_text="No longer in the markdown source.")
     is_complete = models.BooleanField(default=False)
@@ -166,35 +160,6 @@ class Task(models.Model):
         self.is_complete = complete
         self.completed_at = timezone.now() if complete else None
         self.save(update_fields=["is_complete", "completed_at"])
-
-
-class BlankAnswer(models.Model):
-    """A saved {{blank_id}} value. The lesson already belongs to one student,
-    so no separate student FK is needed here."""
-
-    lesson = models.ForeignKey(Lesson, on_delete=models.CASCADE, related_name="blank_answers")
-    blank_id = models.CharField(max_length=64)
-    value = models.TextField(blank=True)
-    updated_at = models.DateTimeField(auto_now=True)
-
-    class Meta:
-        unique_together = [("lesson", "blank_id")]
-
-    def __str__(self):
-        return f"{self.lesson} · {self.blank_id}"
-
-
-class ChecklistCheck(models.Model):
-    lesson = models.ForeignKey(Lesson, on_delete=models.CASCADE, related_name="checklist_checks")
-    check_id = models.CharField(max_length=32)
-    is_checked = models.BooleanField(default=True)
-    updated_at = models.DateTimeField(auto_now=True)
-
-    class Meta:
-        unique_together = [("lesson", "check_id")]
-
-    def __str__(self):
-        return f"{self.lesson} · {self.check_id}"
 
 
 class HintReveal(models.Model):

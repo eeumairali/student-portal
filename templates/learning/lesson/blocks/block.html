@@ -1,0 +1,15 @@
+<section class="block">
+  {% if node.total %}
+    <div class="block-head">
+      <span class="block-count">{{ node.index }} of {{ node.total }}</span>
+      {% if node.title %}<h2 class="block-title">{{ node.title }}</h2>{% endif %}
+    </div>
+  {% elif node.title %}
+    <div class="block-head block-head-intro">
+      <h2 class="block-title">{{ node.title }}</h2>
+    </div>
+  {% endif %}
+  <div class="block-body">
+    {% for n in node.nodes %}{% include n.template_name with node=n %}{% endfor %}
+  </div>
+</section>

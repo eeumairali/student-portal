@@ -1,8 +1,0 @@
-<ul class="checklist">
-  {% for item in node.items %}
-    <li>
-      <input type="checkbox" id="{{ item.check_id }}" data-check-id="{{ item.check_id }}">
-      <label for="{{ item.check_id }}">{{ item.html|safe }}</label>
-    </li>
-  {% endfor %}
-</ul>

@@ -9,8 +9,8 @@
 </h1>
 <p class="mt-3 max-w-2xl text-slate-500">
   {% if editing_lesson %}
-    Change anything — title, date, tasks, wording — then preview and confirm. This updates the
-    existing note in place; the student keeps their saved answers unless you remove a task they've answered.
+    Change anything — title, date, blocks, wording — then preview and confirm. This updates the
+    existing note in place; the student keeps their progress unless you remove a practice question they've completed.
   {% else %}
     Paste Markdown, or upload a <span class="font-mono">.md</span> file — see
     <span class="font-mono">skills/FORMAT_SPEC.md</span> for the format. The
@@ -30,10 +30,10 @@
 
   <div data-editor-toolbar="markdown-editor" class="mt-3 flex flex-wrap gap-2">
     <span class="self-center text-xs text-slate-500">Insert:</span>
-    <button type="button" data-snippet="code" class="btn-quiet px-3 py-1.5 text-xs">Code task</button>
-    <button type="button" data-snippet="choice" class="btn-quiet px-3 py-1.5 text-xs">Choice task</button>
-    <button type="button" data-snippet="step" class="btn-quiet px-3 py-1.5 text-xs">Step task</button>
-    <button type="button" data-snippet="blank" class="btn-quiet px-3 py-1.5 text-xs">Blank</button>
+    <button type="button" data-snippet="block" class="btn-quiet px-3 py-1.5 text-xs">New block</button>
+    <button type="button" data-snippet="example" class="btn-quiet px-3 py-1.5 text-xs">Example</button>
+    <button type="button" data-snippet="practice" class="btn-quiet px-3 py-1.5 text-xs">Practice</button>
+    <button type="button" data-snippet="tip" class="btn-quiet px-3 py-1.5 text-xs">Tip</button>
   </div>
 
   <textarea id="markdown-editor" name="markdown" rows="26" spellcheck="false"

@@ -2,7 +2,7 @@ from django.contrib import admin
 from django.utils.html import format_html
 
 from .models import (
-    BlankAnswer, ChecklistCheck, Course, Enrollment, HintReveal, Lesson, LessonFile, LessonProgress, Task,
+    Course, Enrollment, HintReveal, Lesson, LessonFile, LessonProgress, Task,
 )
 
 
@@ -47,7 +47,7 @@ class CourseAdmin(admin.ModelAdmin):
 @admin.register(Lesson)
 class LessonAdmin(admin.ModelAdmin):
     list_display = ("title", "student", "date", "course", "order", "file_count", "is_published")
-    list_filter = ("course", "is_published", "format")
+    list_filter = ("course", "is_published")
     search_fields = ("title", "description", "student__username")
     autocomplete_fields = ("student", "course")
     inlines = [LessonFileInline]
@@ -56,7 +56,7 @@ class LessonAdmin(admin.ModelAdmin):
         ("What the student sees (legacy shared lessons)", {"fields": ("description",)}),
         ("Dated document (Phase 2 — normally added via the Students page, not here)", {
             "classes": ("collapse",),
-            "fields": ("student", "date", "subtitle", "format", "hint_seconds_default", "meta", "markdown_source"),
+            "fields": ("student", "date", "subtitle", "hint_seconds_default", "meta", "markdown_source"),
         }),
     )
 
@@ -67,22 +67,9 @@ class LessonAdmin(admin.ModelAdmin):
 
 @admin.register(Task)
 class TaskAdmin(admin.ModelAdmin):
-    list_display = ("lesson", "task_id", "type", "is_complete", "is_orphaned", "completed_at")
-    list_filter = ("type", "is_complete", "is_orphaned")
+    list_display = ("lesson", "task_id", "is_complete", "is_orphaned", "completed_at")
+    list_filter = ("is_complete", "is_orphaned")
     search_fields = ("task_id", "lesson__title", "lesson__student__username")
-    autocomplete_fields = ("lesson",)
-
-
-@admin.register(BlankAnswer)
-class BlankAnswerAdmin(admin.ModelAdmin):
-    list_display = ("lesson", "blank_id", "value", "updated_at")
-    search_fields = ("blank_id", "lesson__title", "lesson__student__username")
-    autocomplete_fields = ("lesson",)
-
-
-@admin.register(ChecklistCheck)
-class ChecklistCheckAdmin(admin.ModelAdmin):
-    list_display = ("lesson", "check_id", "is_checked", "updated_at")
     autocomplete_fields = ("lesson",)
 
 

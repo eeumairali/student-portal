@@ -1,57 +1,37 @@
-"""Parses the lesson Markdown format described in skills/FORMAT_SPEC.md into a
-tree of render-ready nodes. See skills/LESSON_TEMPLATE.md for a worked example
-of every construct handled here.
+"""Parses the simplified lesson Markdown format described in
+skills/FORMAT_SPEC.md into a tree of render-ready nodes. See
+skills/LESSON_TEMPLATE.md for a worked example.
 
 Nothing in this module touches the database — it is pure text in, node tree
 out, so it can be reused for the admin preview and for the real save path.
+
+The whole format is deliberately small: front matter, then a sequence of
+``## `` blocks (auto-numbered "N of TOTAL"), each holding prose, an optional
+``:::example`` panel, an optional ``:::tip`` note, and zero or more
+``:::practice`` questions the student works out on their own computer. There
+is no in-browser code execution, no blanks, no quizzes, no checklists.
 """
 from __future__ import annotations
 
-import html
 import re
 from dataclasses import dataclass, field
 from datetime import date as date_cls
 
-import bleach
 import markdown as md
 import yaml
-from bleach.css_sanitizer import CSSSanitizer
 
 KNOWN_FRONT_MATTER_KEYS = {
     "student", "date", "title", "subtitle", "course",
-    "format", "hint_seconds", "visible", "time", "duration", "accent",
+    "topics", "hint_seconds", "visible", "accent",
 }
-FORMATS = {"document", "slide"}
-TASK_TYPES = {"code", "choice", "step", "answer"}
-
 MD_EXTENSIONS = ["tables", "fenced_code", "sane_lists"]
 
-BLANK_RE = re.compile(r"\{\{([a-zA-Z][a-zA-Z0-9_]*)(?:\|(wide|long))?\}\}")
 FRONT_MATTER_RE = re.compile(r"^---\s*\n(.*?\n)---[ \t]*\n?(.*)$", re.DOTALL)
 BLOCK_OPEN_RE = re.compile(r"^:::(\S+)(.*)$")
-HEADING_RE = re.compile(r"^(#{1,3})\s+(.*)$")
-KEYWORD_RE = re.compile(r"^(NOTE|EXPECTED|DONE WHEN|SOLUTION|OPTIONS|STARTER)\s*$")
-NUMBERED_RE = re.compile(r"^\d+\.\s+(.*)$")
-WHY_RE = re.compile(r"^WHY\s*[—-]\s*(.*)$")
-CHECK_RE = re.compile(r"^CHECK\s*[—-]\s*(.*)$")
-OPTION_RE = re.compile(r"^-\s*(\[x\]\s*)?(.*)$")
+BLOCK_HEADING_RE = re.compile(r"^##\s+(.*)$")
+KEYWORD_RE = re.compile(r"^(EXPECTED|SOLUTION)\s*$")
 HEX_COLOUR_RE = re.compile(r"^#[0-9a-fA-F]{3}([0-9a-fA-F]{3})?$")
-
-ALLOWED_RAW_TAGS = [
-    "p", "br", "strong", "em", "b", "i", "u", "span", "div", "ul", "ol", "li",
-    "a", "code", "pre", "blockquote", "table", "thead", "tbody", "tr", "th", "td",
-    "h1", "h2", "h3", "h4", "img", "hr",
-]
-ALLOWED_RAW_ATTRS = {
-    "a": ["href", "title"],
-    "img": ["src", "alt", "title"],
-    "*": ["class", "style"],
-}
-ALLOWED_RAW_CSS_PROPERTIES = [
-    "color", "background-color", "text-align", "font-weight", "font-style",
-    "font-size", "margin", "margin-top", "margin-bottom", "padding", "text-decoration",
-]
-_css_sanitizer = CSSSanitizer(allowed_css_properties=ALLOWED_RAW_CSS_PROPERTIES)
+FENCE_RE = re.compile(r"^(```|~~~)")
 
 
 # ---------------------------------------------------------------- rendering --
@@ -59,51 +39,6 @@ _css_sanitizer = CSSSanitizer(allowed_css_properties=ALLOWED_RAW_CSS_PROPERTIES)
 def render_markdown(text: str) -> str:
     text = text.strip("\n")
     return md.markdown(text, extensions=MD_EXTENSIONS) if text.strip() else ""
-
-
-def substitute_blanks(html_text: str) -> tuple[str, list[str]]:
-    ids: list[str] = []
-
-    def repl(m: re.Match) -> str:
-        blank_id, variant = m.group(1), m.group(2)
-        ids.append(blank_id)
-        if variant == "long":
-            return (
-                f'<textarea class="blank blank-long" data-blank-id="{blank_id}" '
-                f'rows="3" aria-label="Your answer"></textarea>'
-            )
-        cls = "blank blank-wide" if variant == "wide" else "blank"
-        return (
-            f'<input type="text" class="{cls}" data-blank-id="{blank_id}" '
-            f'autocomplete="off" aria-label="Your answer">'
-        )
-
-    return BLANK_RE.sub(repl, html_text), ids
-
-
-def render_with_blanks(text: str) -> tuple[str, list[str]]:
-    return substitute_blanks(render_markdown(text))
-
-
-def render_inline(text: str) -> tuple[str, list[str]]:
-    """Like render_with_blanks, but unwraps a single enclosing <p> so the
-    result can sit inside a heading, label or list item."""
-    html_out, ids = render_with_blanks(text)
-    stripped = html_out.strip()
-    if stripped.startswith("<p>") and stripped.endswith("</p>") and stripped.count("<p>") == 1:
-        stripped = stripped[3:-4]
-    return stripped, ids
-
-
-def sanitize_raw(text: str) -> str:
-    return bleach.clean(
-        text.strip("\n"),
-        tags=ALLOWED_RAW_TAGS,
-        attributes=ALLOWED_RAW_ATTRS,
-        protocols=["http", "https", "mailto"],
-        css_sanitizer=_css_sanitizer,
-        strip=True,
-    )
 
 
 # --------------------------------------------------------------------- nodes --
@@ -115,11 +50,9 @@ class Prose:
 
 
 @dataclass
-class Heading:
-    eyebrow: str | None
-    title: str
-    is_part: bool = False
-    template_name: str = "learning/lesson/blocks/heading.html"
+class Example:
+    html: str
+    template_name: str = "learning/lesson/blocks/example.html"
 
 
 @dataclass
@@ -129,154 +62,48 @@ class Tip:
 
 
 @dataclass
-class Card:
-    title: str
-    html: str
-    template_name: str = "learning/lesson/blocks/card.html"
+class Practice:
+    """One self-practice question. The student writes/runs the code on their
+    own computer, not on the site — the site only holds the prompt, the
+    expected result to self-check against, and a timed hint reveal."""
 
-
-@dataclass
-class RuleColumn:
-    label: str
-    html: str
-
-
-@dataclass
-class Rule:
-    title: str
-    columns: list[RuleColumn]
-    template_name: str = "learning/lesson/blocks/rule.html"
-
-
-@dataclass
-class Steps:
-    items: list[str]
-    template_name: str = "learning/lesson/blocks/steps.html"
-
-
-@dataclass
-class Grid:
-    columns: list[RuleColumn]
-    template_name: str = "learning/lesson/blocks/grid.html"
-
-
-@dataclass
-class Figure:
-    caption: str
-    text: str
-    template_name: str = "learning/lesson/blocks/figure.html"
-
-
-@dataclass
-class Objective:
-    text: str
-    why: str
-    check: str
-
-
-@dataclass
-class Objectives:
-    items: list[Objective]
-    template_name: str = "learning/lesson/blocks/objectives.html"
-
-
-@dataclass
-class JourneyItem:
-    label: str
-    focus: str
-    outcome: str
-    state: str | None
-
-
-@dataclass
-class Journey:
-    items: list[JourneyItem]
-    template_name: str = "learning/lesson/blocks/journey.html"
-
-
-@dataclass
-class Aside:
-    title: str
-    html: str
-    template_name: str = "learning/lesson/blocks/aside.html"
-
-
-@dataclass
-class Push:
-    title: str
-    html: str
-    template_name: str = "learning/lesson/blocks/push.html"
-
-
-@dataclass
-class ChecklistItem:
+    practice_id: str
     index: int
-    check_id: str
-    html: str
-
-
-@dataclass
-class Checklist:
-    items: list[ChecklistItem]
-    template_name: str = "learning/lesson/blocks/checklist.html"
-
-
-@dataclass
-class Raw:
-    html: str
-    template_name: str = "learning/lesson/blocks/raw.html"
-
-
-@dataclass
-class ChoiceOption:
-    html: str
-    correct: bool
-    feedback_html: str
-
-
-@dataclass
-class Task:
-    task_id: str
-    type: str
     hint_seconds: int | None
-    title: str
-    note: list
-    body: list
+    question_html: str
     expected: str | None
-    starter_code: str
-    practice_kind: str
-    done_when_html: str | None
-    solution: list | None
-    options: list[ChoiceOption]
+    solution_html: str | None
     has_solution: bool
-    template_name: str = "learning/lesson/blocks/task.html"
+    template_name: str = "learning/lesson/blocks/practice.html"
+
+
+@dataclass
+class Block:
+    title: str
+    index: int
+    total: int
+    nodes: list
+    template_name: str = "learning/lesson/blocks/block.html"
 
 
 @dataclass
 class ParsedLesson:
     front_matter: dict
     meta: dict
-    nodes: list
-    tasks: list[Task]
-    blank_ids: list[str]
+    topics: list[str]
+    blocks: list[Block]
+    practices: list[Practice]
     warnings: list[str]
-
-    @property
-    def format(self) -> str:
-        return self.front_matter.get("format") or "document"
 
     @property
     def hint_seconds_default(self) -> int:
         try:
-            return int(self.front_matter.get("hint_seconds") or 30)
+            return int(self.front_matter.get("hint_seconds") or 20)
         except (TypeError, ValueError):
-            return 30
+            return 20
 
-    def task_count(self) -> int:
-        return len(self.tasks)
-
-    def blank_count(self) -> int:
-        return len(self.blank_ids)
+    def practice_count(self) -> int:
+        return len(self.practices)
 
 
 # ------------------------------------------------------------------- parsing --
@@ -318,29 +145,30 @@ def parse_lesson(raw_text: str) -> ParsedLesson:
     if date_value is not None and not isinstance(date_value, date_cls):
         warnings.append(f"date must be YYYY-MM-DD, got: {date_value!r}")
 
-    fmt = front_matter.get("format")
-    if fmt and fmt not in FORMATS:
-        warnings.append(f"Unknown format: {fmt!r} — expected document or slide.")
-        front_matter["format"] = None
-
     accent = front_matter.get("accent")
     if accent and not HEX_COLOUR_RE.match(str(accent)):
         warnings.append(f"accent must be a hex colour like #F4845F, got: {accent!r} — ignored.")
         front_matter["accent"] = None
 
-    tasks: list[Task] = []
-    all_blank_ids: list[str] = []
-    nodes = parse_body(body_text, tasks, all_blank_ids, warnings)
-    number_parts(nodes)
+    topics = front_matter.get("topics") or []
+    if isinstance(topics, str):
+        topics = [topics]
+    if not isinstance(topics, list):
+        warnings.append(f"topics must be a list, got: {topics!r} — ignored.")
+        topics = []
+    front_matter["topics"] = [str(t) for t in topics]
+
+    practices: list[Practice] = []
+    blocks = parse_blocks(body_text, practices, warnings)
 
     seen_ids: dict[str, int] = {}
-    for t in tasks:
-        seen_ids[t.task_id] = seen_ids.get(t.task_id, 0) + 1
-    dupes = [tid for tid, n in seen_ids.items() if n > 1]
+    for p in practices:
+        seen_ids[p.practice_id] = seen_ids.get(p.practice_id, 0) + 1
+    dupes = [pid for pid, n in seen_ids.items() if n > 1]
     if dupes:
-        warnings.append("Duplicate task id(s), only the last will keep progress correctly: " + ", ".join(dupes))
+        warnings.append("Duplicate practice id(s), only the last will keep progress correctly: " + ", ".join(dupes))
 
-    return ParsedLesson(front_matter, meta, nodes, tasks, all_blank_ids, warnings)
+    return ParsedLesson(front_matter, meta, front_matter["topics"], blocks, practices, warnings)
 
 
 def parse_attrs(attr_str: str) -> dict:
@@ -354,8 +182,7 @@ def parse_attrs(attr_str: str) -> dict:
 
 def split_fences(text: str):
     """Yield ('text', content) for plain runs and ('block', name, attrs, content)
-    for ':::name ... :::' fences. One level of ':::' nesting inside a fence is
-    kept verbatim in its content for the caller to re-parse."""
+    for ':::name ... :::' fences."""
     lines = text.split("\n")
     i, n = 0, len(lines)
     buf: list[str] = []
@@ -389,218 +216,63 @@ def split_fences(text: str):
         yield ("text", None, None, "\n".join(buf))
 
 
-PART_EYEBROW_RE = re.compile(r"^part\b", re.IGNORECASE)
+def parse_blocks(text: str, practices: list, warnings: list) -> list[Block]:
+    """Split the body into ``## `` blocks. Content before the first ``## ``
+    heading (if any) is folded into an unnumbered intro block so nothing
+    written before the first heading is lost."""
+    raw_blocks: list[tuple[str, str]] = []  # (title, raw_text)
+    current_title = None
+    current_lines: list[str] = []
+    in_fence = False
 
-
-def number_parts(nodes: list) -> None:
-    """Renumber every heading whose eyebrow starts with "Part" as "Part N of
-    total", so the count in the label always matches how many parts the
-    lesson actually has, however the author numbered (or didn't) them."""
-    parts = [n for n in nodes if isinstance(n, Heading) and n.eyebrow and PART_EYEBROW_RE.match(n.eyebrow.strip())]
-    total = len(parts)
-    for i, node in enumerate(parts, start=1):
-        node.eyebrow = f"Part {i} of {total}"
-        node.is_part = True
-
-
-def group_into_sections(nodes: list) -> list[dict]:
-    """Group flat nodes into slide-like sections: everything before the first
-    "Part" heading is one section, then each "Part" heading starts a new one.
-    Lessons with no Part headings come back as a single section."""
-    sections: list[dict] = [{"is_part": False, "nodes": []}]
-    for node in nodes:
-        if isinstance(node, Heading) and node.is_part:
-            sections.append({"is_part": True, "nodes": [node]})
+    for line in text.split("\n"):
+        if FENCE_RE.match(line.strip()):
+            in_fence = not in_fence
+            current_lines.append(line)
+            continue
+        m = BLOCK_HEADING_RE.match(line.strip()) if not in_fence else None
+        if m:
+            raw_blocks.append((current_title, "\n".join(current_lines)))
+            current_title = m.group(1).strip()
+            current_lines = []
         else:
-            sections[-1]["nodes"].append(node)
-    return [s for s in sections if s["nodes"]]
+            current_lines.append(line)
+    raw_blocks.append((current_title, "\n".join(current_lines)))
+
+    numbered = [(title, body) for title, body in raw_blocks if title is not None]
+    intro = [(title, body) for title, body in raw_blocks if title is None and body.strip()]
+
+    total = len(numbered)
+    blocks: list[Block] = []
+    for title, body in intro:
+        nodes = parse_body(body, practices, warnings)
+        if nodes:
+            blocks.append(Block(title="", index=0, total=total, nodes=nodes))
+    for i, (title, body) in enumerate(numbered, start=1):
+        nodes = parse_body(body, practices, warnings)
+        blocks.append(Block(title=title, index=i, total=total, nodes=nodes))
+
+    if not numbered and not blocks:
+        warnings.append("No `## ` block headings found — see skills/FORMAT_SPEC.md for the block format.")
+
+    return blocks
 
 
-def parse_body(text: str, tasks: list, all_blank_ids: list, warnings: list) -> list:
+def parse_body(text: str, practices: list, warnings: list) -> list:
     nodes = []
     for kind, name, attrs, content in split_fences(text):
         if kind == "text":
-            nodes.extend(parse_text_chunk(content, all_blank_ids))
+            html_out = render_markdown(content)
+            if html_out.strip():
+                nodes.append(Prose(html_out))
         else:
-            node = build_block(name, attrs, content, tasks, all_blank_ids, warnings)
+            node = build_block(name, attrs, content, practices, warnings)
             if node is not None:
                 nodes.append(node)
     return nodes
 
 
-FENCE_RE = re.compile(r"^(```|~~~)")
-TASK_PYTHON_FENCE_RE = re.compile(
-    r"(?ms)^[ \t]*(```|~~~)(?:python|py)?[ \t]*\r?\n(.*?)(?:\r?\n)?^[ \t]*\1[ \t]*$"
-)
-
-
-def parse_text_chunk(text: str, all_blank_ids: list) -> list:
-    """Split a run of plain text into Heading + Prose nodes. A heading whose
-    text contains an em dash splits into an eyebrow label and a title.
-    Lines inside a fenced code block are never read as headings — a Python
-    comment like ``# clear the scene`` is not a section title."""
-    nodes = []
-    buf: list[str] = []
-    in_fence = False
-
-    def flush():
-        chunk = "\n".join(buf).strip("\n")
-        buf.clear()
-        if chunk.strip():
-            html_out, ids = render_with_blanks(chunk)
-            all_blank_ids.extend(ids)
-            nodes.append(Prose(html_out))
-
-    for line in text.split("\n"):
-        if FENCE_RE.match(line.strip()):
-            in_fence = not in_fence
-            buf.append(line)
-            continue
-        if not in_fence:
-            m = HEADING_RE.match(line.strip())
-            if m:
-                flush()
-                heading_text = m.group(2)
-                if "—" in heading_text:
-                    eyebrow, title = heading_text.split("—", 1)
-                    nodes.append(Heading(eyebrow.strip(), title.strip()))
-                else:
-                    nodes.append(Heading(None, heading_text.strip()))
-                continue
-        buf.append(line)
-    flush()
-    return nodes
-
-
-def parse_columns(content: str, all_blank_ids: list) -> list[RuleColumn]:
-    columns: list[RuleColumn] = []
-    current: list[str] = []
-
-    def flush():
-        if not current:
-            return
-        label = current[0].strip()
-        body = "\n".join(current[1:]).strip("\n")
-        if body.strip():
-            html_out, ids = render_with_blanks(body)
-            all_blank_ids.extend(ids)
-        else:
-            html_out = ""
-        columns.append(RuleColumn(label, html_out))
-
-    for line in content.split("\n"):
-        if line.strip() == "---":
-            flush()
-            current.clear()
-        else:
-            current.append(line)
-    flush()
-    return columns
-
-
-def parse_numbered_items(content: str) -> list[str]:
-    items = []
-    for line in content.split("\n"):
-        m = NUMBERED_RE.match(line.strip())
-        if m:
-            items.append(m.group(1))
-    return items
-
-
-def parse_objectives(content: str, all_blank_ids: list) -> list[Objective]:
-    raw_items = []
-    current = None
-    for raw_line in content.split("\n"):
-        line = raw_line.strip()
-        if not line:
-            continue
-        m = NUMBERED_RE.match(line)
-        if m:
-            if current:
-                raw_items.append(current)
-            current = {"text": m.group(1), "why": "", "check": ""}
-            continue
-        m = WHY_RE.match(line)
-        if m and current is not None:
-            current["why"] = m.group(1)
-            continue
-        m = CHECK_RE.match(line)
-        if m and current is not None:
-            current["check"] = m.group(1)
-            continue
-    if current:
-        raw_items.append(current)
-
-    result = []
-    for it in raw_items:
-        text_html, ids1 = render_inline(it["text"])
-        why_html, ids2 = render_inline(it["why"]) if it["why"] else ("", [])
-        check_html, ids3 = render_inline(it["check"]) if it["check"] else ("", [])
-        all_blank_ids.extend(ids1 + ids2 + ids3)
-        result.append(Objective(text_html, why_html, check_html))
-    return result
-
-
-def parse_journey(content: str, all_blank_ids: list) -> list[JourneyItem]:
-    items = []
-    for raw_line in content.split("\n"):
-        line = raw_line.strip()
-        if not line.startswith("-"):
-            continue
-        line = line[1:].strip()
-        parts = [p.strip() for p in line.split("|")]
-        while len(parts) < 3:
-            parts.append("")
-        label, focus, outcome = parts[0], parts[1], parts[2]
-        state = parts[3].strip() if len(parts) > 3 else ""
-        if state not in ("now", "done"):
-            state = None
-        label_html, i1 = render_inline(label)
-        focus_html, i2 = render_inline(focus)
-        outcome_html, i3 = render_inline(outcome)
-        all_blank_ids.extend(i1 + i2 + i3)
-        items.append(JourneyItem(label_html, focus_html, outcome_html, state))
-    return items
-
-
-def parse_checklist(content: str, all_blank_ids: list) -> list[ChecklistItem]:
-    items = []
-    idx = 0
-    for raw_line in content.split("\n"):
-        line = raw_line.strip()
-        if not line.startswith("-"):
-            continue
-        idx += 1
-        text = line[1:].strip()
-        html_out, ids = render_inline(text)
-        all_blank_ids.extend(ids)
-        items.append(ChecklistItem(idx, f"check_{idx}", html_out))
-    return items
-
-
-def parse_choice_options(content: str, all_blank_ids: list) -> list[ChoiceOption]:
-    options = []
-    for raw_line in content.split("\n"):
-        line = raw_line.strip()
-        if not line.startswith("-"):
-            continue
-        m = OPTION_RE.match(line)
-        if not m:
-            continue
-        correct = bool(m.group(1))
-        rest = m.group(2)
-        if "—" in rest:
-            opt_text, feedback = rest.split("—", 1)
-        else:
-            opt_text, feedback = rest, ""
-        opt_html, i1 = render_inline(opt_text.strip())
-        fb_html, i2 = render_inline(feedback.strip()) if feedback.strip() else ("", [])
-        all_blank_ids.extend(i1 + i2)
-        options.append(ChoiceOption(opt_html, correct, fb_html))
-    return options
-
-
-def split_task_sections(text: str) -> dict:
+def split_keyword_sections(text: str) -> dict:
     sections: dict = {None: []}
     current = None
     for line in text.split("\n"):
@@ -613,27 +285,11 @@ def split_task_sections(text: str) -> dict:
     return {k: "\n".join(v) for k, v in sections.items()}
 
 
-def extract_task_starter(text: str) -> tuple[str, str]:
-    """Remove the first Python fence from task instructions and return it as
-    editor starter code. This keeps older lessons that used ``# YOUR CODE
-    HERE`` fences interactive without requiring authors to rewrite them."""
-    match = TASK_PYTHON_FENCE_RE.search(text)
-    if not match:
-        return text, ""
-    remaining = text[:match.start()] + text[match.end():]
-    return remaining, match.group(2).strip("\r\n")
-
-
-def build_task(attrs: dict, content: str, tasks: list, all_blank_ids: list, warnings: list) -> Task:
-    task_id = attrs.get("id")
-    if not task_id:
-        task_id = f"task_{len(tasks) + 1}"
-        warnings.append(f"A :::task block is missing id= — assigned a temporary id ({task_id}).")
-
-    task_type = attrs.get("type", "code")
-    if task_type not in TASK_TYPES:
-        warnings.append(f"Task {task_id}: unknown type '{task_type}', treating as 'code'.")
-        task_type = "code"
+def build_practice(attrs: dict, content: str, practices: list, warnings: list) -> Practice:
+    practice_id = attrs.get("id")
+    if not practice_id:
+        practice_id = f"p{len(practices) + 1}"
+        warnings.append(f"A :::practice block is missing id= — assigned a temporary id ({practice_id}).")
 
     hint_seconds = None
     hint_raw = attrs.get("hint")
@@ -641,114 +297,34 @@ def build_task(attrs: dict, content: str, tasks: list, all_blank_ids: list, warn
         try:
             hint_seconds = int(hint_raw)
         except ValueError:
-            warnings.append(f"Task {task_id}: hint= must be a whole number of seconds, got {hint_raw!r}.")
+            warnings.append(f"Practice {practice_id}: hint= must be a whole number of seconds, got {hint_raw!r}.")
 
-    lines = content.split("\n")
-    idx = 0
-    while idx < len(lines) and not lines[idx].strip():
-        idx += 1
-    title_line = lines[idx].strip() if idx < len(lines) else ""
-    title_html, ids = render_inline(title_line)
-    all_blank_ids.extend(ids)
-    rest = "\n".join(lines[idx + 1:])
-
-    sections = split_task_sections(rest)
-    body_source = sections.get(None, "")
-    note_source = sections.get("NOTE", "")
-
-    # New lessons can use STARTER explicitly. For existing code lessons, a
-    # Python fence in the task instructions (or NOTE) is treated as the
-    # editable scaffold rather than a read-only example.
-    starter_code = sections.get("STARTER", "").strip("\n")
-    if task_type == "code" and not starter_code:
-        body_source, starter_code = extract_task_starter(body_source)
-        if not starter_code:
-            note_source, starter_code = extract_task_starter(note_source)
-
-    body_nodes = parse_body(body_source, tasks, all_blank_ids, warnings)
-
-    note_nodes = []
-    if note_source.strip():
-        note_nodes = parse_body(note_source, tasks, all_blank_ids, warnings)
+    sections = split_keyword_sections(content)
+    question_html = render_markdown(sections.get(None, ""))
 
     expected = None
     if sections.get("EXPECTED", "").strip():
         expected = sections["EXPECTED"].strip()
 
-    practice_kind = "self" if (
-        attrs.get("phase", "").lower() in {"self", "self-practice"}
-        or task_id.lower().startswith("sp")
-    ) else "guided"
-
-    done_when_html = None
-    if sections.get("DONE WHEN", "").strip():
-        done_when_html, ids = render_inline(sections["DONE WHEN"])
-        all_blank_ids.extend(ids)
-
     has_solution = bool(sections.get("SOLUTION", "").strip())
-    solution_nodes = parse_body(sections["SOLUTION"], tasks, all_blank_ids, warnings) if has_solution else None
+    solution_html = render_markdown(sections["SOLUTION"]) if has_solution else None
 
-    options: list[ChoiceOption] = []
-    if sections.get("OPTIONS", "").strip():
-        options = parse_choice_options(sections["OPTIONS"], all_blank_ids)
-        if task_type != "choice":
-            warnings.append(f"Task {task_id}: has an OPTIONS section but type is '{task_type}', not 'choice'.")
-    elif task_type == "choice":
-        warnings.append(f"Task {task_id}: type is 'choice' but has no OPTIONS section.")
-
-    task = Task(
-        task_id=task_id, type=task_type, hint_seconds=hint_seconds,
-        title=title_html, note=note_nodes, body=body_nodes,
-        expected=expected, starter_code=starter_code, practice_kind=practice_kind,
-        done_when_html=done_when_html,
-        solution=solution_nodes, options=options, has_solution=has_solution,
+    practice = Practice(
+        practice_id=practice_id, index=len(practices) + 1, hint_seconds=hint_seconds,
+        question_html=question_html, expected=expected,
+        solution_html=solution_html, has_solution=has_solution,
     )
-    tasks.append(task)
-    return task
+    practices.append(practice)
+    return practice
 
 
-def build_block(name: str, attrs: dict, content: str, tasks: list, all_blank_ids: list, warnings: list):
-    if name == "task":
-        return build_task(attrs, content, tasks, all_blank_ids, warnings)
+def build_block(name: str, attrs: dict, content: str, practices: list, warnings: list):
+    if name == "practice":
+        return build_practice(attrs, content, practices, warnings)
+    if name == "example":
+        return Example(render_markdown(content))
     if name == "tip":
-        html_out, ids = render_inline(content)
-        all_blank_ids.extend(ids)
-        return Tip(html_out)
-    if name == "card":
-        html_out, ids = render_with_blanks(content)
-        all_blank_ids.extend(ids)
-        return Card(attrs.get("title", ""), html_out)
-    if name == "rule":
-        return Rule(attrs.get("title", ""), parse_columns(content, all_blank_ids))
-    if name == "grid":
-        return Grid(parse_columns(content, all_blank_ids))
-    if name == "steps":
-        items = []
-        for item_text in parse_numbered_items(content):
-            html_out, ids = render_inline(item_text)
-            all_blank_ids.extend(ids)
-            items.append(html_out)
-        return Steps(items)
-    if name == "figure":
-        return Figure(attrs.get("caption", ""), html.escape(content.strip("\n")))
-    if name == "objectives":
-        return Objectives(parse_objectives(content, all_blank_ids))
-    if name == "journey":
-        return Journey(parse_journey(content, all_blank_ids))
-    if name == "aside":
-        html_out, ids = render_with_blanks(content)
-        all_blank_ids.extend(ids)
-        return Aside(attrs.get("title", ""), html_out)
-    if name == "push":
-        html_out, ids = render_with_blanks(content)
-        all_blank_ids.extend(ids)
-        return Push(attrs.get("title", ""), html_out)
-    if name == "checklist":
-        return Checklist(parse_checklist(content, all_blank_ids))
-    if name == "raw":
-        return Raw(sanitize_raw(content))
+        return Tip(render_markdown(content))
 
     warnings.append(f"Unknown block type :::{name} — rendered as plain text so nothing is lost.")
-    html_out, ids = render_with_blanks(content)
-    all_blank_ids.extend(ids)
-    return Card(f"Unrecognised block: {name}", html_out)
+    return Prose(render_markdown(content))

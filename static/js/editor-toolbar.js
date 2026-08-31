@@ -5,18 +5,22 @@
   "use strict";
 
   var SNIPPETS = {
-    code: [
-      ":::task id=CHANGE_ID type=code hint=30",
-      "Task title",
+    block: [
+      "## Block title",
       "",
-      "NOTE",
-      "What the student should do (in Jupyter, Blender, MATLAB, etc.).",
+      "Short explanation of the idea in this block.",
+      "",
+      ":::example",
+      "```python",
+      "# a small worked example",
+      "```",
+      ":::",
+      "",
+      ":::practice id=CHANGE_ID hint=20",
+      "What the student should try, on their own computer.",
       "",
       "EXPECTED",
       "expected output",
-      "",
-      "DONE WHEN",
-      "what \"done\" looks like",
       "",
       "SOLUTION",
       "```python",
@@ -24,27 +28,31 @@
       "```",
       ":::",
     ].join("\n"),
-    choice: [
-      ":::task id=CHANGE_ID type=choice",
-      "Question text",
+    practice: [
+      ":::practice id=CHANGE_ID hint=20",
+      "What the student should try, on their own computer.",
       "",
-      "OPTIONS",
-      "- [x] correct option — why it's correct",
-      "- wrong option — why it's wrong",
+      "EXPECTED",
+      "expected output",
+      "",
+      "SOLUTION",
+      "```python",
+      "# solution code",
+      "```",
       ":::",
     ].join("\n"),
-    step: [
-      ":::task id=CHANGE_ID type=step hint=60",
-      "Task title",
-      "",
-      "NOTE",
-      "What to do in the other software.",
-      "",
-      "DONE WHEN",
-      "what \"done\" looks like",
+    example: [
+      ":::example",
+      "```python",
+      "# a small worked example",
+      "```",
       ":::",
     ].join("\n"),
-    blank: "{{blank_id}}",
+    tip: [
+      ":::tip",
+      "A short, useful note.",
+      ":::",
+    ].join("\n"),
   };
 
   function insertAtCursor(textarea, text) {

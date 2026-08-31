@@ -1,5 +1,4 @@
 import json
-from pathlib import Path
 
 from django.conf import settings
 from django.contrib.auth.models import User
@@ -9,7 +8,7 @@ from django.urls import reverse
 
 from accounts.models import StudentProfile
 from learning.lesson_markdown import parse_lesson
-from learning.models import BlankAnswer, ChecklistCheck, Course, Enrollment, HintReveal, Lesson, LessonFile, LessonProgress, Task
+from learning.models import Course, Enrollment, HintReveal, Lesson, LessonFile, LessonProgress, Task
 
 LESSON_TEMPLATE_PATH = settings.BASE_DIR / "skills" / "LESSON_TEMPLATE.md"
 W5D1_KMEANS_PATH = settings.BASE_DIR / "skills" / "W5D1_KMEANS.md"
@@ -18,20 +17,24 @@ SIMPLE_LESSON_MD = """---
 student: {student}
 date: 2026-01-10
 title: {title}
-format: document
 visible: true
 ---
 
-Intro text {{{{b1}}}}.
+## First block
 
-:::task id=t1 type=code hint=5
-Do the thing
+Intro text.
 
-NOTE
-Try it.
+:::example
+```python
+print("hi")
+```
+:::
 
-DONE WHEN
-It works.
+:::practice id=t1 hint=5
+Do the thing.
+
+EXPECTED
+hi
 
 SOLUTION
 ```python
@@ -39,17 +42,10 @@ print("hi")
 ```
 :::
 
-:::task id=q1 type=choice
-Pick one
+## Second block
 
-OPTIONS
-- [x] right — yes
-- wrong — no
-:::
-
-:::checklist
-- Read the intro
-- Tried task 1
+:::practice id=q1
+Pick a number and print it.
 :::
 """
 
@@ -122,107 +118,49 @@ class LessonMarkdownParserTests(TestCase):
 
     def test_front_matter_known_and_unknown_keys(self):
         parsed = parse_lesson(self.raw)
-        self.assertEqual(parsed.front_matter["student"], "andy")
-        self.assertEqual(parsed.front_matter["title"], "One branch, and a function that calls itself")
-        # Unknown keys go to meta for header pills, not into front_matter.
-        self.assertEqual(parsed.meta, {"week": 4, "day": "D3", "platform": "direct", "homework": "none"})
-        self.assertNotIn("week", parsed.front_matter)
+        self.assertEqual(parsed.front_matter["student"], "student_username")
+        self.assertEqual(parsed.front_matter["title"], "Lesson title")
+        self.assertEqual(parsed.meta, {})
 
-    def test_all_six_tasks_found_with_correct_types(self):
+    def test_two_blocks_numbered_and_two_practices_found(self):
         parsed = parse_lesson(self.raw)
-        types = {t.task_id: t.type for t in parsed.tasks}
-        self.assertEqual(
-            types, {"t1": "code", "t2": "code", "q1": "choice", "s1": "step", "t4": "answer", "t5": "answer"}
-        )
+        self.assertEqual(len(parsed.blocks), 2)
+        self.assertEqual([b.index for b in parsed.blocks], [1, 2])
+        self.assertEqual([b.total for b in parsed.blocks], [2, 2])
+        self.assertEqual([p.practice_id for p in parsed.practices], ["p1", "p2"])
 
-    def test_task_without_solution_has_no_hint(self):
+    def test_practice_with_solution_has_hint_seconds(self):
         parsed = parse_lesson(self.raw)
-        t4 = next(t for t in parsed.tasks if t.task_id == "t4")
-        self.assertFalse(t4.has_solution)
-        self.assertIsNone(t4.solution)
-
-    def test_task_with_solution_has_hint(self):
-        parsed = parse_lesson(self.raw)
-        t1 = next(t for t in parsed.tasks if t.task_id == "t1")
-        self.assertTrue(t1.has_solution)
-        self.assertEqual(t1.hint_seconds, 240)
-
-    def test_legacy_python_fence_becomes_editable_starter_code(self):
-        parsed = parse_lesson(self.raw)
-        t1 = next(t for t in parsed.tasks if t.task_id == "t1")
-        self.assertIn("YOUR CODE HERE", t1.starter_code)
-        self.assertNotIn("YOUR CODE HERE", "".join(getattr(n, "html", "") for n in t1.note))
-
-    def test_blank_ids_collected_in_document_order(self):
-        parsed = parse_lesson(self.raw)
-        self.assertEqual(
-            parsed.blank_ids,
-            ["t1_z", "t4_d1", "t4_d2", "t4_d3", "t4_d4", "t4_d5", "t4_pattern", "t4_d8", "t5_what", "t5_why", "push"],
-        )
-
-    def test_choice_task_options_and_correct_answer(self):
-        parsed = parse_lesson(self.raw)
-        q1 = next(t for t in parsed.tasks if t.task_id == "q1")
-        correct = [o for o in q1.options if o.correct]
-        self.assertEqual(len(correct), 1)
-        self.assertIn("df.shape", correct[0].html)
-
-    def test_nested_tip_inside_task_note_is_parsed_not_left_as_raw_markup(self):
-        from learning.lesson_markdown import Tip
-
-        parsed = parse_lesson(self.raw)
-        t5 = next(t for t in parsed.tasks if t.task_id == "t5")
-        tip_nodes = [n for n in t5.note if isinstance(n, Tip)]
-        self.assertEqual(len(tip_nodes), 1)
-        self.assertNotIn(":::", tip_nodes[0].html)
-
-    def test_python_comment_in_code_fence_is_not_read_as_a_heading(self):
-        from learning.lesson_markdown import Heading
-
-        parsed = parse_lesson(self.raw)
-        t1 = next(t for t in parsed.tasks if t.task_id == "t1")
-        headings_in_note = [n for n in t1.note if isinstance(n, Heading)]
-        self.assertEqual(headings_in_note, [])
-
-    def test_raw_block_style_attribute_survives_sanitisation(self):
-        from learning.lesson_markdown import Raw
-
-        parsed = parse_lesson(self.raw)
-        raw_nodes = [n for n in parsed.nodes if isinstance(n, Raw)]
-        self.assertEqual(len(raw_nodes), 1)
-        self.assertIn("text-align:center", raw_nodes[0].html)
-        self.assertNotIn("<script", raw_nodes[0].html)
+        p1 = next(p for p in parsed.practices if p.practice_id == "p1")
+        self.assertTrue(p1.has_solution)
+        self.assertEqual(p1.hint_seconds, 20)
 
     def test_missing_required_fields_produce_warnings(self):
-        parsed = parse_lesson("---\ntitle: No student or date\n---\nBody text.")
+        parsed = parse_lesson("---\ntitle: No student or date\n---\n## Block\nBody text.")
         self.assertIn("Missing required field: student", parsed.warnings)
         self.assertIn("Missing required field: date", parsed.warnings)
 
-    def test_raw_block_strips_script_tags(self):
-        raw = "---\nstudent: andy\ndate: 2026-01-01\ntitle: t\n---\n:::raw\n<script>alert(1)</script><p>safe</p>\n:::\n"
+    def test_topics_are_collected_as_a_list(self):
+        raw = "---\nstudent: andy\ndate: 2026-01-01\ntitle: t\ntopics:\n  - Alpha\n  - Beta\n---\n## Block\nBody.\n"
         parsed = parse_lesson(raw)
-        from learning.lesson_markdown import Raw
+        self.assertEqual(parsed.topics, ["Alpha", "Beta"])
 
-        node = next(n for n in parsed.nodes if isinstance(n, Raw))
-        self.assertNotIn("<script", node.html)
-        self.assertIn("safe", node.html)
+    def test_practice_without_solution_has_no_hint(self):
+        raw = "---\nstudent: andy\ndate: 2026-01-01\ntitle: t\n---\n## Block\n:::practice id=p1\nJust try it.\n:::\n"
+        parsed = parse_lesson(raw)
+        p1 = parsed.practices[0]
+        self.assertFalse(p1.has_solution)
+        self.assertIsNone(p1.solution_html)
 
-    def test_w5d1_kmeans_guided_and_self_practice_format(self):
+    def test_w5d1_kmeans_parses_with_example_and_two_practices(self):
         parsed = parse_lesson(W5D1_KMEANS_PATH.read_text(encoding="utf-8"))
         self.assertEqual(parsed.warnings, [])
-        guided, self_practice = parsed.tasks
-        self.assertEqual(guided.starter_code, "points = [3, 5, 7]\n# Print the mean of points.")
-        self.assertEqual(guided.expected, "5.0")
-        self.assertEqual(guided.practice_kind, "guided")
-        self.assertEqual(self_practice.practice_kind, "self")
-        self.assertEqual(self_practice.hint_seconds, 60)
-        self.assertEqual(self_practice.expected, "8.0")
+        self.assertEqual(len(parsed.practices), 2)
 
 
 class LessonPreviewViewTests(TestCase):
-    """The staff-only paste/preview page (Phase 2 step 1). No persistence
-    yet — this just proves the parser and document-format renderer work
-    end to end on the real fixture."""
+    """The staff-only paste/preview page. No persistence yet — this just
+    proves the parser and renderer work end to end on the real fixture."""
 
     def setUp(self):
         self.raw = LESSON_TEMPLATE_PATH.read_text(encoding="utf-8")
@@ -242,33 +180,18 @@ class LessonPreviewViewTests(TestCase):
         self.client.force_login(self.staff)
         response = self.client.get(reverse("lesson_preview"))
         self.assertEqual(response.status_code, 200)
-        self.assertContains(response, "One branch")
+        self.assertContains(response, "Lesson title")
 
     def test_staff_can_render_the_full_template_end_to_end(self):
         self.client.force_login(self.staff)
         response = self.client.post(reverse("lesson_preview"), {"markdown": self.raw})
         self.assertEqual(response.status_code, 200)
         content = response.content.decode()
-        self.assertIn("One branch, and a function that calls itself", content)
-        self.assertIn('data-task-id="t1"', content)
-        self.assertIn('data-task-id="q1"', content)
-        self.assertIn("Full answer", content)
-        self.assertIn('class="blank"', content)
+        self.assertIn('data-task-id="p1"', content)
+        self.assertIn('data-task-id="p2"', content)
+        self.assertIn("Solution", content)
         self.assertIn("static/js/lesson.js", content)
         self.assertNotIn("Preview warnings", content)
-
-    def test_w5d1_kmeans_renders_editable_guided_and_self_practice(self):
-        self.client.force_login(self.staff)
-        raw = W5D1_KMEANS_PATH.read_text(encoding="utf-8")
-        response = self.client.post(reverse("lesson_preview"), {"markdown": raw})
-        content = response.content.decode()
-        self.assertEqual(response.status_code, 200)
-        self.assertIn('data-task-id="t1"', content)
-        self.assertIn('data-task-id="sp1"', content)
-        self.assertIn('class="code-editor"', content)
-        self.assertIn("Run code", content)
-        self.assertIn("Submit &amp; check", content)
-        self.assertIn("pyodide.js", content)
 
     def test_invalid_markdown_shows_warnings_not_a_crash(self):
         self.client.force_login(self.staff)
@@ -306,7 +229,7 @@ class TutorUploadFlowTests(TestCase):
         self.assertEqual(Lesson.objects.count(), 0)
         self.assertContains(response, "Confirm")
 
-    def test_confirm_saves_lesson_and_tasks(self):
+    def test_confirm_saves_lesson_and_practices(self):
         self.client.force_login(self.staff)
         md = SIMPLE_LESSON_MD.format(student="andy", title="First note")
         response = self.client.post(
@@ -342,7 +265,7 @@ class TutorUploadFlowTests(TestCase):
         self.client.post(reverse("lesson_upload", args=[self.andy.id]), {"markdown": md, "action": "confirm"})
         self.assertEqual(Lesson.objects.filter(student=self.andy, title="Same note").count(), 1)
 
-    def test_removing_a_task_orphans_it_and_warns_if_student_has_progress(self):
+    def test_removing_a_practice_orphans_it_and_warns_if_student_has_progress(self):
         self.client.force_login(self.staff)
         md = SIMPLE_LESSON_MD.format(student="andy", title="Reconcile me")
         self.client.post(reverse("lesson_upload", args=[self.andy.id]), {"markdown": md, "action": "confirm"})
@@ -354,7 +277,7 @@ class TutorUploadFlowTests(TestCase):
             data=json.dumps({"complete": True}), content_type="application/json",
         )
 
-        shorter_md = md.split(":::task id=q1")[0] + ":::checklist\n- Read the intro\n:::\n"
+        shorter_md = md.split("## Second block")[0]
         self.client.force_login(self.staff)
         preview = self.client.post(reverse("lesson_upload", args=[self.andy.id]), {"markdown": shorter_md})
         self.assertContains(preview, "removed")
@@ -456,14 +379,14 @@ class LessonEditDeleteTests(TestCase):
         self.lesson.refresh_from_db()
         self.assertEqual(self.lesson.title, "Renamed title")
 
-    def test_edit_preserves_student_progress_on_unchanged_tasks(self):
+    def test_edit_preserves_student_progress_on_unchanged_practices(self):
         self.client.force_login(self.andy)
         self.client.post(
             reverse("lesson_toggle_task", args=[self.lesson.id, "t1"]),
             data=json.dumps({"complete": True}), content_type="application/json",
         )
         self.client.force_login(self.staff)
-        new_md = SIMPLE_LESSON_MD.format(student="andy4", title="Retitled, task kept")
+        new_md = SIMPLE_LESSON_MD.format(student="andy4", title="Retitled, practice kept")
         self.client.post(
             reverse("lesson_edit", args=[self.andy.id, self.lesson.id]),
             {"markdown": new_md, "action": "confirm"},
@@ -483,15 +406,14 @@ class LessonEditDeleteTests(TestCase):
     def test_delete_removes_lesson_and_cascades(self):
         self.client.force_login(self.andy)
         self.client.post(
-            reverse("lesson_save_answer", args=[self.lesson.id]),
-            data=json.dumps({"blank_id": "b1", "value": "x"}), content_type="application/json",
+            reverse("lesson_toggle_task", args=[self.lesson.id, "t1"]),
+            data=json.dumps({"complete": True}), content_type="application/json",
         )
         self.client.force_login(self.staff)
         response = self.client.post(reverse("lesson_delete", args=[self.lesson.id]))
         self.assertRedirects(response, reverse("student_detail", args=[self.andy.id]))
         self.assertFalse(Lesson.objects.filter(pk=self.lesson.id).exists())
         self.assertFalse(Task.objects.filter(lesson_id=self.lesson.id).exists())
-        self.assertFalse(BlankAnswer.objects.filter(lesson_id=self.lesson.id).exists())
 
     def test_delete_requires_staff(self):
         self.client.force_login(self.andy)
@@ -566,8 +488,8 @@ class StudentCreateTests(TestCase):
 
 
 class StudentSavesOwnProgressTests(TestCase):
-    """A student may write their own blanks/completions/reveals/checklist —
-    never a tutor's, never another student's, even via a guessed lesson id."""
+    """A student may write their own practice completions/reveals — never a
+    tutor's, never another student's, even via a guessed lesson id."""
 
     def setUp(self):
         self.staff = User.objects.create_user("tutor3", password="pw-tutor-12345", is_staff=True)
@@ -582,36 +504,22 @@ class StudentSavesOwnProgressTests(TestCase):
         self.lesson = Lesson.objects.get(student=self.andy, title="Progress test")
         self.client.logout()
 
-    def test_owner_can_save_a_blank_answer(self):
+    def test_owner_can_mark_a_practice_done(self):
         self.client.force_login(self.andy)
         response = self.client.post(
-            reverse("lesson_save_answer", args=[self.lesson.id]),
-            data=json.dumps({"blank_id": "b1", "value": "hello"}), content_type="application/json",
-        )
-        self.assertEqual(response.status_code, 200)
-        self.assertEqual(BlankAnswer.objects.get(lesson=self.lesson, blank_id="b1").value, "hello")
-
-    def test_other_student_cannot_save_an_answer_on_this_lesson(self):
-        self.client.force_login(self.priya)
-        response = self.client.post(
-            reverse("lesson_save_answer", args=[self.lesson.id]),
-            data=json.dumps({"blank_id": "b1", "value": "hijack"}), content_type="application/json",
-        )
-        self.assertEqual(response.status_code, 404)
-        self.assertFalse(BlankAnswer.objects.filter(lesson=self.lesson).exists())
-
-    def test_other_student_cannot_toggle_task_or_checklist(self):
-        self.client.force_login(self.priya)
-        r1 = self.client.post(
             reverse("lesson_toggle_task", args=[self.lesson.id, "t1"]),
             data=json.dumps({"complete": True}), content_type="application/json",
         )
-        r2 = self.client.post(
-            reverse("lesson_toggle_check", args=[self.lesson.id, "check_1"]),
-            data=json.dumps({"checked": True}), content_type="application/json",
+        self.assertEqual(response.status_code, 200)
+        self.assertTrue(Task.objects.get(lesson=self.lesson, task_id="t1").is_complete)
+
+    def test_other_student_cannot_toggle_task(self):
+        self.client.force_login(self.priya)
+        response = self.client.post(
+            reverse("lesson_toggle_task", args=[self.lesson.id, "t1"]),
+            data=json.dumps({"complete": True}), content_type="application/json",
         )
-        self.assertEqual(r1.status_code, 404)
-        self.assertEqual(r2.status_code, 404)
+        self.assertEqual(response.status_code, 404)
 
     def test_reveal_is_logged_with_timestamp(self):
         self.client.force_login(self.andy)
@@ -621,8 +529,8 @@ class StudentSavesOwnProgressTests(TestCase):
     def test_tutor_view_shows_saved_state_and_is_staff_only(self):
         self.client.force_login(self.andy)
         self.client.post(
-            reverse("lesson_save_answer", args=[self.lesson.id]),
-            data=json.dumps({"blank_id": "b1", "value": "my answer"}), content_type="application/json",
+            reverse("lesson_toggle_task", args=[self.lesson.id, "t1"]),
+            data=json.dumps({"complete": True}), content_type="application/json",
         )
         self.client.logout()
 
@@ -632,7 +540,6 @@ class StudentSavesOwnProgressTests(TestCase):
         self.client.force_login(self.staff)
         response = self.client.get(reverse("lesson_tutor_view", args=[self.lesson.id]))
         self.assertEqual(response.status_code, 200)
-        self.assertContains(response, "my answer")
 
 
 from django.test import override_settings  # noqa: E402

@@ -1,35 +1,33 @@
 ---
 student: demo_student
 date: 2026-08-31
-title: W5D1 — K-Means clustering
+title: K-Means clustering
 subtitle: Group nearby values into clusters
 course: data-science
-hint_seconds: 180
+topics:
+  - Distance and centres
+  - Iterating to convergence
+hint_seconds: 60
 visible: false
 week: 5
 day: D1
 ---
 
-## Teach — find groups by distance
+## Find groups by distance
 
 K-Means starts with a few centres, assigns each point to its nearest centre,
 then moves each centre to the average of its assigned points.
 
-## Example — calculate a centre
-
+:::example
 ```python
 points = [2, 4, 6]
 print(sum(points) / len(points))
 ```
+:::
 
-:::task id=t1 type=code hint=180
-Student practice — calculate a cluster centre
-
-Write Python that stores `[3, 5, 7]` in `points` and prints their mean.
-
-STARTER
-points = [3, 5, 7]
-# Print the mean of points.
+:::practice id=t1 hint=60
+Write Python that stores `[3, 5, 7]` in `points` and prints their mean, on
+your own computer.
 
 EXPECTED
 5.0
@@ -41,9 +39,9 @@ print(sum(points) / len(points))
 ```
 :::
 
-:::task id=sp1 type=code phase=self hint=60
-Self-practice — a new cluster centre
+## A second cluster centre
 
+:::practice id=sp1 hint=60
 Without copying the first answer, print the mean of `[4, 8, 12]`.
 
 EXPECTED

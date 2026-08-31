@@ -10,7 +10,7 @@
 <style>:root{--accent:{{ front_matter.accent }};} .lesson-doc .dbtn{background:{{ front_matter.accent }}} .lesson-doc .fill{background:linear-gradient(90deg,{{ front_matter.accent }},var(--mint))}</style>
 {% endif %}
 </head>
-<body class="lesson-doc format-{{ format }}">
+<body class="lesson-doc">
 <div class="wrap" style="padding-top:16px">
   <a href="{% url 'dashboard' %}" class="back-to-editor">&larr; back to dashboard</a>
   {% if locked %}
@@ -19,6 +19,5 @@
 </div>
 {% include "learning/lesson/_document_body.html" %}
 <script src="{% static 'js/lesson.js' %}" defer></script>
-<script src="https://cdn.jsdelivr.net/pyodide/v0.27.7/full/pyodide.js" defer></script>
 </body>
 </html>

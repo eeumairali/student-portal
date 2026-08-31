@@ -1,373 +1,182 @@
-/* Lesson document renderer — themed via CSS custom properties.
-   Tokens below match the approved house style (the Ward Round practice
-   sheet) exactly; this is the `document` format's look, and the default.
-   `slide` (see .format-slide below) is a styling pass on the SAME markup —
-   bigger type, more whitespace, bolder section breaks — never a template
-   fork. There are exactly two formats; do not add a third. */
+/* Lesson document renderer — one simple, colorful house style. Blocks are
+   numbered "N of TOTAL"; each cycles through an accent color so the page
+   reads as a sequence of distinct, interesting steps rather than one long
+   grey scroll. Practice code always runs on the student's own computer —
+   this page only holds the prompt, the expected result, and a timed
+   solution reveal. */
 
 :root{
-  --ink:#E7F3F1; --deep:#04434A; --teal:#1AA8B8; --sea:#12BFA8; --mint:#1EDBB5;
-  --paper:#0B1B1D; --card:#132A2C; --line:#244245; --muted:#8FB0AC;
-  --amber:#E8A93D; --amberbg:#2E2410; --red:#E27B72; --redbg:#331616;
-  --green:#3FD08A; --greenbg:#0F2B1E; --code:#08191B; --codetext:#9FE8DC;
-  --violet:#B79CF0; --violetbg:#241A3D;
-  --shadow:0 1px 2px rgba(0,0,0,.4),0 8px 24px -12px rgba(0,0,0,.6);
+  --ink:#1B2430; --paper:#F6F7FB; --card:#FFFFFF; --line:#E3E7EF; --muted:#67718A;
+  --deep:#1B2A4A;
+  --amber:#C97A12; --amberbg:#FFF4E0; --amberline:#F0CE94;
+  --green:#12805C; --greenbg:#E7F8F0; --greenline:#9FE0C4;
+  --code:#101826; --codetext:#D9E4F5;
   --font-display:Georgia,"Times New Roman",serif;
   --font-body:"Segoe UI",-apple-system,BlinkMacSystemFont,Roboto,sans-serif;
   --font-mono:"SFMono-Regular",Consolas,"Liberation Mono",Menlo,monospace;
-  --base-size:16px; --base-line:1.6;
-  --radius:12px;
-  --accent:var(--teal);
-}
+  --base-size:16.5px; --base-line:1.65;
+  --radius:16px;
+  --shadow:0 1px 2px rgba(20,30,60,.05),0 10px 26px -14px rgba(20,30,60,.22);
 
-/* ---------- slide format: same content, a bolder, colorful read ---------- */
-.format-slide{
-  --base-size:18px; --base-line:1.75; --radius:18px;
-  --ink:#FBEEE2; --deep:#12433D; --teal:#2BB8A6; --sea:#2FCBAE; --mint:#4CE8C4;
-  --paper:#1B1410; --card:#241C16; --line:#3A2C22; --muted:#C9AE99;
-  --amber:#F0B15C; --amberbg:#3A2A12; --green:#5AD99A; --greenbg:#123023;
-  --code:#160D0A; --codetext:#FFD9C2;
-  --coral:#FF9C78; --coralbg:#3A241A; --sun:#FFD478; --sunbg:#3A2E14;
-  --accent:var(--coral);
-}
-.format-slide .wrap{max-width:1320px}
-.format-slide header.lhead{padding:64px 0 52px;
-  background:linear-gradient(135deg,var(--deep),var(--teal) 70%,var(--coral))}
-.format-slide h1.ltitle{font-size:clamp(34px,6vw,54px);line-height:1.08}
-.format-slide .lsub{font-size:19px;color:var(--sun)}
-.format-slide .lmeta-line{font-size:14.5px}
-.format-slide .pill{padding:8px 18px;font-size:14px;background:rgba(255,255,255,.16)}
-.format-slide .pill:nth-child(3n+1){background:var(--coral);color:#3A1206}
-.format-slide .pill:nth-child(3n+2){background:var(--sun);color:#3A2C06}
-.format-slide .pill:nth-child(3n+3){background:var(--mint);color:#04302A}
-.format-slide .section-head{margin:76px 0 22px;padding-bottom:18px;border-bottom:3px solid var(--coral)}
-.format-slide .section-head .section-eyebrow{font-size:14px;letter-spacing:2px;color:var(--coral)}
-.format-slide .section-head h2{font-size:34px}
-.format-slide .dbtn{background:var(--coral)}
-.format-slide .task.done .dbtn{background:var(--green)}
-.format-slide .fill{background:linear-gradient(90deg,var(--coral),var(--sun),var(--mint))}
-.format-slide .tnum{background:var(--coral)}
-.format-slide .task.done .tnum{background:var(--green)}
-.format-slide .opt:hover{border-color:var(--coral)}
-.format-slide .hbtn{background:var(--sunbg);border-color:var(--sun);color:var(--sun)}
-.format-slide .prose{font-size:18px;line-height:1.75}
-.format-slide .prose pre{font-size:14.5px;padding:18px 20px}
-.format-slide .card,
-.format-slide .rule,
-.format-slide .push,
-.format-slide details.aside{padding:30px 32px;margin-bottom:28px}
-.format-slide .card h3,
-.format-slide .rule h3,
-.format-slide .push h3{font-size:23px}
-.format-slide .tip{padding:20px 24px;font-size:16px;margin-bottom:28px}
-.format-slide .task{padding:28px 30px;margin-bottom:28px}
-.format-slide .tnum{flex:0 0 36px;height:36px;font-size:15px}
-.format-slide .tq{font-size:20px}
-.format-slide .donewhen,.format-slide .tnote{font-size:15px}
-.format-slide .objectives li{padding:22px 26px;margin-bottom:14px}
-.format-slide .objectives .otext{font-size:17px}
-.format-slide .journey{gap:14px;margin-bottom:28px}
-.format-slide .journey-item{padding:18px 22px}
-.format-slide .rulegrid,.format-slide .grid{gap:20px}
-.format-slide .rulebox,.format-slide .gridbox{padding:20px 22px}
-.format-slide .figure{margin-bottom:28px}
-.format-slide .figure pre{padding:22px 24px;font-size:14.5px}
-.format-slide ol.steps li{padding:16px 0}
-.format-slide .finish{padding:34px 36px}
-.format-slide .finish h2{font-size:26px}
-@media(max-width:900px){
-  .format-slide header.lhead{padding:44px 0 36px}
-  .format-slide .section-head{margin:52px 0 20px}
-  .format-slide .section-head h2{font-size:27px}
-  .format-slide .card,.format-slide .rule,.format-slide .push,.format-slide details.aside{padding:22px 22px}
-  .format-slide .task{padding:20px 20px}
-  .format-slide .finish{padding:26px 24px}
-}
-@media(max-width:620px){
-  .format-slide header.lhead{padding:32px 0 28px}
-  .format-slide h1.ltitle{font-size:clamp(24px,7vw,32px)}
-  .format-slide .section-head{margin:38px 0 16px}
-  .format-slide .section-head h2{font-size:22px}
-  .format-slide .prose{font-size:16px}
-  .format-slide .tq{font-size:16px}
+  /* block accent cycle */
+  --c1:#D9455F; --c1bg:#FDECEF;
+  --c2:#C97A12; --c2bg:#FFF4E0;
+  --c3:#2E9B4F; --c3bg:#EAF8EE;
+  --c4:#1C8FA6; --c4bg:#E7F6F9;
+  --c5:#5B62D9; --c5bg:#ECEDFC;
+  --c6:#A34AC9; --c6bg:#F6EAFB;
+  --c7:#B5851C; --c7bg:#FBF3E0;
 }
 
 *{box-sizing:border-box}
-.lesson-doc{
-  background:var(--paper); color:var(--ink);
-  font:var(--base-size)/var(--base-line) var(--font-body);
-}
+.lesson-doc{background:var(--paper); color:var(--ink); font:var(--base-size)/var(--base-line) var(--font-body);}
 body.lesson-doc{margin:0}
 .lesson-doc code, .lesson-doc .mono{ font-family:var(--font-mono) }
-.lesson-doc .wrap{max-width:1180px;margin:0 auto;padding:0 28px 80px}
-@media(max-width:900px){.lesson-doc .wrap{padding:0 20px 60px}}
-@media(max-width:480px){.lesson-doc .wrap{padding:0 16px 44px}}
+.lesson-doc .wrap{max-width:880px;margin:0 auto;padding:0 24px 90px}
+@media(max-width:700px){.lesson-doc .wrap{padding:0 16px 60px}}
 
 /* ---------- header ---------- */
-.lesson-doc header.lhead{background:var(--deep);color:#fff;padding:44px 0 38px;margin-bottom:34px}
+.lesson-doc header.lhead{background:var(--deep);color:#fff;padding:46px 0 38px;margin-bottom:30px}
 .lesson-doc header.lhead .wrap{padding-bottom:0}
-.lesson-doc .eyebrow{color:var(--mint);font-family:var(--font-mono);font-size:12px;
+.lesson-doc .eyebrow{color:#9FB4E8;font-family:var(--font-mono);font-size:12px;
   letter-spacing:.6px;text-transform:uppercase;margin:0 0 10px}
-.lesson-doc h1.ltitle{font-family:var(--font-display);font-size:clamp(28px,5vw,40px);
+.lesson-doc h1.ltitle{font-family:var(--font-display);font-size:clamp(28px,5vw,42px);
   margin:0 0 8px;letter-spacing:-.5px;font-weight:700}
-.lesson-doc .lsub{color:var(--mint);font-size:16px;margin:0 0 20px}
-.lesson-doc .lmeta-line{color:#BFE8E2;font-size:13.5px;margin:0 0 16px}
+.lesson-doc .lsub{color:#C7D5FA;font-size:17px;margin:0 0 12px}
+.lesson-doc .lmeta-line{color:#9FB4E8;font-size:13.5px;margin:0 0 14px}
+.lesson-doc ul.topics{list-style:none;display:flex;flex-wrap:wrap;gap:8px;margin:0 0 18px;padding:0}
+.lesson-doc ul.topics li{background:rgba(255,255,255,.12);border-radius:999px;padding:6px 14px;font-size:13px}
 .lesson-doc .meta{display:flex;flex-wrap:wrap;gap:10px}
-.lesson-doc .pill{background:#0B5A63;border-radius:999px;padding:7px 15px;font-size:13px;font-weight:600}
-@media(max-width:900px){.lesson-doc header.lhead{padding:34px 0 28px;margin-bottom:26px}}
-@media(max-width:480px){.lesson-doc header.lhead{padding:26px 0 22px;margin-bottom:20px}}
+.lesson-doc .pill{background:rgba(255,255,255,.14);border-radius:999px;padding:7px 15px;font-size:13px;font-weight:600}
+@media(max-width:700px){.lesson-doc header.lhead{padding:32px 0 26px;margin-bottom:22px}}
 
 /* ---------- progress bar ---------- */
-.lesson-doc .bar{position:sticky;top:0;z-index:20;background:color-mix(in srgb, var(--paper) 94%, transparent);
-  -webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px);border-bottom:1px solid var(--line);padding:11px 0;margin-bottom:30px}
+.lesson-doc .bar{position:sticky;top:0;z-index:20;background:color-mix(in srgb, var(--paper) 92%, transparent);
+  -webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px);border-bottom:1px solid var(--line);padding:11px 0;margin-bottom:26px}
 .lesson-doc .bar .wrap{padding-bottom:0;display:flex;align-items:center;gap:14px}
-.lesson-doc .track{flex:1;height:7px;background:var(--line);border-radius:99px;overflow:hidden}
-.lesson-doc .fill{height:100%;width:0;background:linear-gradient(90deg,var(--teal),var(--mint));
+.lesson-doc .track{flex:1;height:8px;background:var(--line);border-radius:99px;overflow:hidden}
+.lesson-doc .fill{height:100%;width:0;background:linear-gradient(90deg,var(--c4),var(--c3));
   border-radius:99px;transition:width .45s cubic-bezier(.4,0,.2,1)}
-.lesson-doc .count{font-size:13px;font-weight:700;color:var(--teal);white-space:nowrap}
+.lesson-doc .count{font-size:13px;font-weight:700;color:var(--deep);white-space:nowrap}
 
-/* ---------- prose / heading ---------- */
-.lesson-doc .prose{margin-bottom:20px}
+/* ---------- prose ---------- */
+.lesson-doc .prose{margin-bottom:18px}
 .lesson-doc .prose p{margin:0 0 12px}
-.lesson-doc .prose pre{background:var(--code);color:var(--codetext);border-radius:9px;padding:14px 16px;
+.lesson-doc .prose pre{background:var(--code);color:var(--codetext);border-radius:10px;padding:15px 17px;
   overflow-x:auto;font-size:13.5px;line-height:1.55}
 .lesson-doc .prose table{border-collapse:collapse;width:100%;margin:0 0 12px}
 .lesson-doc .prose th,.lesson-doc .prose td{border:1px solid var(--line);padding:8px 10px;text-align:left;font-size:14px}
-.lesson-doc .prose th{background:var(--card);font-weight:600}
-.lesson-doc .section-head{margin:44px 0 6px;padding-bottom:9px;border-bottom:2px solid var(--deep)}
-.lesson-doc .section-head .section-eyebrow{font-family:var(--font-display);font-size:13px;font-weight:700;
-  color:var(--teal);letter-spacing:1.5px;text-transform:uppercase;display:block;margin-bottom:2px}
-.lesson-doc .section-head h2{font-family:var(--font-display);font-size:22px;margin:0;font-weight:700}
+.lesson-doc .prose th{background:var(--paper);font-weight:600}
 
-/* ---------- part sections: each "Part" heading starts a new slide-like card ---------- */
-.lesson-doc .part-section{margin-bottom:22px}
-.lesson-doc .part-section-card{background:var(--card);border:1px solid var(--line);
-  border-radius:var(--radius);box-shadow:var(--shadow);padding:32px 34px 36px}
-.lesson-doc .part-break{height:56px}
-.lesson-doc .part-section-card .section-head{margin-top:0;border-bottom:none;padding-bottom:0}
-.lesson-doc .part-section-card .section-head.section-head-part{margin-bottom:26px}
-.lesson-doc .section-head-part .section-eyebrow{font-size:22px;font-weight:800;letter-spacing:2px;
-  color:var(--mint)}
-.lesson-doc .section-head-part h2{font-size:42px;line-height:1.15;margin-top:6px}
-@media(max-width:900px){
-  .lesson-doc .part-section-card{padding:26px 26px 30px}
-  .lesson-doc .part-break{height:44px}
-  .lesson-doc .section-head-part .section-eyebrow{font-size:19px}
-  .lesson-doc .section-head-part h2{font-size:34px}
-}
-@media(max-width:620px){
-  .lesson-doc .part-section-card{padding:20px 18px 24px}
-  .lesson-doc .part-break{height:32px}
-  .lesson-doc .section-head-part .section-eyebrow{font-size:16px}
-  .lesson-doc .section-head-part h2{font-size:26px}
+/* ---------- blocks: "N of TOTAL", cycling accent colors ---------- */
+.lesson-doc .block{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);
+  box-shadow:var(--shadow);padding:30px 32px 34px;margin-bottom:26px;
+  border-top:5px solid var(--block-accent, var(--c4))}
+.lesson-doc .block:nth-of-type(7n+1){--block-accent:var(--c1)}
+.lesson-doc .block:nth-of-type(7n+2){--block-accent:var(--c2)}
+.lesson-doc .block:nth-of-type(7n+3){--block-accent:var(--c3)}
+.lesson-doc .block:nth-of-type(7n+4){--block-accent:var(--c4)}
+.lesson-doc .block:nth-of-type(7n+5){--block-accent:var(--c5)}
+.lesson-doc .block:nth-of-type(7n+6){--block-accent:var(--c6)}
+.lesson-doc .block:nth-of-type(7n){--block-accent:var(--c7)}
+.lesson-doc .block-head{display:flex;align-items:baseline;gap:14px;margin-bottom:18px}
+.lesson-doc .block-head-intro{margin-bottom:14px}
+.lesson-doc .block-count{flex:none;font-family:var(--font-mono);font-size:12.5px;font-weight:700;
+  letter-spacing:.5px;color:#fff;background:var(--block-accent,var(--c4));border-radius:999px;padding:5px 13px}
+.lesson-doc .block-title{font-family:var(--font-display);font-size:26px;margin:0;font-weight:700;color:var(--ink)}
+@media(max-width:700px){
+  .lesson-doc .block{padding:22px 20px 26px}
+  .lesson-doc .block-head{flex-direction:column;align-items:flex-start;gap:8px}
+  .lesson-doc .block-title{font-size:21px}
 }
 
-/* ---------- blanks ---------- */
-.lesson-doc .blank{font:inherit;font-family:var(--font-mono);font-size:13.5px;color:var(--ink);
-  background:#0F2426;border:1.5px solid var(--line);border-radius:6px;padding:6px 9px;
-  width:110px;max-width:100%}
-.lesson-doc .blank:focus-visible{outline:none;border-color:var(--teal);box-shadow:0 0 0 3px rgba(2,128,144,.15)}
-.lesson-doc .blank.blank-wide{width:100%;display:block;margin-top:6px}
-.lesson-doc textarea.blank{width:100%;display:block;margin-top:6px;resize:vertical;font-family:var(--font-body)}
-.lesson-doc .save-state{font-size:11.5px;color:var(--muted);margin-left:8px;opacity:0;transition:opacity .3s}
-.lesson-doc .save-state.show{opacity:1}
+/* ---------- example ---------- */
+.lesson-doc .example{background:var(--c4bg);border:1px solid var(--c4);border-left:5px solid var(--c4);
+  border-radius:12px;padding:18px 20px;margin-bottom:20px}
+.lesson-doc .example-label{display:block;font-family:var(--font-mono);font-size:11.5px;font-weight:700;
+  letter-spacing:.7px;text-transform:uppercase;color:var(--c4);margin-bottom:10px}
+.lesson-doc .example-body .prose{margin-bottom:0}
+.lesson-doc .example-body pre{background:var(--code)}
 
-/* ---------- tip / card / aside ---------- */
-.lesson-doc .tip{background:var(--amberbg);border:1px solid #5A4419;border-left:4px solid var(--amber);
-  border-radius:9px;padding:14px 17px;margin-bottom:20px;font-size:14.5px;color:#E9C77E}
-.lesson-doc .card{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);
-  padding:22px 24px;box-shadow:var(--shadow);margin-bottom:22px}
-.lesson-doc .card h3{margin:0 0 10px;font-size:17px;font-family:var(--font-display)}
-.lesson-doc .card > .prose:last-child{margin-bottom:0}
-.lesson-doc details.aside{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);
-  padding:16px 20px;margin-bottom:20px}
-.lesson-doc details.aside summary{cursor:pointer;font-weight:600;font-size:14.5px;list-style:none}
-.lesson-doc details.aside summary::-webkit-details-marker{display:none}
-.lesson-doc details.aside summary::before{content:"+ ";color:var(--teal);font-weight:700}
-.lesson-doc details.aside[open] summary::before{content:"– "}
-.lesson-doc details.aside .prose{margin-top:12px;margin-bottom:0}
-
-/* ---------- rule / grid ---------- */
-.lesson-doc .rule{background:var(--deep);color:#fff;border-radius:var(--radius);padding:24px 26px;margin-bottom:22px}
-.lesson-doc .rule h3{margin:0 0 14px;font-family:var(--font-display);font-size:19px}
-.lesson-doc .rulegrid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
-.lesson-doc .rulebox{background:#0B5A63;border-radius:9px;padding:15px 17px}
-.lesson-doc .rulebox b{color:var(--mint);font-size:11.5px;letter-spacing:.7px;display:block;margin-bottom:8px;text-transform:uppercase}
-.lesson-doc .rulebox .prose{color:#BFE8E2;font-size:13.5px;margin:0}
-.lesson-doc .rulebox .prose p{margin:0}
-.lesson-doc .rulebox code{color:#fff}
-.lesson-doc .grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:22px}
-.lesson-doc .gridbox{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:16px 18px}
-.lesson-doc .gridbox b{display:block;font-size:11.5px;letter-spacing:.7px;color:var(--teal);margin-bottom:8px;text-transform:uppercase}
-.lesson-doc .gridbox .prose{margin:0;font-size:14px}
-.lesson-doc .gridbox .prose p{margin:0}
+/* ---------- tip ---------- */
+.lesson-doc .tip{background:var(--amberbg);border:1px solid var(--amberline);border-left:5px solid var(--amber);
+  border-radius:12px;padding:15px 18px;margin-bottom:20px;font-size:14.5px;color:#7A4E0C}
+.lesson-doc .tip p{margin:0 0 8px}
+.lesson-doc .tip p:last-child{margin-bottom:0}
 
 /* ---------- code blocks: copy button ---------- */
 .lesson-doc .code-block{position:relative}
 .lesson-doc .code-block pre{padding-right:76px}
-.lesson-doc .copy-btn{position:absolute;top:10px;right:10px;background:rgba(255,255,255,.08);
-  color:var(--codetext);border:1px solid rgba(255,255,255,.18);border-radius:6px;
+.lesson-doc .copy-btn{position:absolute;top:10px;right:10px;background:rgba(255,255,255,.1);
+  color:var(--codetext);border:1px solid rgba(255,255,255,.22);border-radius:6px;
   font-family:var(--font-mono);font-size:12px;font-weight:600;padding:5px 10px;
   cursor:pointer;transition:.15s;opacity:0;line-height:1}
 .lesson-doc .code-block:hover .copy-btn,
 .lesson-doc .copy-btn:focus-visible{opacity:1}
-.lesson-doc .copy-btn:hover{background:rgba(255,255,255,.16)}
-.lesson-doc .copy-btn.copied{background:var(--green);color:#04302A;border-color:var(--green);opacity:1}
+.lesson-doc .copy-btn:hover{background:rgba(255,255,255,.18)}
+.lesson-doc .copy-btn.copied{background:var(--green);color:#fff;border-color:var(--green);opacity:1}
 @media(max-width:620px){.lesson-doc .copy-btn{opacity:1}}
 
-/* ---------- figure ---------- */
-.lesson-doc .figure{margin-bottom:22px}
-.lesson-doc .figure pre{background:var(--code);color:var(--codetext);border-radius:9px;padding:16px 18px;
-  overflow-x:auto;font-size:13px;line-height:1.5;margin:0}
-.lesson-doc .figure figcaption{color:var(--muted);font-size:13px;font-style:italic;margin-top:8px}
-
-/* ---------- steps ---------- */
-.lesson-doc ol.steps{list-style:none;margin:0 0 22px;padding:0;counter-reset:step}
-.lesson-doc ol.steps li{counter-increment:step;display:flex;gap:14px;align-items:flex-start;
-  padding:10px 0;border-bottom:1px solid var(--line)}
-.lesson-doc ol.steps li:last-child{border-bottom:none}
-.lesson-doc ol.steps li::before{content:counter(step);flex:0 0 30px;height:30px;border-radius:50%;
-  background:var(--teal);color:#fff;font-weight:700;font-size:14px;display:grid;place-items:center}
-
-/* ---------- objectives ---------- */
-.lesson-doc .objectives{list-style:none;margin:0 0 22px;padding:0}
-.lesson-doc .objectives li{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);
-  padding:16px 20px;margin-bottom:10px;box-shadow:var(--shadow)}
-.lesson-doc .objectives .otext{font-weight:600;margin:0 0 8px}
-.lesson-doc .objectives .owhy,.lesson-doc .objectives .ocheck{font-size:13px;margin:4px 0 0;color:var(--muted)}
-.lesson-doc .objectives .owhy b,.lesson-doc .objectives .ocheck b{color:var(--teal);letter-spacing:.4px}
-
-/* ---------- journey ---------- */
-.lesson-doc .journey{display:flex;flex-direction:column;gap:10px;margin-bottom:22px}
-.lesson-doc .journey-item{display:flex;gap:14px;align-items:baseline;background:var(--card);
-  border:1px solid var(--line);border-radius:9px;padding:12px 16px}
-.lesson-doc .journey-item.now{border-color:var(--teal);background:#0F2426}
-.lesson-doc .journey-item.done{opacity:.65}
-.lesson-doc .journey-item .jlabel{font-weight:700;font-size:13px;color:var(--teal);flex:0 0 130px}
-.lesson-doc .journey-item .jfocus{font-weight:600;flex:1}
-.lesson-doc .journey-item .joutcome{color:var(--muted);font-size:13px;flex:1}
-
-/* ---------- push ---------- */
-.lesson-doc .push{background:var(--deep);color:#fff;border-radius:var(--radius);padding:24px 26px;margin-bottom:22px}
-.lesson-doc .push h3{margin:0 0 12px;font-family:var(--font-display);font-size:19px}
-.lesson-doc .push .prose{color:#E7F5F3}
-.lesson-doc .push .prose p{margin:0 0 12px}
-.lesson-doc .push .blank{background:rgba(255,255,255,.95)}
-
-/* ---------- checklist ---------- */
-.lesson-doc .checklist{list-style:none;margin:0 0 22px;padding:0}
-.lesson-doc .checklist li{display:flex;gap:10px;align-items:flex-start;padding:8px 0}
-.lesson-doc .checklist input[type=checkbox]{margin-top:3px;width:17px;height:17px;accent-color:var(--teal)}
-.lesson-doc .checklist label.checked{text-decoration:line-through;color:var(--muted)}
-
-/* ---------- raw ---------- */
-.lesson-doc .raw{margin-bottom:20px}
-
-/* ---------- preview-only chrome ---------- */
-.lesson-doc .preview-warnings{border-color:#E8A8A8;background:var(--redbg);color:#FFD2C9;border-left-color:var(--red)}
-.lesson-doc .preview-warnings ul{margin:8px 0 0;padding-left:18px}
-.lesson-doc .back-to-editor{margin:0 0 20px;font-family:var(--font-mono);font-size:13px}
-.lesson-doc .back-to-editor a{color:var(--teal)}
-
-/* ---------- tasks ---------- */
-.lesson-doc .task{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);
-  padding:20px 22px;margin-bottom:14px;box-shadow:var(--shadow)}
-.lesson-doc .task.done{border-color:var(--mint);background:#0F2624}
-.lesson-doc .ttop{display:flex;gap:13px;align-items:flex-start}
-.lesson-doc .tnum{flex:0 0 27px;height:27px;border-radius:50%;background:var(--teal);color:#fff;
-  font-size:12.5px;font-weight:700;display:grid;place-items:center;margin-top:1px}
-.lesson-doc .task.done .tnum{background:var(--green)}
-.lesson-doc .task.done .tnum .tnum-index{display:none}
-.lesson-doc .task.done .tnum::after{content:"✓"}
-.lesson-doc .tbody{flex:1;min-width:0}
-.lesson-doc .tq{font-weight:600;margin:0 0 4px;font-size:15.5px}
-.lesson-doc .tnote{color:var(--muted);font-size:13.5px}
-.lesson-doc .tnote .prose p{margin:0 0 8px}
-.lesson-doc .tnote .blank{margin-top:4px}
-.lesson-doc .task-body .prose:last-child{margin-bottom:0}
-.lesson-doc .expect{background:var(--greenbg);border:1px solid #1F5C3D;border-radius:8px;
+/* ---------- practice ---------- */
+.lesson-doc .practice{background:var(--paper);border:1.5px solid var(--line);border-radius:14px;
+  padding:20px 22px;margin-bottom:16px}
+.lesson-doc .practice.done{border-color:var(--green);background:var(--greenbg)}
+.lesson-doc .practice-top{display:flex;gap:13px;align-items:flex-start}
+.lesson-doc .practice-num{flex:0 0 28px;height:28px;border-radius:50%;background:var(--block-accent,var(--c4));
+  color:#fff;font-size:12.5px;font-weight:700;display:grid;place-items:center;margin-top:1px}
+.lesson-doc .practice.done .practice-num{background:var(--green)}
+.lesson-doc .practice.done .practice-num{font-size:0}
+.lesson-doc .practice.done .practice-num::after{content:"✓";font-size:14px}
+.lesson-doc .practice-body{flex:1;min-width:0}
+.lesson-doc .practice-label{display:block;font-family:var(--font-mono);font-size:11px;font-weight:700;
+  letter-spacing:.6px;text-transform:uppercase;color:var(--muted);margin-bottom:8px}
+.lesson-doc .practice-question{font-weight:500}
+.lesson-doc .practice-question .prose:last-child{margin-bottom:0}
+.lesson-doc .expect{background:var(--greenbg);border:1px solid var(--greenline);border-radius:8px;
   padding:9px 13px;margin-top:12px;font-size:13px}
 .lesson-doc .expect b{color:var(--green);font-size:11px;letter-spacing:.6px;display:block;margin-bottom:3px}
-.lesson-doc .expect .mono{color:#BFF0D9}
-.lesson-doc .donewhen{margin-top:10px;font-size:13.5px;color:var(--muted)}
-.lesson-doc .donewhen b{color:var(--green);letter-spacing:.4px;margin-right:4px}
+.lesson-doc .expect .mono{color:#0E5C40}
 
-/* ---------- hint / timer ---------- */
-.lesson-doc .hintrow{margin-top:14px;display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+/* ---------- hint / timer / mark done ---------- */
+.lesson-doc .practice-actions{margin-top:14px;display:flex;align-items:center;gap:12px;flex-wrap:wrap}
 .lesson-doc button{font:inherit;cursor:pointer;border-radius:8px;border:1px solid transparent}
-.lesson-doc .hbtn{background:var(--amberbg);border-color:#5A4419;color:var(--amber);
+.lesson-doc .hbtn{background:var(--amberbg);border-color:var(--amberline);color:var(--amber);
   font-size:13.5px;font-weight:600;padding:9px 15px;transition:.15s}
-.lesson-doc .hbtn:hover{background:#3A2E14}
+.lesson-doc .hbtn:hover{background:#FCE7C3}
 .lesson-doc .hbtn:disabled{cursor:default;opacity:.95}
-.lesson-doc .dbtn{background:var(--teal);color:#fff;font-size:13.5px;font-weight:600;padding:9px 17px}
-.lesson-doc .dbtn:hover{background:#026C79}
-.lesson-doc .task.done .dbtn{background:var(--green)}
+.lesson-doc .dbtn{background:var(--deep);color:#fff;font-size:13.5px;font-weight:600;padding:9px 17px}
+.lesson-doc .dbtn:hover{background:#132039}
+.lesson-doc .practice.done .dbtn{background:var(--green)}
 .lesson-doc .timer{display:flex;align-items:center;gap:9px;font-size:13.5px;color:var(--amber);font-weight:600}
 .lesson-doc .ring{width:26px;height:26px;border-radius:50%;flex:0 0 26px;
-  background:conic-gradient(var(--amber) 0deg,#3A2E14 0deg)}
-.lesson-doc .hint{margin-top:13px;background:var(--amberbg);border:1px solid #5A4419;
-  border-radius:9px;padding:15px 17px;display:none}
+  background:conic-gradient(var(--amber) 0deg,var(--amberbg) 0deg)}
+.lesson-doc .hint{margin-top:13px;background:var(--amberbg);border:1px solid var(--amberline);
+  border-radius:10px;padding:15px 17px;display:none}
 .lesson-doc .hint.show{display:block;animation:lesson-drop .3s ease}
 @keyframes lesson-drop{from{opacity:0;transform:translateY(-7px)}to{opacity:1;transform:none}}
 .lesson-doc .hint h4{margin:0 0 8px;font-size:11px;letter-spacing:.8px;color:var(--amber);text-transform:uppercase}
 .lesson-doc .hint pre{margin:0}
-.lesson-doc .hint .prose p{margin:9px 0 0;font-size:13.5px;color:#E9C77E}
-.lesson-doc .code-practice{margin-top:16px;padding:14px;background:#101D2B;border:1px solid #29445A;border-radius:9px}
-.lesson-doc .practice-label{margin:0 0 8px;color:var(--mint);font-size:11px;font-weight:700;letter-spacing:.75px;text-transform:uppercase}
-.lesson-doc .practice-timer{margin:0 0 10px;color:var(--amber);font-size:13px;font-weight:600}
-.lesson-doc .code-editor{display:block;width:100%;min-height:150px;resize:vertical;box-sizing:border-box;padding:12px;border:1px solid #36536C;border-radius:6px;background:#07131F;color:#E9F5FF;font:13px/1.55 var(--font-mono,ui-monospace,SFMono-Regular,Consolas,monospace);tab-size:2}
-.lesson-doc .code-editor:focus{outline:2px solid var(--accent);outline-offset:1px}
-.lesson-doc .code-actions{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}
-.lesson-doc .runbtn,.lesson-doc .resetbtn,.lesson-doc .checkbtn{font-size:13px;font-weight:600;padding:8px 13px;border-radius:6px}
-.lesson-doc .runbtn{background:var(--teal);color:#fff}.lesson-doc .checkbtn{background:var(--accent);color:#fff}.lesson-doc .resetbtn{background:transparent;color:#C7D6E2;border:1px solid #466178}
-.lesson-doc .code-output{margin-top:12px;color:#A8BCCA;font-size:11px;letter-spacing:.6px;text-transform:uppercase}.lesson-doc .code-output pre{min-height:38px;max-height:220px;overflow:auto;margin:5px 0 0;padding:10px;background:#07131F;border-radius:6px;color:#E9F5FF;font:13px/1.45 var(--font-mono,ui-monospace,SFMono-Regular,Consolas,monospace);text-transform:none;letter-spacing:normal;white-space:pre-wrap}
-.lesson-doc .code-result{display:none;margin-top:10px;padding:9px 11px;border-radius:6px;font-size:13px}.lesson-doc .code-result.show{display:block}.lesson-doc .code-result.ok{background:var(--greenbg);border:1px solid #1F5C3D;color:#BFF0D9}.lesson-doc .code-result.no{background:#35231E;border:1px solid #714033;color:#F3C2B4}
-.lesson-doc .task.locked{opacity:.58}.lesson-doc .task.locked::after{content:"Complete the previous task to unlock this one.";display:block;margin:14px 0 0 46px;color:var(--muted);font-size:13px}.lesson-doc .task.locked button,.lesson-doc .task.locked textarea{cursor:not-allowed}
-.lesson-doc .sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
+.lesson-doc .hint p{margin:9px 0 0;font-size:13.5px;color:#7A4E0C}
 
-/* ---------- quiz ---------- */
-.lesson-doc .quiz{display:flex;gap:10px;margin-top:13px;flex-wrap:wrap}
-.lesson-doc .opt{background:#0F2426;border:1.5px solid var(--line);padding:11px 17px;
-  font-family:var(--font-mono);font-size:14px;transition:.14s;color:var(--ink)}
-.lesson-doc .opt:hover{border-color:var(--teal);background:#153A3D}
-.lesson-doc .opt.right{background:var(--greenbg);border-color:var(--green);color:var(--green);font-weight:700}
-.lesson-doc .opt.wrong{background:var(--redbg);border-color:var(--red);color:var(--red);text-decoration:line-through}
-.lesson-doc .why{margin-top:11px;font-size:13.5px;padding:11px 14px;border-radius:8px;display:none}
-.lesson-doc .why.show{display:block}
-.lesson-doc .why.ok{background:var(--greenbg);color:#BFF0D9}
-.lesson-doc .why.no{background:var(--redbg);color:#FFD2C9}
+/* ---------- preview-only chrome ---------- */
+.lesson-doc .preview-warnings{border-color:#F0B4B4;background:#FDECEC;color:#7A1E1E;border-left-color:#D9455F}
+.lesson-doc .preview-warnings ul{margin:8px 0 0;padding-left:18px}
+.lesson-doc .back-to-editor{margin:0 0 20px;font-family:var(--font-mono);font-size:13px}
+.lesson-doc .back-to-editor a{color:var(--c4)}
 
 /* ---------- finish ---------- */
-.lesson-doc .finish{background:var(--card);border:2px solid var(--mint);border-radius:var(--radius);
-  padding:26px 28px;box-shadow:var(--shadow);text-align:center}
-.lesson-doc .finish h2{font-family:var(--font-display);margin:0 0 8px;font-size:22px}
-.lesson-doc .finish p{margin:0;color:var(--muted)}
-.lesson-doc .done-msg{margin-top:26px;padding:20px 24px;background:var(--deep);color:#fff;
+.lesson-doc .done-msg{margin-top:26px;padding:22px 26px;background:var(--deep);color:#fff;
   border-radius:var(--radius);display:none}
 .lesson-doc .done-msg.show{display:block;animation:lesson-drop .4s ease}
 .lesson-doc .done-msg h3{margin:0 0 6px;font-family:var(--font-display);font-size:20px}
-.lesson-doc .done-msg p{margin:0;color:var(--mint);font-size:14px}
-.lesson-doc.no-celebration .done-msg{display:none !important}
+.lesson-doc .done-msg p{margin:0;color:#C7D5FA;font-size:14px}
 
-@media(max-width:700px){
-  .lesson-doc .rulegrid,.lesson-doc .grid{grid-template-columns:1fr}
-}
-@media(max-width:620px){
-  .lesson-doc .quiz{flex-direction:column}
-  .lesson-doc .opt{width:100%;text-align:left}
-  .lesson-doc .journey-item{flex-direction:column;gap:4px}
-  .lesson-doc .journey-item .jlabel{flex:none}
-  .lesson-doc .task{padding:16px 17px}
-  .lesson-doc .card,.lesson-doc details.aside{padding:18px 19px}
-  .lesson-doc .rule,.lesson-doc .push{padding:19px 20px}
-  .lesson-doc .tq{font-size:14.5px}
-  .lesson-doc h1.ltitle{font-size:clamp(24px,7vw,32px)}
-}
 @media(max-width:480px){
   .lesson-doc .meta{gap:8px}
   .lesson-doc .pill{padding:6px 12px;font-size:12px}
+  .lesson-doc .practice{padding:16px 17px}
 }
 @media(prefers-reduced-motion:reduce){
   .lesson-doc *,.lesson-doc *::before,.lesson-doc *::after{animation:none!important;transition:none!important}
 }
-.lesson-doc :focus-visible{outline:2px solid var(--teal);outline-offset:2px}
+.lesson-doc :focus-visible{outline:2px solid var(--c4);outline-offset:2px}

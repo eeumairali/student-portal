@@ -12,9 +12,9 @@ from django.views.decorators.http import require_POST
 
 from accounts.models import StudentProfile
 
-from .lesson_markdown import FORMATS, group_into_sections, parse_lesson
+from .lesson_markdown import parse_lesson
 from .lesson_save import LessonSaveError, resolve_save_plan, save_lesson
-from .models import BlankAnswer, ChecklistCheck, Course, HintReveal, Lesson, LessonFile, LessonProgress, Task
+from .models import Course, HintReveal, Lesson, LessonFile, LessonProgress, Task
 from .services import (
     course_progress, enrolled_courses, get_accessible_lesson, get_enrolled_course, student_lessons,
 )
@@ -27,34 +27,24 @@ def _document_context(parsed, *, lesson=None, can_edit=False, preview_warnings=N
     """Shared context builder for anything that renders learning/lesson/document.html
     or its _document_body.html partial: the staff preview tool, a student's own
     lesson page, and the tutor's read-only view of a student's lesson."""
-    for i, task in enumerate(parsed.tasks, start=1):
-        task.index = i
-        task.effective_hint_seconds = (
-            task.hint_seconds if task.hint_seconds is not None else parsed.hint_seconds_default
+    for practice in parsed.practices:
+        practice.effective_hint_seconds = (
+            practice.hint_seconds if practice.hint_seconds is not None else parsed.hint_seconds_default
         )
 
-    fmt = parsed.format if parsed.format in FORMATS else "document"
-
-    initial_state = {"answers": {}, "completed": [], "checked": []}
+    initial_state = {"completed": []}
     if lesson is not None and lesson.pk:
-        initial_state["answers"] = dict(
-            BlankAnswer.objects.filter(lesson=lesson).values_list("blank_id", "value")
-        )
         initial_state["completed"] = list(
             Task.objects.filter(lesson=lesson, is_complete=True).values_list("task_id", flat=True)
-        )
-        initial_state["checked"] = list(
-            ChecklistCheck.objects.filter(lesson=lesson, is_checked=True).values_list("check_id", flat=True)
         )
 
     return {
         "front_matter": parsed.front_matter,
         "meta_pills": [(k.replace("_", " ").capitalize(), v) for k, v in parsed.meta.items()],
         "course": parsed.front_matter.get("course"),
-        "nodes": parsed.nodes,
-        "sections": group_into_sections(parsed.nodes),
-        "tasks": parsed.tasks,
-        "format": fmt,
+        "topics": parsed.topics,
+        "blocks": parsed.blocks,
+        "practices": parsed.practices,
         "lesson_id": lesson.id if (lesson is not None and lesson.pk) else "",
         "can_edit": can_edit,
         "initial_state_json": json.dumps(initial_state),
@@ -157,20 +147,6 @@ def _owned_lesson_or_404(request, lesson_id):
 
 @login_required
 @require_POST
-def lesson_save_answer(request, lesson_id):
-    lesson = _owned_lesson_or_404(request, lesson_id)
-    data = json.loads(request.body or "{}")
-    blank_id = (data.get("blank_id") or "")[:64]
-    if not blank_id:
-        return JsonResponse({"ok": False}, status=400)
-    BlankAnswer.objects.update_or_create(
-        lesson=lesson, blank_id=blank_id, defaults={"value": data.get("value", "")}
-    )
-    return JsonResponse({"ok": True})
-
-
-@login_required
-@require_POST
 def lesson_toggle_task(request, lesson_id, task_id):
     lesson = _owned_lesson_or_404(request, lesson_id)
     data = json.loads(request.body or "{}")
@@ -184,17 +160,6 @@ def lesson_toggle_task(request, lesson_id, task_id):
 def lesson_reveal_hint(request, lesson_id, task_id):
     lesson = _owned_lesson_or_404(request, lesson_id)
     HintReveal.objects.create(lesson=lesson, task_id=task_id)
-    return JsonResponse({"ok": True})
-
-
-@login_required
-@require_POST
-def lesson_toggle_check(request, lesson_id, check_id):
-    lesson = _owned_lesson_or_404(request, lesson_id)
-    data = json.loads(request.body or "{}")
-    ChecklistCheck.objects.update_or_create(
-        lesson=lesson, check_id=check_id[:32], defaults={"is_checked": bool(data.get("checked"))}
-    )
     return JsonResponse({"ok": True})
 
 

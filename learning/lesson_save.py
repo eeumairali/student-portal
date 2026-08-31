@@ -11,7 +11,7 @@ from dataclasses import dataclass, field
 from django.contrib.auth.models import User
 from django.utils.text import slugify
 
-from .lesson_markdown import FORMATS, ParsedLesson
+from .lesson_markdown import ParsedLesson
 from .models import Course, Enrollment, HintReveal, Lesson, Task
 
 
@@ -83,7 +83,7 @@ def resolve_save_plan(
 
     removed_tasks: list = []
     if existing_lesson:
-        new_ids = {t.task_id for t in parsed.tasks}
+        new_ids = {p.practice_id for p in parsed.practices}
         for task in existing_lesson.tasks.filter(is_orphaned=False):
             if task.task_id not in new_ids:
                 has_progress = task.is_complete or HintReveal.objects.filter(
@@ -104,22 +104,20 @@ def save_lesson(parsed: ParsedLesson, raw_markdown: str, plan: SavePlan) -> Less
     lesson.subtitle = parsed.front_matter.get("subtitle") or ""
     lesson.markdown_source = raw_markdown
     lesson.meta = parsed.meta
-    fmt = parsed.front_matter.get("format")
-    lesson.format = fmt if fmt in FORMATS else ""
     hint_default = parsed.front_matter.get("hint_seconds")
     try:
-        lesson.hint_seconds_default = int(hint_default) if hint_default else 30
+        lesson.hint_seconds_default = int(hint_default) if hint_default else 20
     except (TypeError, ValueError):
-        lesson.hint_seconds_default = 30
+        lesson.hint_seconds_default = 20
     lesson.is_published = bool(parsed.front_matter.get("visible", False))
     lesson.description = ""
     lesson.save()
 
-    new_ids = {t.task_id for t in parsed.tasks}
-    for order, t in enumerate(parsed.tasks, start=1):
+    new_ids = {p.practice_id for p in parsed.practices}
+    for order, p in enumerate(parsed.practices, start=1):
         Task.objects.update_or_create(
-            lesson=lesson, task_id=t.task_id,
-            defaults={"type": t.type, "order": order, "is_orphaned": False},
+            lesson=lesson, task_id=p.practice_id,
+            defaults={"order": order, "is_orphaned": False},
         )
     Task.objects.filter(lesson=lesson).exclude(task_id__in=new_ids).update(is_orphaned=True)
 
