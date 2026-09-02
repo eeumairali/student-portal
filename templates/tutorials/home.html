@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+{% block title %}Study desk — free tutorials in Python, robotics and more{% endblock %}
+{% block robots %}{% endblock %}
+{% block meta_description %}<meta name="description" content="Free tutorials and articles on Python, robotics, data science and more, plus one-to-one tutoring for students.">{% endblock %}
+{% block content %}
+<p class="eyebrow">Free tutorials</p>
+<h1 class="mt-2 font-display text-3xl">Learn a new skill, one tutorial at a time</h1>
+<p class="mt-3 max-w-2xl text-sm text-slate-500">Browse articles and tutorials by topic below — no account needed. Already working with a tutor here? <a class="text-teal-600 hover:underline" href="{% url 'login' %}">Log in</a> to reach your course.</p>
+
+{% if domains %}
+<div class="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+  {% for domain in domains %}
+    <a href="{% url 'domain_detail' domain.slug %}" class="card block p-5 transition hover:border-mint-400">
+      <h2 class="font-display text-xl">{{ domain.name }}</h2>
+      {% if domain.description %}<p class="mt-2 line-clamp-2 text-sm text-slate-500">{{ domain.description }}</p>{% endif %}
+      <p class="mt-4 text-xs text-slate-500">{{ domain.published_tutorial_count }} tutorial{{ domain.published_tutorial_count|pluralize }}</p>
+    </a>
+  {% endfor %}
+</div>
+{% else %}
+<div class="card mt-8 p-8 text-center">
+  <p class="font-display text-xl">Tutorials coming soon</p>
+  <p class="mt-2 text-sm text-slate-500">Check back shortly — new topics are being added.</p>
+</div>
+{% endif %}
+{% endblock %}

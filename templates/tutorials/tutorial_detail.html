@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+{% block title %}{{ tutorial.title }} — Study desk{% endblock %}
+{% block robots %}{% endblock %}
+{% block meta_description %}<meta name="description" content="{{ tutorial.summary|default:tutorial.title }}">{% endblock %}
+{% block content %}
+<p class="eyebrow">
+  <a class="hover:underline" href="{% url 'home' %}">Tutorials</a> ·
+  <a class="hover:underline" href="{% url 'domain_detail' tutorial.domain.slug %}">{{ tutorial.domain.name }}</a>
+</p>
+<h1 class="mt-2 font-display text-3xl">{{ tutorial.title }}</h1>
+{% if tutorial.summary %}<p class="mt-3 max-w-2xl text-sm text-slate-500">{{ tutorial.summary }}</p>{% endif %}
+
+<article class="tutorial-body mt-8">
+  {{ tutorial.body_html|safe }}
+</article>
+{% endblock %}
+{% block extra_head %}
+<style>
+.tutorial-body{line-height:1.7}
+.tutorial-body p,.tutorial-body ul,.tutorial-body ol{margin:0 0 1em}
+.tutorial-body ul,.tutorial-body ol{padding-left:1.4em}
+.tutorial-body h2,.tutorial-body h3{font-family:"Fraunces",Georgia,serif;margin:1.4em 0 .5em}
+.tutorial-body h2{font-size:1.4rem}
+.tutorial-body h3{font-size:1.15rem}
+.tutorial-body pre{background:rgb(var(--c-card));border:1px solid rgb(var(--c-line));border-radius:10px;padding:14px 16px;overflow-x:auto;margin:0 0 1em}
+.tutorial-body code{font-family:"JetBrains Mono",monospace;font-size:.9em}
+.tutorial-body table{border-collapse:collapse;width:100%;margin:0 0 1em}
+.tutorial-body th,.tutorial-body td{border:1px solid rgb(var(--c-line));padding:8px 10px;text-align:left;font-size:.9em}
+</style>
+{% endblock %}

@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+{% block title %}{{ domain.name }} tutorials — Study desk{% endblock %}
+{% block robots %}{% endblock %}
+{% block meta_description %}<meta name="description" content="{{ domain.description|default:domain.name }} tutorials, free to read.">{% endblock %}
+{% block content %}
+<p class="eyebrow"><a class="hover:underline" href="{% url 'home' %}">Tutorials</a></p>
+<h1 class="mt-2 font-display text-3xl">{{ domain.name }}</h1>
+{% if domain.description %}<p class="mt-3 max-w-2xl text-sm text-slate-500">{{ domain.description }}</p>{% endif %}
+
+{% if tutorials %}
+<ol class="mt-8 divide-y divide-line overflow-hidden rounded-xl border border-line bg-card shadow-card">
+  {% for tutorial in tutorials %}
+    <li>
+      <a href="{% url 'tutorial_detail' tutorial.slug %}" class="flex items-center justify-between gap-4 p-4 transition hover:bg-paper">
+        <div class="min-w-0">
+          <p class="font-medium">{{ tutorial.title }}</p>
+          {% if tutorial.summary %}<p class="mt-0.5 line-clamp-1 text-sm text-slate-500">{{ tutorial.summary }}</p>{% endif %}
+        </div>
+      </a>
+    </li>
+  {% endfor %}
+</ol>
+{% else %}
+<div class="card mt-8 p-8 text-center">
+  <p class="font-display text-xl">No tutorials yet</p>
+  <p class="mt-2 text-sm text-slate-500">Check back shortly.</p>
+</div>
+{% endif %}
+{% endblock %}

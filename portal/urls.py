@@ -14,5 +14,6 @@ urlpatterns = [
         success_url="/accounts/password_change/done/"), name="password_change"),
     path("accounts/password_change/done/", auth_views.PasswordChangeDoneView.as_view(),
          name="password_change_done"),
-    path("", include("learning.urls")),
+    path("dashboard/", include("learning.urls")),
+    path("", include("tutorials.urls")),
 ]
