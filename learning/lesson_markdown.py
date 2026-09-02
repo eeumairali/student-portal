@@ -346,6 +346,23 @@ def parse_body(text: str, practices: list, quizzes: list, warnings: list) -> lis
     return nodes
 
 
+def strip_wrapping_fence(text: str) -> str:
+    s = text.strip()
+    if not s:
+        return ""
+
+    lines = s.splitlines()
+    if not lines:
+        return ""
+
+    if re.fullmatch(r"[`~]+\s*", lines[0].strip()):
+        lines = lines[1:]
+    if lines and re.fullmatch(r"[`~]+\s*", lines[-1].strip()):
+        lines = lines[:-1]
+
+    return "\n".join(lines).strip()
+
+
 def split_keyword_sections(text: str) -> dict:
     sections: dict = {None: []}
     current = None
@@ -376,9 +393,10 @@ def build_practice(attrs: dict, content: str, practices: list, warnings: list) -
     sections = split_keyword_sections(content)
     question_html = render_markdown(sections.get(None, ""))
 
+    expected_raw = sections.get("EXPECTED", "")
     expected = None
-    if sections.get("EXPECTED", "").strip():
-        expected = sections["EXPECTED"].strip()
+    if expected_raw.strip():
+        expected = strip_wrapping_fence(expected_raw)
 
     has_solution = bool(sections.get("SOLUTION", "").strip())
     solution_html = render_markdown(sections["SOLUTION"]) if has_solution else None

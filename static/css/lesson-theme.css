@@ -163,7 +163,8 @@ body.lesson-doc{margin:0}
 .lesson-doc .expect{background:var(--greenbg);border:1px solid var(--greenline);border-radius:8px;
   padding:9px 13px;margin-top:12px;font-size:13px}
 .lesson-doc .expect b{color:var(--green);font-size:11px;letter-spacing:.6px;display:block;margin-bottom:3px}
-.lesson-doc .expect .mono{color:var(--greentext,#0E5C40)}
+.lesson-doc .expect .mono{color:var(--greentext,#0E5C40);display:block;white-space:pre-wrap;line-height:1.65;margin:0;font-family:var(--font-mono)}
+.lesson-doc .expect pre.mono{overflow-x:auto}
 
 /* ---------- hint / timer / mark done ---------- */
 .lesson-doc .practice-actions{margin-top:14px;display:flex;align-items:center;gap:12px;flex-wrap:wrap}

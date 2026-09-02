@@ -6,7 +6,7 @@
       <div class="practice-question">{{ node.question_html|safe }}</div>
 
       {% if node.expected %}
-        <div class="expect"><b>Expected</b><span class="mono">{{ node.expected }}</span></div>
+        <div class="expect"><b>Expected</b><pre class="mono">{{ node.expected }}</pre></div>
       {% endif %}
 
       <div class="practice-actions">

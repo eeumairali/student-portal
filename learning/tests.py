@@ -152,6 +152,12 @@ class LessonMarkdownParserTests(TestCase):
         self.assertFalse(p1.has_solution)
         self.assertIsNone(p1.solution_html)
 
+    def test_expected_output_keeps_newlines_when_wrapped_in_fence(self):
+        raw = "---\nstudent: andy\ndate: 2026-01-01\ntitle: t\n---\n## Block\n:::practice id=p1\nWrite it.\nEXPECTED\n```\n(1, 1) -> 0\n(1.5, 2) -> 0\n```\n:::\n"
+        parsed = parse_lesson(raw)
+        p1 = parsed.practices[0]
+        self.assertEqual(p1.expected, "(1, 1) -> 0\n(1.5, 2) -> 0")
+
     def test_w5d1_kmeans_parses_with_example_and_two_practices(self):
         parsed = parse_lesson(W5D1_KMEANS_PATH.read_text(encoding="utf-8"))
         self.assertEqual(parsed.warnings, [])
