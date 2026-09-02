@@ -18,7 +18,7 @@
     <span class="font-mono">{{ student.username }}</span>, or it will be rejected rather than filed under the wrong name.
   {% endif %}
 </p>
-
+ 
 <form method="post" enctype="multipart/form-data"
       action="{% if editing_lesson %}{% url 'lesson_edit' student.id editing_lesson.id %}{% else %}{% url 'lesson_upload' student.id %}{% endif %}"
       class="mt-6">
