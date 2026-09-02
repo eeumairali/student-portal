@@ -4,7 +4,32 @@
 (function () {
   "use strict";
 
+  function formatDateISO(date) {
+    var year = date.getFullYear();
+    var month = String(date.getMonth() + 1).padStart(2, '0');
+    var day = String(date.getDate()).padStart(2, '0');
+    return year + '-' + month + '-' + day;
+  }
+
+  var studentName = document.body.dataset.studentName || "student_username";
+  var today = formatDateISO(new Date());
+
   var SNIPPETS = {
+    student: [
+      "---",
+      "student: " + studentName,
+      "date: " + today,
+      "title: Placeholder title",
+      "subtitle: Short description of the concept",
+      "course: course-slug",
+      "topics:",
+      "  - Topic one",
+      "  - Topic two",
+      "hint_seconds: 240",
+      "visible: false",
+      "---",
+      "",
+    ].join("\n"),
     block: [
       "## Block title",
       "",
@@ -68,17 +93,25 @@
     textarea.selectionStart = textarea.selectionEnd = pos;
   }
 
-  document.addEventListener("DOMContentLoaded", function () {
+  function bindToolbar() {
     document.querySelectorAll("[data-editor-toolbar]").forEach(function (toolbar) {
       var targetId = toolbar.dataset.editorToolbar;
       var textarea = document.getElementById(targetId);
       if (!textarea) return;
       toolbar.querySelectorAll("[data-snippet]").forEach(function (btn) {
+        if (btn.__editorToolbarBound) return;
+        btn.__editorToolbarBound = true;
         btn.addEventListener("click", function () {
           var snippet = SNIPPETS[btn.dataset.snippet];
           if (snippet) insertAtCursor(textarea, snippet);
         });
       });
     });
-  });
+  }
+
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", bindToolbar, { once: true });
+  } else {
+    bindToolbar();
+  }
 })();
