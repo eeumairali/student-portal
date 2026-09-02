@@ -75,9 +75,9 @@ WSGI_APPLICATION = "portal.wsgi.application"
 DATABASES = {
     "default": {
         "ENGINE": "django.db.backends.sqlite3",
-        "NAME": env("DJANGO_DB_PATH", str(BASE_DIR / "db.sqlite3")),
+        "NAME": env("DJANGO_DB_PATH", str(BASE_DIR.parent/"portal_data" /  "db.sqlite3")),
     }
-}
+}       
 # Postgres later: set DATABASE_URL and swap this block. No model changes needed.
 
 # Deliberately off: students (often kids) need a password they can actually
