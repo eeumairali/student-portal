@@ -21,12 +21,24 @@
 .tutorial-body{line-height:1.75}
 .tutorial-body p,.tutorial-body ul,.tutorial-body ol{margin:0 0 1em}
 .tutorial-body ul,.tutorial-body ol{padding-left:1.4em}
-.tutorial-body h2,.tutorial-body h3{font-family:"Fraunces",Georgia,serif;margin:1.4em 0 .5em}
+.tutorial-body h1,.tutorial-body h2,.tutorial-body h3,.tutorial-body h4{font-family:"Fraunces",Georgia,serif;line-height:1.2;margin:1.4em 0 .5em}
+.tutorial-body h1{font-size:1.8rem}
 .tutorial-body h2{font-size:1.4rem}
 .tutorial-body h3{font-size:1.15rem}
+.tutorial-body h4{font-size:1rem}
 .tutorial-body pre{background:rgb(var(--c-paper));border:1px solid rgb(var(--c-line));border-radius:12px;padding:14px 16px;overflow-x:auto;margin:0 0 1em}
 .tutorial-body code{font-family:"JetBrains Mono",monospace;font-size:.9em}
-.tutorial-body table{border-collapse:collapse;width:100%;margin:0 0 1em}
-.tutorial-body th,.tutorial-body td{border:1px solid rgb(var(--c-line));padding:8px 10px;text-align:left;font-size:.9em}
+.tutorial-body a{color:rgb(var(--c-accent-2));text-decoration:underline;text-underline-offset:3px}
+.tutorial-body blockquote{border-left:3px solid rgb(var(--c-accent-2));color:rgb(var(--c-slate-500));margin:1.2em 0;padding-left:1em}
+.tutorial-body hr{border:0;border-top:1px solid rgb(var(--c-line));margin:2em 0}
+.tutorial-body img{border-radius:12px;height:auto;margin:1.2em 0;max-width:100%}
+.tutorial-body table{background:rgb(var(--c-card) / .55);border:1px solid rgb(var(--c-line));border-radius:14px;border-spacing:0;display:block;max-width:100%;overflow-x:auto;width:100%;margin:1.5em 0 1.8em}
+.tutorial-body th,.tutorial-body td{border-bottom:1px solid rgb(var(--c-line) / .75);border-right:1px solid rgb(var(--c-line) / .75);padding:11px 14px;text-align:left;font-size:.9em;white-space:nowrap}
+.tutorial-body th{background:linear-gradient(135deg,rgb(var(--c-accent-1) / .2),rgb(var(--c-accent-2) / .12));color:rgb(var(--c-ink));font-weight:600;letter-spacing:.02em}
+.tutorial-body tr:last-child td{border-bottom:0}
+.tutorial-body th:last-child,.tutorial-body td:last-child{border-right:0}
+.tutorial-body tbody tr:nth-child(even){background:rgb(var(--c-paper) / .28)}
+.tutorial-body tbody tr:hover{background:rgb(var(--c-accent-2) / .08)}
+.tutorial-body td code{background:rgb(var(--c-paper) / .7);border-radius:5px;padding:2px 5px}
 </style>
 {% endblock %}

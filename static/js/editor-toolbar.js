@@ -80,6 +80,29 @@
     ].join("\n"),
   };
 
+  var ARTICLE_SNIPPETS = {
+    text: "Write a paragraph explaining the idea in your own words.",
+    heading: "## Section heading",
+    code: [
+      "```python",
+      "# Add your example here",
+      "print(\"hello world\")",
+      "```",
+    ].join("\n"),
+    table: [
+      "| Item | Description |",
+      "| --- | --- |",
+      "| Example | Add a row here |",
+      "| Another item | Add more details |",
+    ].join("\n"),
+    image: "![Describe the image](https://example.com/image.jpg)",
+    list: [
+      "- First point",
+      "- Second point",
+      "- Third point",
+    ].join("\n"),
+  };
+
   function insertAtCursor(textarea, text) {
     var start = textarea.selectionStart;
     var end = textarea.selectionEnd;
@@ -102,7 +125,8 @@
         if (btn.__editorToolbarBound) return;
         btn.__editorToolbarBound = true;
         btn.addEventListener("click", function () {
-          var snippet = SNIPPETS[btn.dataset.snippet];
+          var snippets = toolbar.dataset.editorKind === "article" ? ARTICLE_SNIPPETS : SNIPPETS;
+          var snippet = snippets[btn.dataset.snippet];
           if (snippet) insertAtCursor(textarea, snippet);
         });
       });
