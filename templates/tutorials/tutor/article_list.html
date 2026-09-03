@@ -1,0 +1,43 @@
+{% extends "base.html" %}
+{% block title %}Articles · Study desk{% endblock %}
+{% block content %}
+<div class="flex flex-wrap items-center justify-between gap-4">
+  <div>
+    <p class="eyebrow">Public articles</p>
+    <h1 class="mt-1 font-display text-3xl">Manage tutorials</h1>
+    <p class="mt-2 max-w-xl text-sm text-slate-500">
+      These are visible to anyone on the public site — no login needed. Separate from your students' course material.
+    </p>
+  </div>
+  <a href="{% url 'article_upload' %}" class="btn-primary">+ New article</a>
+</div>
+
+{% if tutorials %}
+<ol class="mt-8 divide-y divide-line overflow-hidden rounded-xl border border-line bg-card shadow-card">
+  {% for tutorial in tutorials %}
+    <li class="flex items-center justify-between gap-4 p-4">
+      <div class="min-w-0">
+        <p class="font-mono text-xs text-slate-500">{{ tutorial.domain.name }}{% if not tutorial.is_published %} · <span class="text-amber-600">draft</span>{% endif %}</p>
+        <p class="mt-0.5 font-medium">{{ tutorial.title }}</p>
+      </div>
+      <div class="flex shrink-0 items-center gap-3 text-sm">
+        {% if tutorial.is_published %}
+          <a class="text-teal-600 hover:underline" href="{% url 'tutorial_detail' tutorial.slug %}" target="_blank" rel="noopener">View</a>
+        {% endif %}
+        <a class="text-teal-600 hover:underline" href="{% url 'article_edit' tutorial.id %}">Edit</a>
+        <form method="post" action="{% url 'article_delete' tutorial.id %}"
+              onsubmit="return confirm('Delete &quot;{{ tutorial.title }}&quot;? This can\'t be undone.');">
+          {% csrf_token %}
+          <button type="submit" class="text-red-500 hover:underline">Delete</button>
+        </form>
+      </div>
+    </li>
+  {% endfor %}
+</ol>
+{% else %}
+<div class="card mt-8 p-10 text-center">
+  <p class="font-display text-xl">No articles yet</p>
+  <p class="mt-2 text-sm text-slate-500">Click "New article" to write your first public tutorial.</p>
+</div>
+{% endif %}
+{% endblock %}

@@ -3,25 +3,32 @@
 {% block robots %}{% endblock %}
 {% block meta_description %}<meta name="description" content="{{ domain.description|default:domain.name }} tutorials, free to read.">{% endblock %}
 {% block content %}
-<p class="eyebrow"><a class="hover:underline" href="{% url 'home' %}">Tutorials</a></p>
-<h1 class="mt-2 font-display text-3xl">{{ domain.name }}</h1>
-{% if domain.description %}<p class="mt-3 max-w-2xl text-sm text-slate-500">{{ domain.description }}</p>{% endif %}
+<a href="{% url 'home' %}" class="chip transition hover:border-mint-400 hover:text-ink">&larr; All tutorials</a>
+
+<div class="mt-6 flex items-center gap-4">
+  <span class="avatar-mark text-2xl">{{ domain.name|slice:":1" }}</span>
+  <div>
+    <p class="eyebrow">Domain</p>
+    <h1 class="mt-0.5 font-display text-3xl">{{ domain.name }}</h1>
+  </div>
+</div>
+{% if domain.description %}<p class="mt-4 max-w-2xl text-sm text-slate-500">{{ domain.description }}</p>{% endif %}
 
 {% if tutorials %}
-<ol class="mt-8 divide-y divide-line overflow-hidden rounded-xl border border-line bg-card shadow-card">
+<div class="mt-10 grid gap-4 sm:grid-cols-2">
   {% for tutorial in tutorials %}
-    <li>
-      <a href="{% url 'tutorial_detail' tutorial.slug %}" class="flex items-center justify-between gap-4 p-4 transition hover:bg-paper">
-        <div class="min-w-0">
-          <p class="font-medium">{{ tutorial.title }}</p>
-          {% if tutorial.summary %}<p class="mt-0.5 line-clamp-1 text-sm text-slate-500">{{ tutorial.summary }}</p>{% endif %}
-        </div>
-      </a>
-    </li>
+    <a href="{% url 'tutorial_detail' tutorial.slug %}" class="card is-interactive group block p-5">
+      <p class="font-display text-lg">{{ tutorial.title }}</p>
+      {% if tutorial.summary %}<p class="mt-1.5 line-clamp-2 text-sm text-slate-500">{{ tutorial.summary }}</p>{% endif %}
+      <p class="text-accent-1 mt-4 flex items-center gap-1 text-xs font-semibold uppercase tracking-wide">
+        Read tutorial
+        <span class="transition-transform duration-200 group-hover:translate-x-1">&rarr;</span>
+      </p>
+    </a>
   {% endfor %}
-</ol>
+</div>
 {% else %}
-<div class="card mt-8 p-8 text-center">
+<div class="card mt-8 p-10 text-center">
   <p class="font-display text-xl">No tutorials yet</p>
   <p class="mt-2 text-sm text-slate-500">Check back shortly.</p>
 </div>

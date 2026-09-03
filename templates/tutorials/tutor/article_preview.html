@@ -1,0 +1,50 @@
+{% extends "base.html" %}
+{% block title %}Preview article{% endblock %}
+{% block content %}
+<a href="{{ back_to_editor_url }}" class="text-sm text-slate-500 hover:text-ink">&larr; back to editor</a>
+<p class="mt-4 font-mono text-xs text-slate-500">Preview — nothing published yet</p>
+<h1 class="mt-1 font-display text-3xl">{{ front_matter.title|default:"Untitled" }}</h1>
+
+{% if error %}
+  <div class="card mt-6 border-red-200 bg-red-50 p-5 text-sm text-red-800">
+    <p class="font-medium">Can't save this yet:</p>
+    <p class="mt-1">{{ error }}</p>
+  </div>
+{% else %}
+  <p class="mt-2 text-sm text-slate-500">
+    Domain <strong>{{ front_matter.domain }}</strong>
+    · {{ front_matter.visible|default:True|yesno:"published,draft" }}
+    {% if plan.existing %} · updates an existing article{% else %} · new article{% endif %}
+  </p>
+
+  {% if plan.warnings %}
+    <div class="card mt-4 border-amber-200 bg-amber-50 p-4 text-sm text-amber-900">
+      <ul class="list-disc pl-5">{% for w in plan.warnings %}<li>{{ w }}</li>{% endfor %}</ul>
+    </div>
+  {% endif %}
+
+  <form method="post" action="{{ back_to_editor_url }}" class="mt-6">
+    {% csrf_token %}
+    <textarea name="markdown" hidden>{{ markdown }}</textarea>
+    <input type="hidden" name="action" value="confirm">
+    <button type="submit" class="btn-primary">Confirm &amp; publish</button>
+    <a href="{{ back_to_editor_url }}" class="btn-quiet ml-2">Back to editor</a>
+  </form>
+
+  <article class="tutorial-body card mt-8 p-6 sm:p-10">
+    {{ body_html|safe }}
+  </article>
+{% endif %}
+{% endblock %}
+{% block extra_head %}
+<style>
+.tutorial-body{line-height:1.75}
+.tutorial-body p,.tutorial-body ul,.tutorial-body ol{margin:0 0 1em}
+.tutorial-body ul,.tutorial-body ol{padding-left:1.4em}
+.tutorial-body h2,.tutorial-body h3{font-family:"Fraunces",Georgia,serif;margin:1.4em 0 .5em}
+.tutorial-body h2{font-size:1.4rem}
+.tutorial-body h3{font-size:1.15rem}
+.tutorial-body pre{background:rgb(var(--c-paper));border:1px solid rgb(var(--c-line));border-radius:12px;padding:14px 16px;overflow-x:auto;margin:0 0 1em}
+.tutorial-body code{font-family:"JetBrains Mono",monospace;font-size:.9em}
+</style>
+{% endblock %}

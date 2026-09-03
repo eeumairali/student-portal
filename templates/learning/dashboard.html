@@ -1,12 +1,12 @@
 {% extends "base.html" %}
 {% block content %}
 <p class="eyebrow">Your courses</p>
-<h1 class="mt-2 font-display text-3xl">Hello, {{ user.student_profile.display_name|default:user.username }}</h1>
+<h1 class="mt-2 font-display text-3xl sm:text-4xl">Hello, <span class="text-gradient">{{ user.student_profile.display_name|default:user.username }}</span></h1>
 
 {% if cards %}
 <div class="mt-8 grid gap-4 sm:grid-cols-2">
   {% for card in cards %}
-    <a href="{% url 'course_detail' card.course.slug %}" class="card block p-5 transition hover:border-mint-400">
+    <a href="{% url 'course_detail' card.course.slug %}" class="card is-interactive block p-5">
       <p class="eyebrow">{{ card.course.get_subject_display }}</p>
       <h2 class="mt-1 font-display text-xl">{{ card.course.title }}</h2>
       {% if card.course.description %}<p class="mt-2 line-clamp-2 text-sm text-slate-500">{{ card.course.description }}</p>{% endif %}

@@ -22,7 +22,10 @@ module.exports = {
         body: ['"Inter"', "system-ui", "sans-serif"],
         mono: ['"JetBrains Mono"', "ui-monospace", "monospace"],
       },
-      boxShadow: { card: "0 3px 12px rgba(85,75,216,.10), 0 12px 30px -18px rgba(49,43,85,.24)" },
+      boxShadow: {
+        card: "0 3px 12px rgba(85,75,216,.10), 0 12px 30px -18px rgba(49,43,85,.24)",
+        glow: "0 0 0 1px rgba(124,108,255,.25), 0 8px 24px -6px rgba(124,108,255,.35), 0 20px 45px -20px rgba(255,120,170,.30)",
+      },
     },
   },
   plugins: [],
