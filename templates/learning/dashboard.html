@@ -1,6 +1,39 @@
 {% extends "base.html" %}
 {% block content %}
-<p class="eyebrow">Your courses</p>
+<div class="card overflow-hidden p-6 sm:p-7">
+  <div class="flex flex-col gap-5 sm:flex-row sm:items-center sm:justify-between">
+    <div class="min-w-0">
+      <p class="eyebrow">Your zoom room</p>
+      <p class="mt-1 font-display text-xl">Permanent session link</p>
+      <p class="mt-1 text-sm text-slate-500">Same room every time — bookmark it, no need to ask for a new link before each session.</p>
+    </div>
+    <a href="https://us06web.zoom.us/j/3223405479?pwd=9QIqPbTOLH8eegrelgslyazMRr95fi.1"
+       target="_blank" rel="noopener"
+       class="btn-primary shrink-0 inline-flex items-center justify-center gap-2 rounded-full px-5 py-2.5 text-sm font-semibold">
+      Join Zoom meeting
+    </a>
+  </div>
+
+  <dl class="mt-6 grid gap-3 sm:grid-cols-3">
+    <div class="rounded-xl border border-line bg-paper p-4">
+      <dt class="font-mono text-xs uppercase tracking-wide text-slate-500">Meeting ID</dt>
+      <dd class="mt-1 font-mono text-sm">322 340 5479</dd>
+    </div>
+    <div class="rounded-xl border border-line bg-paper p-4">
+      <dt class="font-mono text-xs uppercase tracking-wide text-slate-500">Passcode</dt>
+      <dd class="mt-1 font-mono text-sm">eeumairali</dd>
+    </div>
+    <div class="rounded-xl border border-line bg-paper p-4">
+      <dt class="font-mono text-xs uppercase tracking-wide text-slate-500">Need help?</dt>
+      <dd class="mt-1 space-y-0.5 text-sm">
+        <a href="mailto:eeumairali@gmail.com" class="block text-slate-600 hover:text-slate-900">eeumairali@gmail.com</a>
+        <a href="https://wa.me/923207651231" target="_blank" rel="noopener" class="block text-slate-600 hover:text-slate-900">WhatsApp +92 320 7651231</a>
+      </dd>
+    </div>
+  </dl>
+</div>
+
+<p class="eyebrow mt-10">Your courses</p>
 <h1 class="mt-2 font-display text-3xl sm:text-4xl">Hello, <span class="text-gradient">{{ user.student_profile.display_name|default:user.username }}</span></h1>
 
 {% if cards %}
