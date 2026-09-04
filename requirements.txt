@@ -4,4 +4,3 @@ PyYAML==6.*
 Markdown==3.*
 bleach==6.*
 tinycss2==1.*
-gunicorn
