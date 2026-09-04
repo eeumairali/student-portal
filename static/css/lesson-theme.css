@@ -245,6 +245,14 @@ body.lesson-doc{margin:0}
 .lesson-doc .obj-check{margin-top:6px;font-size:13px;color:var(--muted)}
 .lesson-doc .obj-check b{color:var(--green);letter-spacing:.4px;text-transform:uppercase;font-size:11px;margin-right:4px}
 
+/* ---------- steps (plain numbered recap) ---------- */
+.lesson-doc .steps{margin:0 0 20px;padding:0;list-style:none;counter-reset:steps}
+.lesson-doc .steps li{counter-increment:steps;position:relative;padding:4px 0 4px 38px;
+  font-size:14.5px}
+.lesson-doc .steps li::before{content:counter(steps);position:absolute;left:0;top:2px;
+  width:22px;height:22px;border-radius:50%;background:var(--c3);color:#fff;
+  font-size:11.5px;font-weight:700;display:grid;place-items:center}
+
 /* ---------- grid ---------- */
 .lesson-doc .lgrid{display:flex;flex-wrap:wrap;gap:14px;margin-bottom:20px}
 .lesson-doc .lgrid-col{flex:1 1 200px;background:var(--card);border:1px solid var(--line);
@@ -285,3 +293,42 @@ body.lesson-doc{margin:0}
 .lesson-doc .quiz-feedback{max-height:0;overflow:hidden;opacity:0;font-size:13.5px;
   color:var(--muted);padding:0 14px;transition:.2s}
 .lesson-doc .quiz-feedback.show{max-height:80px;opacity:1;padding:6px 14px 0}
+
+/* ---------- card (quiet titled panel) ---------- */
+.lesson-doc .card{background:var(--card);border:1px solid var(--line);border-radius:14px;
+  padding:18px 20px;margin-bottom:20px}
+.lesson-doc .card-title{font-weight:700;margin:0 0 10px;color:var(--ink)}
+.lesson-doc .card-body p{margin:0 0 8px}
+.lesson-doc .card-body p:last-child{margin-bottom:0}
+
+/* ---------- aside (titled side-note) ---------- */
+.lesson-doc .aside{background:var(--paper);border:1px dashed var(--line);border-left:4px solid var(--c6);
+  border-radius:10px;padding:16px 18px;margin-bottom:20px}
+.lesson-doc .aside-title{font-weight:700;margin:0 0 8px;color:var(--c6)}
+.lesson-doc .aside-body p{margin:0 0 8px}
+.lesson-doc .aside-body p:last-child{margin-bottom:0}
+
+/* ---------- rule (worked checks) ---------- */
+.lesson-doc .rule{background:var(--greenbg);border:1px solid var(--greenline);border-radius:14px;
+  padding:18px 20px;margin-bottom:20px}
+.lesson-doc .rule-title{font-weight:700;margin:0 0 12px;color:var(--green)}
+.lesson-doc .rule-check{padding:8px 0;border-top:1px solid var(--greenline)}
+.lesson-doc .rule-check:first-of-type{border-top:none;padding-top:0}
+.lesson-doc .rule-check-heading{font-family:var(--font-mono);font-size:11.5px;font-weight:700;
+  letter-spacing:.4px;text-transform:uppercase;color:var(--green);margin:0 0 4px}
+.lesson-doc .rule-check-body p{margin:0 0 6px;font-size:13.5px;color:var(--greentext,#0E5C40)}
+.lesson-doc .rule-check-body p:last-child{margin-bottom:0}
+
+/* ---------- task-block (:::task type=step|code|answer) ---------- */
+.lesson-doc .task-note{margin-top:10px;font-size:14px}
+.lesson-doc .task-note p{margin:0 0 8px}
+.lesson-doc .task-note p:last-child{margin-bottom:0}
+.lesson-doc .task-note .tip.mini-tip{margin:10px 0}
+.lesson-doc .task-done-when{margin-top:12px;background:var(--greenbg);border:1px solid var(--greenline);
+  border-radius:8px;padding:9px 14px;font-size:13.5px;color:var(--greentext,#0E5C40)}
+.lesson-doc .task-done-when b{color:var(--green);font-size:11px;letter-spacing:.6px;
+  text-transform:uppercase;display:block;margin-bottom:3px}
+.lesson-doc .blank-input{font-family:var(--font-mono);font-size:13.5px;border:none;
+  border-bottom:2px solid var(--c4);background:transparent;color:var(--ink);
+  padding:2px 4px;min-width:110px}
+.lesson-doc .blank-input:focus{outline:none;border-bottom-color:var(--c3)}

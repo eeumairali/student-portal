@@ -1,0 +1,4 @@
+<div class="card">
+  {% if node.title %}<p class="card-title">{{ node.title }}</p>{% endif %}
+  <div class="card-body">{{ node.html|safe }}</div>
+</div>

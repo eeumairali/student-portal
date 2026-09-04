@@ -88,11 +88,16 @@ All use `:::name` … `:::` fencing, with optional `key=value` (or
 | `:::tip` | a short amber note — a warning, a reminder, an aside |
 | `:::practice id=… hint=N` | a self-practice question, timer-gated solution, tracked per student |
 | `:::task id=… type=choice` | an ungraded multiple-choice warm-up question, per-option feedback |
+| `:::task id=… type=step\|code\|answer hint=N` | a tracked task step — an instruction, a code exercise, or a fill-in-the-blank observation — shares progress tracking with `:::practice` |
 | `:::journey` | a horizontal roadmap of stages (a course/week overview) |
 | `:::figure caption="…"` | preformatted ASCII art or a small diagram, with a caption |
 | `:::objectives` | a numbered list of goals, each with an optional success check |
+| `:::steps` | a plain numbered recap list — "what we covered", no success check |
 | `:::grid` | two (or more) side-by-side comparison columns |
 | `:::push title="…"` | a callout / call-to-action banner |
+| `:::card title="…"` | a quiet titled reference panel |
+| `:::aside title="…"` | a titled side-note — a definition or tangent |
+| `:::rule title="…"` | a titled list of worked checks, one per `---`-separated group |
 | `:::checklist` | a client-side, self-tick checklist (not saved to the server) |
 
 ### `:::example`
@@ -181,6 +186,55 @@ OPTIONS
 - This is a warm-up/engagement tool, not a graded quiz — a student can click
   more than one option, and nothing is scored or saved.
 
+### `:::task id=… type=step|code|answer hint=N` — tracked task step
+
+```
+:::task id=t1 type=code hint=180
+Your first cylinder
+
+NOTE
+Type this exactly, then press **▶ Run Script**.
+
+```python
+import bpy
+```
+
+DONE WHEN
+A tall thin cylinder appears in the 3D view on the left.
+
+SOLUTION
+If nothing happened at all, check the very first line is `import bpy`.
+:::
+```
+
+A generalisation of `:::practice` for content the tutor writes rather than
+the student — everything before the first keyword line is the title
+(one line, markdown-inline). Sections after that:
+
+- `NOTE` — optional. Instructions, and usually the code the student types
+  (a fenced code block) or the table/prompts for `type=answer`.
+- `DONE WHEN` — optional. The observable success criterion, shown in its
+  own highlighted line.
+- `SOLUTION` — optional, same timer-gated reveal as `:::practice`'s
+  `SOLUTION` (`hint=` seconds, falls back to `hint_seconds`).
+
+A `:::tip` may be nested inside `NOTE`, `DONE WHEN` or `SOLUTION` — nothing
+else may nest inside a `:::task`.
+
+- `type=step` — a plain instruction to carry out outside the code editor
+  (e.g. "find the Scripting tab"). No code expected.
+- `type=code` — a code-writing exercise; the code itself lives in `NOTE`
+  as a fenced block, same as `:::example`.
+- `type=answer` — a self-observation task. Write `{{name}}` anywhere in
+  `NOTE` (inline, or inside a table cell) for a blank the student fills in
+  themselves after running code changes. Nothing typed into a blank is
+  graded, saved, or sent anywhere — it resets on reload, exactly like
+  `:::checklist`.
+
+`id` is required to persist "done" state and hint reveals server-side,
+same as `:::practice` — a missing `id` gets a temporary one assigned, with
+a warning, and won't reliably keep progress across edits.
+
 ### `:::journey` — roadmap of stages
 
 ```
@@ -227,6 +281,20 @@ are read in order. A `CHECK` line right after an item (any dash style after
 the word `CHECK`) is optional — it's the observable "you'll know it worked
 when…" success criterion, shown as a smaller line under the goal.
 
+### `:::steps` — plain numbered recap
+
+```
+:::steps
+1. Installed and opened **Blender 5.2.1 LTS**.
+2. Found the **Scripting** tab along the top.
+3. Made a cylinder appear because we told it to in Python.
+:::
+```
+
+A numbered (`1.`, `2.`, …) list, same as `:::objectives` but without the
+`CHECK` line — use it for a "what we covered" recap rather than a list of
+goals still to reach.
+
 ### `:::grid` — side-by-side comparison columns
 
 ```
@@ -258,6 +326,53 @@ Think of a game, app or robot you love.
 
 `title` is optional; the body is ordinary markdown, shown in an accented
 callout panel.
+
+### `:::card title="…"` — quiet titled reference panel
+
+```
+:::card title="Reference — every line you need tonight"
+| line | what it does |
+|---|---|
+| `import bpy` | opens the door between Python and Blender |
+:::
+```
+
+`title` is optional; the body is ordinary markdown. Unlike `:::push`
+(an accented callout meant to grab attention) or `:::tip` (a warning
+note), `:::card` is a neutral panel for reference material or setup
+instructions that should sit quietly on the page.
+
+### `:::aside title="…"` — titled side-note
+
+```
+:::aside title="What a function actually is"
+`def clear_scene():` means *here is a job, and its name is clear_scene*.
+Nothing happens when Python reads it — you are only describing the job.
+:::
+```
+
+`title` is optional; the body is ordinary markdown, shown in a
+dashed-border panel — for a definition or a tangent worth flagging
+without interrupting the main explanation.
+
+### `:::rule title="…"` — worked checks
+
+```
+:::rule title="Check the maths before you trust it"
+IF THE TILT IS 0 — STRAIGHT UP
+`sin(0) = 0`
+So `end_x = start_x` — it does not move sideways at all. Correct.
+---
+AND THE HEIGHT
+`cos(0) = 1`
+So `end_z = start_z + length` — straight up by its whole length. Correct.
+:::
+```
+
+`title` is optional. The body is split into one or more checks by a lone
+`---` line; each check's first line is its heading (shown as a small caps
+label), the rest is markdown explanation. Use it to walk through why a
+formula or rule holds in a few worked cases.
 
 ### `:::checklist`
 

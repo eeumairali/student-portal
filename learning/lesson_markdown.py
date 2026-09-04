@@ -9,8 +9,10 @@ Front matter, then a sequence of ``## `` blocks (auto-numbered "N of TOTAL"),
 each holding prose and any mix of: ``:::example``, ``:::tip``, ``:::practice``
 (a question worked out on the student's own computer, with hint/solution
 reveal), ``:::task ... type=choice`` (an ungraded multiple-choice warm-up),
-``:::journey``, ``:::figure``, ``:::objectives``, ``:::grid``, ``:::push``,
-and ``:::checklist``. See skills/FORMAT_SPEC.md for the exact syntax of each
+``:::task ... type=step|code|answer`` (a tracked task step sharing progress
+with :::practice), ``:::journey``, ``:::figure``, ``:::objectives``, ``:::steps``,
+``:::grid``, ``:::push``, ``:::card``, ``:::aside``, ``:::rule``, and
+``:::checklist``. See skills/FORMAT_SPEC.md for the exact syntax of each
 — that file is the single source of truth; don't invent new block names.
 There is still no in-browser code execution.
 """
@@ -32,9 +34,11 @@ MD_EXTENSIONS = ["tables", "fenced_code", "sane_lists"]
 FRONT_MATTER_RE = re.compile(r"^---\s*\n(.*?\n)---[ \t]*\n?(.*)$", re.DOTALL)
 BLOCK_OPEN_RE = re.compile(r"^:::(\S+)(.*)$")
 BLOCK_HEADING_RE = re.compile(r"^##\s+(.*)$")
-KEYWORD_RE = re.compile(r"^(EXPECTED|SOLUTION)\s*$")
+KEYWORD_RE = re.compile(r"^(EXPECTED|SOLUTION|NOTE|DONE WHEN)\s*$")
 HEX_COLOUR_RE = re.compile(r"^#[0-9a-fA-F]{3}([0-9a-fA-F]{3})?$")
 FENCE_RE = re.compile(r"^(```|~~~)")
+BLANK_RE = re.compile(r"\{\{(\w+)\}\}")
+TASK_KINDS = ("step", "code", "answer")
 
 
 # ---------------------------------------------------------------- rendering --
@@ -90,6 +94,15 @@ class Objectives:
 
 
 @dataclass
+class Steps:
+    """A plain numbered recap list — 'what we covered', not a goal list to
+    reach. See :::objectives for the goal+CHECK variant."""
+
+    items: list
+    template_name: str = "learning/lesson/blocks/steps.html"
+
+
+@dataclass
 class Grid:
     """Two (or more) side-by-side columns, split by a lone `---` line."""
 
@@ -104,6 +117,36 @@ class Push:
     title: str
     html: str
     template_name: str = "learning/lesson/blocks/push.html"
+
+
+@dataclass
+class Card:
+    """A neutral titled panel — reference material, setup steps. Unlike
+    :::push (an accented callout), this is meant to sit quietly."""
+
+    title: str
+    html: str
+    template_name: str = "learning/lesson/blocks/card.html"
+
+
+@dataclass
+class Aside:
+    """A titled side-note panel — a definition or a tangent worth flagging
+    without interrupting the main flow."""
+
+    title: str
+    html: str
+    template_name: str = "learning/lesson/blocks/aside.html"
+
+
+@dataclass
+class Rule:
+    """A titled list of worked checks ('if X, then Y — correct'), one per
+    `---`-separated group. See :::rule in FORMAT_SPEC.md."""
+
+    title: str
+    checks: list
+    template_name: str = "learning/lesson/blocks/rule.html"
 
 
 @dataclass
@@ -140,6 +183,26 @@ class Practice:
     solution_html: str | None
     has_solution: bool
     template_name: str = "learning/lesson/blocks/practice.html"
+
+
+@dataclass
+class TaskBlock:
+    """A tracked task step, one of type=step/code/answer (see :::task in
+    FORMAT_SPEC.md). Shares its `practice_id` and hint/solution mechanics
+    with Practice so it reuses the same Task db row, progress bar, and
+    hint-timer JS/CSS — `kind` only changes the label and, for "answer",
+    turns `{{name}}` into a fill-in blank."""
+
+    practice_id: str
+    index: int
+    kind: str  # "step" | "code" | "answer"
+    hint_seconds: int | None
+    title_html: str
+    note_html: str
+    done_when_html: str
+    solution_html: str | None
+    has_solution: bool
+    template_name: str = "learning/lesson/blocks/task_block.html"
 
 
 @dataclass
@@ -478,6 +541,19 @@ def build_objectives(content: str) -> Objectives:
     return Objectives(items)
 
 
+def build_steps(content: str) -> Steps:
+    """`1. text` per line — the number itself doesn't matter, only order.
+    A bare line with no leading number is also accepted."""
+    items = []
+    for raw in content.split("\n"):
+        line = raw.strip()
+        if not line:
+            continue
+        m = OBJECTIVE_ITEM_RE.match(line)
+        items.append(render_inline(m.group(1) if m else line))
+    return Steps(items)
+
+
 def build_grid(content: str) -> Grid:
     """Two (or more) columns of plain lines, split by a lone `---` line.
     Each column's first line is its heading, the rest are items."""
@@ -495,6 +571,97 @@ def build_grid(content: str) -> Grid:
 
 def build_push(attrs: dict, content: str) -> Push:
     return Push(title=attrs.get("title", ""), html=render_markdown(content))
+
+
+def build_rule(attrs: dict, content: str) -> Rule:
+    """title=… then one or more checks, split by a lone `---` line — each
+    check's first line is its heading, the rest is markdown explanation."""
+    groups: list[list[str]] = [[]]
+    for raw in content.split("\n"):
+        if raw.strip() == "---":
+            groups.append([])
+        else:
+            groups[-1].append(raw)
+
+    checks = []
+    for lines in groups:
+        while lines and not lines[0].strip():
+            lines.pop(0)
+        while lines and not lines[-1].strip():
+            lines.pop()
+        if not lines:
+            continue
+        checks.append({"heading": lines[0].strip(), "html": render_markdown("\n".join(lines[1:]))})
+
+    return Rule(title=attrs.get("title", ""), checks=checks)
+
+
+def render_rich(text: str, warnings: list) -> str:
+    """Render a task keyword-section's content: markdown, plus a nested
+    :::tip block if there is one — the only nesting real lesson content
+    uses inside a :::task's NOTE/DONE WHEN/SOLUTION sections."""
+    parts = []
+    for kind, name, attrs, block_content in split_fences(text):
+        if kind == "text":
+            parts.append(render_markdown(block_content))
+        elif name == "tip":
+            parts.append(f'<div class="tip mini-tip">{render_markdown(block_content)}</div>')
+        else:
+            warnings.append(f"A :::{name} block nested inside a :::task is not supported — rendered as plain text.")
+            parts.append(render_markdown(block_content))
+    return "\n".join(p for p in parts if p.strip())
+
+
+def substitute_blanks(text: str) -> str:
+    """`{{name}}` → a self-answered fill-in-the-blank text input. Nothing
+    about what the student types is graded, saved, or sent anywhere —
+    purely a client-side memory aid, like :::checklist."""
+    return BLANK_RE.sub(
+        lambda m: (
+            f'<input type="text" class="blank-input" data-blank="{m.group(1)}" '
+            f'autocomplete="off" spellcheck="false">'
+        ),
+        text,
+    )
+
+
+def build_task_block(attrs: dict, content: str, kind: str, practices: list, warnings: list):
+    """One :::task type=step|code|answer block. Shares progress tracking
+    with :::practice — see TaskBlock's docstring."""
+    task_id = attrs.get("id")
+    if not task_id:
+        task_id = f"t{len(practices) + 1}"
+        warnings.append(f"A :::task type={kind} block is missing id= — assigned a temporary id ({task_id}).")
+
+    hint_seconds = None
+    hint_raw = attrs.get("hint")
+    if hint_raw is not None:
+        try:
+            hint_seconds = int(hint_raw)
+        except ValueError:
+            warnings.append(f"Task {task_id}: hint= must be a whole number of seconds, got {hint_raw!r}.")
+
+    sections = split_keyword_sections(content)
+    title_html = render_inline(sections.get(None, ""))
+
+    note_raw = sections.get("NOTE", "")
+    if kind == "answer":
+        note_raw = substitute_blanks(note_raw)
+    note_html = render_rich(note_raw, warnings) if note_raw.strip() else ""
+
+    done_when_raw = sections.get("DONE WHEN", "")
+    done_when_html = render_rich(done_when_raw, warnings) if done_when_raw.strip() else ""
+
+    has_solution = bool(sections.get("SOLUTION", "").strip())
+    solution_html = render_rich(sections["SOLUTION"], warnings) if has_solution else None
+
+    task = TaskBlock(
+        practice_id=task_id, index=len(practices) + 1, kind=kind, hint_seconds=hint_seconds,
+        title_html=title_html, note_html=note_html, done_when_html=done_when_html,
+        solution_html=solution_html, has_solution=has_solution,
+    )
+    practices.append(task)
+    return task
 
 
 def build_checklist(content: str) -> Checklist:
@@ -568,14 +735,31 @@ def build_block(name: str, attrs: dict, content: str, practices: list, quizzes: 
         return build_figure(attrs, content)
     if name == "objectives":
         return build_objectives(content)
+    if name == "steps":
+        return build_steps(content)
     if name == "grid":
         return build_grid(content)
     if name == "push":
         return build_push(attrs, content)
     if name == "checklist":
         return build_checklist(content)
-    if name == "task" and attrs.get("type") == "choice":
-        return build_quiz(attrs, content, quizzes, warnings)
+    if name == "card":
+        return Card(title=attrs.get("title", ""), html=render_markdown(content))
+    if name == "aside":
+        return Aside(title=attrs.get("title", ""), html=render_markdown(content))
+    if name == "rule":
+        return build_rule(attrs, content)
+    if name == "task":
+        task_type = attrs.get("type")
+        if task_type == "choice":
+            return build_quiz(attrs, content, quizzes, warnings)
+        if task_type in TASK_KINDS:
+            return build_task_block(attrs, content, task_type, practices, warnings)
+        warnings.append(
+            f"A :::task block has type={task_type!r} — supported: choice, {', '.join(TASK_KINDS)}. "
+            "Rendered as plain text."
+        )
+        return Prose(render_markdown(content))
 
     warnings.append(f"Unknown block type :::{name} — rendered as plain text so nothing is lost.")
     return Prose(render_markdown(content))

@@ -1,0 +1,9 @@
+<div class="rule">
+  {% if node.title %}<p class="rule-title">{{ node.title }}</p>{% endif %}
+  {% for check in node.checks %}
+    <div class="rule-check">
+      <p class="rule-check-heading">{{ check.heading }}</p>
+      <div class="rule-check-body">{{ check.html|safe }}</div>
+    </div>
+  {% endfor %}
+</div>
