@@ -13,19 +13,19 @@
     --c-slate-500: 158 160 194;
     --c-accent-1: 124 108 255;   /* indigo-violet */
     --c-accent-2: 88 220 190;    /* mint */
-    --c-accent-3: 255 120 170;   /* coral-pink */
+    --c-accent-3: 90 160 255;    /* sky-blue */
     --c-glow: 124 108 255;
     --grain-opacity: 0.05;
   }
   :root[data-theme="light"] {
-    --c-ink: 40 36 46;
-    --c-paper: 240 237 227;
-    --c-card: 250 248 240;
-    --c-line: 222 216 200;
-    --c-slate-500: 100 94 104;
+    --c-ink: 58 54 62;
+    --c-paper: 229 225 212;
+    --c-card: 243 240 230;
+    --c-line: 210 204 188;
+    --c-slate-500: 104 98 108;
     --c-accent-1: 108 92 246;
     --c-accent-2: 40 176 148;
-    --c-accent-3: 232 82 138;
+    --c-accent-3: 40 118 224;
     --c-glow: 108 92 246;
     --grain-opacity: 0.03;
   }
@@ -35,8 +35,8 @@
     @apply bg-paper text-ink font-body antialiased;
     font-size: 18px; line-height: 1.65;
     background-image:
-      radial-gradient(60rem 30rem at 15% -10%, rgb(var(--c-accent-1) / 0.16), transparent 60%),
-      radial-gradient(50rem 26rem at 100% 0%, rgb(var(--c-accent-2) / 0.10), transparent 55%);
+      radial-gradient(60rem 30rem at 15% -10%, rgb(var(--c-accent-1) / 0.08), transparent 60%),
+      radial-gradient(50rem 26rem at 100% 0%, rgb(var(--c-accent-2) / 0.05), transparent 55%);
     background-attachment: fixed;
   }
   :focus-visible { @apply outline-none ring-2 ring-teal-600 ring-offset-2 ring-offset-paper rounded; }

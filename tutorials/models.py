@@ -3,12 +3,17 @@ from django.utils.text import slugify
 
 import markdown as md
 
-MD_EXTENSIONS = ["tables", "fenced_code", "sane_lists"]
+MD_EXTENSIONS = ["tables", "fenced_code", "sane_lists", "codehilite"]
+MD_EXTENSION_CONFIGS = {
+    "codehilite": {"css_class": "hl", "guess_lang": False},
+}
 
 
 def render_markdown(text: str) -> str:
     text = (text or "").strip("\n")
-    return md.markdown(text, extensions=MD_EXTENSIONS) if text.strip() else ""
+    if not text.strip():
+        return ""
+    return md.markdown(text, extensions=MD_EXTENSIONS, extension_configs=MD_EXTENSION_CONFIGS)
 
 
 class Domain(models.Model):

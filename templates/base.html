@@ -6,7 +6,7 @@
 {% block robots %}<meta name="robots" content="noindex, nofollow">{% endblock %}
 {% block meta_description %}{% endblock %}
 <meta name="color-scheme" content="light">
-<script>(function(){try{if(localStorage.getItem("theme")!=="dark"){document.documentElement.setAttribute("data-theme","light")}}catch(e){document.documentElement.setAttribute("data-theme","light")}})();</script>
+<script>(function(){function d(){var h=new Date().getHours();return h>=6&&h<19?"light":"dark"}try{if((localStorage.getItem("theme")||d())==="light"){document.documentElement.setAttribute("data-theme","light")}}catch(e){if(d()==="light"){document.documentElement.setAttribute("data-theme","light")}}})();</script>
 <title>{% block title %}Student portal{% endblock %}</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>

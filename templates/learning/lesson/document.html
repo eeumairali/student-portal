@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="robots" content="noindex, nofollow">
     <meta name="color-scheme" content="light">
-    <script>(function(){try{if(localStorage.getItem("theme")!=="dark"){document.documentElement.setAttribute("data-theme","light")}}catch(e){document.documentElement.setAttribute("data-theme","light")}})();</script>
+    <script>(function(){function d(){var h=new Date().getHours();return h>=6&&h<19?"light":"dark"}try{if((localStorage.getItem("theme")||d())==="light"){document.documentElement.setAttribute("data-theme","light")}}catch(e){if(d()==="light"){document.documentElement.setAttribute("data-theme","light")}}})();</script>
     <title>{{ front_matter.title }}{% if course %} · {{ course }}{% endif %}</title>
     <link rel="stylesheet" href="{% static 'css/lesson-theme.css' %}">
     {% if front_matter.accent %}

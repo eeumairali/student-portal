@@ -15,11 +15,16 @@
     });
   }
 
+  function daylightDefault() {
+    var hour = new Date().getHours();
+    return hour >= 6 && hour < 19 ? "light" : "dark";
+  }
+
   function current() {
     try {
-      return localStorage.getItem(KEY) || "light";
+      return localStorage.getItem(KEY) || daylightDefault();
     } catch (e) {
-      return "light";
+      return daylightDefault();
     }
   }
 

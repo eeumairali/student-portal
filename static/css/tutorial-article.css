@@ -1,0 +1,91 @@
+/* Modern article typography + code panels, shared by tutorial_detail.html
+   and article_preview.html. Code blocks stay on a fixed dark panel
+   (Pygments "monokai" tokens) regardless of site theme — matches how most
+   modern docs/blogs keep code legible in both light and dark reading modes. */
+
+.tutorial-body{font-size:1.05rem;line-height:1.8}
+.tutorial-body>*:first-child{margin-top:0}
+.tutorial-body p,.tutorial-body ul,.tutorial-body ol{margin:0 0 1.1em}
+.tutorial-body ul,.tutorial-body ol{padding-left:1.4em}
+.tutorial-body li+li{margin-top:.35em}
+.tutorial-body li>p{margin-bottom:.4em}
+.tutorial-body strong{color:rgb(var(--c-ink));font-weight:600}
+
+.tutorial-body h1,.tutorial-body h2,.tutorial-body h3,.tutorial-body h4{
+  font-family:"Fraunces",Georgia,serif;font-weight:600;line-height:1.25;
+  margin:1.7em 0 .6em;color:rgb(var(--c-ink));scroll-margin-top:5rem}
+.tutorial-body h1{font-size:1.9rem}
+.tutorial-body h2{font-size:1.45rem;padding-bottom:.4em;border-bottom:1px solid rgb(var(--c-line))}
+.tutorial-body h3{font-size:1.15rem}
+.tutorial-body h4{font-size:1rem}
+
+.tutorial-body a{color:rgb(var(--c-accent-3));text-decoration:underline;text-decoration-color:rgb(var(--c-accent-3)/.4);text-underline-offset:3px;transition:text-decoration-color .15s}
+.tutorial-body a:hover{text-decoration-color:rgb(var(--c-accent-3))}
+
+.tutorial-body blockquote{border-left:3px solid rgb(var(--c-accent-2));background:rgb(var(--c-accent-2)/.06);color:rgb(var(--c-slate-500));margin:1.4em 0;padding:.8em 1.1em;border-radius:0 10px 10px 0}
+.tutorial-body blockquote p:last-child{margin-bottom:0}
+
+.tutorial-body hr{border:0;border-top:1px solid rgb(var(--c-line));margin:2.2em 0}
+.tutorial-body img{border-radius:12px;height:auto;margin:1.2em 0;max-width:100%;box-shadow:0 8px 24px -12px rgb(0 0 0 / .35)}
+
+/* inline code */
+.tutorial-body :not(pre)>code{
+  font-family:"JetBrains Mono",monospace;font-size:.88em;
+  background:rgb(var(--c-accent-1)/.1);color:rgb(var(--c-accent-1));
+  border-radius:5px;padding:.15em .4em}
+
+/* tables */
+.tutorial-body table{background:rgb(var(--c-card)/.55);border:1px solid rgb(var(--c-line));border-radius:14px;border-spacing:0;display:block;max-width:100%;overflow-x:auto;width:100%;margin:1.6em 0 1.8em}
+.tutorial-body th,.tutorial-body td{border-bottom:1px solid rgb(var(--c-line)/.75);border-right:1px solid rgb(var(--c-line)/.75);padding:11px 14px;text-align:left;font-size:.9em;white-space:nowrap}
+.tutorial-body th{background:linear-gradient(135deg,rgb(var(--c-accent-1)/.2),rgb(var(--c-accent-2)/.12));color:rgb(var(--c-ink));font-weight:600;letter-spacing:.02em}
+.tutorial-body tr:last-child td{border-bottom:0}
+.tutorial-body th:last-child,.tutorial-body td:last-child{border-right:0}
+.tutorial-body tbody tr:nth-child(even){background:rgb(var(--c-paper)/.28)}
+.tutorial-body tbody tr:hover{background:rgb(var(--c-accent-2)/.08)}
+.tutorial-body td code{background:rgb(var(--c-paper)/.7);border-radius:5px;padding:2px 5px}
+
+/* ---------- code blocks: fixed dark panel + copy button ---------- */
+.tutorial-body .hl{background:#1E2129;border-radius:12px;margin:0 0 1.3em;overflow:hidden;
+  box-shadow:0 1px 2px rgba(0,0,0,.2),0 12px 28px -16px rgba(0,0,0,.55)}
+.tutorial-body pre{background:#1E2129;color:#F8F8F2;margin:0;padding:16px 18px;overflow-x:auto;
+  font-size:.88em;line-height:1.65;font-family:"JetBrains Mono",monospace}
+.tutorial-body pre code{background:none;color:inherit;font-size:1em;padding:0}
+.tutorial-body .article-code{position:relative}
+.tutorial-body .article-code-copy{
+  position:absolute;top:10px;right:10px;z-index:1;
+  background:rgba(255,255,255,.08);color:#F8F8F2;border:1px solid rgba(255,255,255,.16);
+  border-radius:6px;font-family:"JetBrains Mono",monospace;font-size:11.5px;font-weight:600;
+  padding:5px 10px;cursor:pointer;line-height:1;opacity:0;transition:opacity .15s,background .15s}
+.tutorial-body .article-code:hover .article-code-copy,
+.tutorial-body .article-code-copy:focus-visible{opacity:1}
+.tutorial-body .article-code-copy:hover{background:rgba(255,255,255,.16)}
+.tutorial-body .article-code-copy.copied{background:rgb(var(--c-accent-2));color:#0B1220;border-color:transparent;opacity:1}
+@media(max-width:640px){.tutorial-body .article-code-copy{opacity:1}}
+
+/* Pygments "monokai" token colors, scoped to article code panels */
+.tutorial-body .hl .hll{background-color:#49483e}
+.tutorial-body .hl .c{color:#959077}
+.tutorial-body .hl .err{color:#ED007E;background-color:#1E0010}
+.tutorial-body .hl .esc,.tutorial-body .hl .g,.tutorial-body .hl .n,.tutorial-body .hl .x,
+.tutorial-body .hl .p,.tutorial-body .hl .nb,.tutorial-body .hl .nl,.tutorial-body .hl .nn,
+.tutorial-body .hl .nv,.tutorial-body .hl .pm,.tutorial-body .hl .w,.tutorial-body .hl .bp,
+.tutorial-body .hl .vc,.tutorial-body .hl .vg,.tutorial-body .hl .vi,.tutorial-body .hl .vm{color:#F8F8F2}
+.tutorial-body .hl .k,.tutorial-body .hl .kc,.tutorial-body .hl .kd,.tutorial-body .hl .kp,
+.tutorial-body .hl .kr,.tutorial-body .hl .kt,.tutorial-body .hl .go{color:#66D9EF}
+.tutorial-body .hl .l,.tutorial-body .hl .m,.tutorial-body .hl .mb,.tutorial-body .hl .mf,
+.tutorial-body .hl .mh,.tutorial-body .hl .mi,.tutorial-body .hl .mo,.tutorial-body .hl .il,
+.tutorial-body .hl .se{color:#AE81FF}
+.tutorial-body .hl .o,.tutorial-body .hl .kn,.tutorial-body .hl .ow,.tutorial-body .hl .gd,
+.tutorial-body .hl .gp,.tutorial-body .hl .nt{color:#FF4689}
+.tutorial-body .hl .ch,.tutorial-body .hl .cm,.tutorial-body .hl .cp,.tutorial-body .hl .cpf,
+.tutorial-body .hl .c1,.tutorial-body .hl .cs,.tutorial-body .hl .gu{color:#959077}
+.tutorial-body .hl .ld,.tutorial-body .hl .s,.tutorial-body .hl .sa,.tutorial-body .hl .sb,
+.tutorial-body .hl .sc,.tutorial-body .hl .dl,.tutorial-body .hl .sd,.tutorial-body .hl .s2,
+.tutorial-body .hl .sh,.tutorial-body .hl .si,.tutorial-body .hl .sx,.tutorial-body .hl .sr,
+.tutorial-body .hl .s1,.tutorial-body .hl .ss{color:#E6DB74}
+.tutorial-body .hl .na,.tutorial-body .hl .nc,.tutorial-body .hl .nd,.tutorial-body .hl .ne,
+.tutorial-body .hl .nf,.tutorial-body .hl .nx,.tutorial-body .hl .fm{color:#A6E22E}
+.tutorial-body .hl .gi{color:#A6E22E}
+.tutorial-body .hl .ge{font-style:italic}
+.tutorial-body .hl .ges{font-weight:bold;font-style:italic}
+.tutorial-body .hl .gs{font-weight:bold}
