@@ -14,7 +14,7 @@ from accounts.models import StudentProfile
 
 from .lesson_markdown import parse_lesson
 from .lesson_save import LessonSaveError, resolve_save_plan, save_lesson
-from .models import Course, HintReveal, Lesson, LessonFile, LessonProgress, Task
+from .models import Course, Enrollment, HintReveal, Lesson, LessonFile, LessonProgress, Task
 from .services import (
     course_progress, enrolled_courses, get_accessible_lesson, get_enrolled_course, student_lessons,
 )
@@ -337,6 +337,17 @@ def lesson_delete(request, lesson_id):
     student_id = lesson.student_id
     lesson.delete()
     return redirect("student_detail", user_id=student_id)
+
+
+@staff_member_required
+@require_POST
+def unenroll_course(request, user_id, course_id):
+    """Removes the student's enrollment so an emptied-out course (all its
+    lessons deleted) stops showing up on their dashboard. The Course itself
+    is shared curriculum and is left alone — this only drops this one
+    student's link to it."""
+    Enrollment.objects.filter(student_id=user_id, course_id=course_id).delete()
+    return redirect("student_detail", user_id=user_id)
 
 
 @staff_member_required

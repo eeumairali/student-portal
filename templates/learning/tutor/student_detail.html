@@ -13,7 +13,19 @@
 </div>
 
 {% if courses %}
-  <p class="mt-4 text-sm text-slate-500">Enrolled in: {% for c in courses %}{{ c.title }}{% if not forloop.last %}, {% endif %}{% endfor %}</p>
+  <div class="mt-4 flex flex-wrap items-center gap-2 text-sm text-slate-500">
+    <span>Enrolled in:</span>
+    {% for c in courses %}
+      <span class="inline-flex items-center gap-1.5 rounded-full border border-line bg-card py-1 pl-3 pr-1.5">
+        {{ c.title }}
+        <form method="post" action="{% url 'unenroll_course' student.id c.id %}"
+              onsubmit="return confirm('Remove {{ student.username }} from “{{ c.title }}”? This unenrolls them — it does not delete the course itself.');">
+          {% csrf_token %}
+          <button type="submit" class="rounded-full px-1.5 text-xs text-red-600 hover:bg-mint-100" title="Remove">&times;</button>
+        </form>
+      </span>
+    {% endfor %}
+  </div>
 {% endif %}
 
 {% if profile %}
