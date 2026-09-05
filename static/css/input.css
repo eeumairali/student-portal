@@ -18,11 +18,11 @@
     --grain-opacity: 0.05;
   }
   :root[data-theme="light"] {
-    --c-ink: 26 22 46;
-    --c-paper: 248 247 255;
-    --c-card: 255 255 255;
-    --c-line: 228 224 248;
-    --c-slate-500: 96 88 140;
+    --c-ink: 40 36 46;
+    --c-paper: 240 237 227;
+    --c-card: 250 248 240;
+    --c-line: 222 216 200;
+    --c-slate-500: 100 94 104;
     --c-accent-1: 108 92 246;
     --c-accent-2: 40 176 148;
     --c-accent-3: 232 82 138;

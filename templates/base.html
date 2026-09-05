@@ -5,8 +5,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 {% block robots %}<meta name="robots" content="noindex, nofollow">{% endblock %}
 {% block meta_description %}{% endblock %}
-<meta name="color-scheme" content="dark">
-<script>(function(){try{if(localStorage.getItem("theme")==="light"){document.documentElement.setAttribute("data-theme","light")}}catch(e){}})();</script>
+<meta name="color-scheme" content="light">
+<script>(function(){try{if(localStorage.getItem("theme")!=="dark"){document.documentElement.setAttribute("data-theme","light")}}catch(e){document.documentElement.setAttribute("data-theme","light")}})();</script>
 <title>{% block title %}Student portal{% endblock %}</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -37,7 +37,7 @@
           <a class="chip transition hover:border-mint-400 hover:text-ink" href="/admin/">Admin</a>
         {% endif %}
       {% endif %}
-      <button type="button" data-theme-toggle class="btn-quiet px-3 py-1.5 text-xs">Light mode</button>
+      <button type="button" data-theme-toggle class="btn-quiet px-3 py-1.5 text-xs">Dark mode</button>
       {% if user.is_authenticated %}
         <form method="post" action="{% url 'logout' %}">{% csrf_token %}
           <button type="submit" class="text-slate-500 transition hover:text-ink">Sign out</button>
