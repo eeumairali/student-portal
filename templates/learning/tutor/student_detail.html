@@ -9,7 +9,10 @@
     <h1 class="mt-1 font-display text-3xl">{{ profile.display_name|default:student.username }}</h1>
     <p class="mt-1 font-mono text-xs text-slate-500">@{{ student.username }}{% if profile.guardian_email %} · guardian: {{ profile.guardian_email }}{% endif %}</p>
   </div>
-  <a href="{% url 'lesson_upload' student.id %}" class="btn-primary shrink-0">+ Add a note</a>
+  <div class="flex shrink-0 gap-2">
+    <a href="{% url 'lesson_bulk_upload' student.id %}" class="btn-quiet">+ Add multiple notes</a>
+    <a href="{% url 'lesson_upload' student.id %}" class="btn-primary">+ Add a note</a>
+  </div>
 </div>
 
 {% if courses %}

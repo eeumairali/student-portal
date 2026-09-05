@@ -327,6 +327,33 @@ def lesson_upload(request, user_id, lesson_id=None):
 
 
 @staff_member_required
+def lesson_bulk_upload(request, user_id):
+    """Upload several markdown files for one student in one go. Each file is
+    parsed and saved independently — one bad file doesn't block the rest —
+    and there's no preview step, so this is for files the tutor already
+    trusts (e.g. re-uploading a batch of prepared notes)."""
+    student = get_object_or_404(User, pk=user_id)
+
+    if request.method != "POST":
+        return render(request, "learning/tutor/lesson_bulk_upload.html", {"student": student})
+
+    results = []
+    for upload in request.FILES.getlist("files"):
+        raw = upload.read().decode("utf-8", errors="replace")
+        parsed = parse_lesson(raw)
+        try:
+            plan = resolve_save_plan(parsed, locked_student=student)
+            lesson = save_lesson(parsed, raw, plan)
+            results.append({"name": upload.name, "ok": True, "lesson": lesson})
+        except LessonSaveError as e:
+            results.append({"name": upload.name, "ok": False, "error": e.message})
+
+    return render(request, "learning/tutor/lesson_bulk_upload.html", {
+        "student": student, "results": results,
+    })
+
+
+@staff_member_required
 @require_POST
 def lesson_delete(request, lesson_id):
     """Permanent — the confirm dialog is client-side (see the template), and

@@ -1,0 +1,36 @@
+{% extends "base.html" %}
+{% block title %}Bulk add notes · {{ student.username }}{% endblock %}
+{% block content %}
+<a href="{% url 'student_detail' student.id %}" class="text-sm text-slate-500 hover:text-ink">&larr; {{ student.username }}</a>
+<h1 class="mt-1 font-display text-3xl">Bulk add notes for {{ student.username }}</h1>
+<p class="mt-3 max-w-2xl text-slate-500">
+  Select multiple <span class="font-mono">.md</span> files. Each one is saved on its own — there's no
+  preview step here, so only use this for files you already trust. Any file whose
+  <span class="font-mono">student:</span> field doesn't say
+  <span class="font-mono">{{ student.username }}</span> will be rejected rather than filed under the wrong name.
+</p>
+
+{% if results %}
+<ul class="mt-6 divide-y divide-line rounded-xl border border-line bg-card shadow-card">
+  {% for r in results %}
+  <li class="flex items-center justify-between gap-4 p-4">
+    <span class="font-mono text-sm">{{ r.name }}</span>
+    {% if r.ok %}
+      <a href="{% url 'lesson_tutor_view' r.lesson.id %}" class="text-sm text-teal-700 hover:underline">Saved &rarr; {{ r.lesson.title }}</a>
+    {% else %}
+      <span class="text-sm text-red-600">{{ r.error }}</span>
+    {% endif %}
+  </li>
+  {% endfor %}
+</ul>
+<a href="{% url 'lesson_bulk_upload' student.id %}" class="btn-quiet mt-4 inline-block">Upload more</a>
+{% endif %}
+
+<form method="post" enctype="multipart/form-data" class="mt-6">
+  {% csrf_token %}
+  <input type="file" name="files" accept=".md,text/markdown,text/plain" multiple class="text-sm">
+  <div>
+    <button type="submit" class="btn-primary mt-4">Upload &amp; save all</button>
+  </div>
+</form>
+{% endblock %}
