@@ -3,7 +3,7 @@
 {% block robots %}{% endblock %}
 {% block meta_description %}<meta name="description" content="{{ domain.description|default:domain.name }} tutorials, free to read.">{% endblock %}
 {% block content %}
-<a href="{% url 'home' %}" class="chip transition hover:border-mint-400 hover:text-ink">&larr; All tutorials</a>
+<a href="{% url 'home' %}" class="chip transition hover:border-mint-400 hover:text-ink">&larr; All tutorials</a> 
 
 <div class="mt-6 flex items-center gap-4">
   <span class="avatar-mark text-2xl">{{ domain.name|slice:":1" }}</span>
