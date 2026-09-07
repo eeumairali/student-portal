@@ -178,6 +178,26 @@ class HintReveal(models.Model):
         return f"{self.lesson} · {self.task_id} · {self.revealed_at:%Y-%m-%d %H:%M}"
 
 
+class Homework(models.Model):
+    """Homework set for a student after a session, written against the
+    session's Lesson. `guidelines` is what the homework should cover (a
+    rubric/brief); `content` is the actual homework text/tasks. Kept as a
+    separate model (rather than fields on Lesson) so a session can carry
+    more than one homework entry over time."""
+
+    lesson = models.ForeignKey(Lesson, on_delete=models.CASCADE, related_name="homework_set")
+    guidelines = models.TextField(blank=True, help_text="What this homework should cover (your brief to yourself).")
+    content = models.TextField(help_text="The homework itself, as given to the student.")
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ["-created_at"]
+
+    def __str__(self):
+        return f"{self.lesson} · homework · {self.created_at:%Y-%m-%d}"
+
+
 class LessonProgress(models.Model):
     """One row per student per lesson, created the first time they tick it."""
 

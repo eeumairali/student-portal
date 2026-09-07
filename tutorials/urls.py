@@ -7,6 +7,7 @@ urlpatterns = [
     path("", views.home, name="home"),
     path("domain/<slug:slug>/", views.domain_detail, name="domain_detail"),
     path("t/<slug:slug>/", views.tutorial_detail, name="tutorial_detail"),
+    path("t/<slug:slug>/download/", views.tutorial_markdown_download, name="tutorial_markdown_download"),
 
     # staff-only authoring tool, alongside the rest of the logged-in app
     path("dashboard/tutor/articles/", views.article_list, name="article_list"),

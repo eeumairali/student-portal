@@ -10,7 +10,10 @@
   <a href="{% url 'domain_detail' tutorial.domain.slug %}" class="chip transition hover:border-mint-400 hover:text-ink">{{ tutorial.domain.name }}</a>
 </div>
 
-<h1 class="mt-6 font-display text-3xl sm:text-4xl">{{ tutorial.title }}</h1>
+<div class="mt-6 flex flex-wrap items-start justify-between gap-4">
+  <h1 class="font-display text-3xl sm:text-4xl">{{ tutorial.title }}</h1>
+  <a href="{% url 'tutorial_markdown_download' tutorial.slug %}" class="btn-quiet shrink-0">Download .md</a>
+</div>
 {% if tutorial.summary %}<p class="mt-3 max-w-2xl text-base text-slate-500">{{ tutorial.summary }}</p>{% endif %}
 
 <article class="tutorial-body card mt-10 p-6 sm:p-10">

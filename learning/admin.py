@@ -2,7 +2,7 @@ from django.contrib import admin
 from django.utils.html import format_html
 
 from .models import (
-    Course, Enrollment, HintReveal, Lesson, LessonFile, LessonProgress, Task,
+    Course, Enrollment, HintReveal, Homework, Lesson, LessonFile, LessonProgress, Task,
 )
 
 
@@ -100,6 +100,13 @@ class EnrollmentAdmin(admin.ModelAdmin):
     list_filter = ("course", "is_active")
     autocomplete_fields = ("student", "course")
     search_fields = ("student__username", "student__student_profile__display_name")
+
+
+@admin.register(Homework)
+class HomeworkAdmin(admin.ModelAdmin):
+    list_display = ("lesson", "created_at", "updated_at")
+    search_fields = ("lesson__title", "lesson__student__username", "content")
+    autocomplete_fields = ("lesson",)
 
 
 @admin.register(LessonProgress)

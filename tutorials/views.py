@@ -1,4 +1,5 @@
 from django.contrib.admin.views.decorators import staff_member_required
+from django.http import HttpResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
 from django.views.decorators.http import require_POST
@@ -41,6 +42,13 @@ def domain_detail(request, slug):
 def tutorial_detail(request, slug):
     tutorial = get_object_or_404(Tutorial, slug=slug, is_published=True)
     return render(request, "tutorials/tutorial_detail.html", {"tutorial": tutorial})
+
+
+def tutorial_markdown_download(request, slug):
+    tutorial = get_object_or_404(Tutorial, slug=slug, is_published=True)
+    response = HttpResponse(tutorial.body, content_type="text/markdown; charset=utf-8")
+    response["Content-Disposition"] = f'attachment; filename="{tutorial.slug}.md"'
+    return response
 
 
 # --------------------------------------------------------------- staff tool --

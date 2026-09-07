@@ -19,6 +19,14 @@
   {% endif %}
 </div>
 {% include "learning/lesson/_document_body.html" %}
+{% if homework_set %}
+<div class="wrap" style="padding-bottom:16px">
+  <h2 class="eyebrow" style="margin-top:32px">Homework</h2>
+  {% for hw in homework_set %}
+    <div class="tip" style="margin-top:12px; white-space:pre-line">{{ hw.content }}</div>
+  {% endfor %}
+</div>
+{% endif %}
 <script src="{% static 'js/lesson.js' %}" defer></script>
 </body>
 </html>

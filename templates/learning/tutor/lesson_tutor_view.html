@@ -18,6 +18,7 @@
     </div>
   </div>
   <div class="flex shrink-0 flex-wrap gap-2">
+    <a href="{% url 'lesson_markdown_download' lesson.id %}" class="btn-quiet">Download .md</a>
     <a href="{% url 'lesson_edit' lesson.student.id lesson.id %}" class="btn-quiet">Edit</a>
     <form method="post" action="{% url 'lesson_toggle_lock' lesson.id %}">
       {% csrf_token %}
@@ -38,5 +39,36 @@
     {% include "learning/lesson/_document_body.html" %}
   </div>
 </div>
+
+<h2 class="mt-10 eyebrow">Homework</h2>
+<form method="post" action="{% url 'lesson_homework_save' lesson.id %}" class="card mt-4 p-5">
+  {% csrf_token %}
+  <label class="eyebrow" for="hw-guidelines">Guidelines <span class="normal-case text-slate-400">(your brief — not shown to the student)</span></label>
+  <textarea id="hw-guidelines" name="guidelines" rows="2" class="mt-2 w-full rounded-lg border border-line bg-paper p-3 text-sm focus:outline-none focus:ring-2 focus:ring-teal-600"></textarea>
+  <label class="eyebrow mt-4 block" for="hw-content">Homework <span class="normal-case text-slate-400">(what the student receives)</span></label>
+  <textarea id="hw-content" name="content" rows="4" required class="mt-2 w-full rounded-lg border border-line bg-paper p-3 text-sm focus:outline-none focus:ring-2 focus:ring-teal-600"></textarea>
+  <button type="submit" class="btn-quiet mt-3">Save homework</button>
+</form>
+{% if homework_set %}
+  <ol class="mt-4 divide-y divide-line overflow-hidden rounded-xl border border-line bg-card shadow-card">
+    {% for hw in homework_set %}
+      <li class="flex items-start justify-between gap-4 p-4">
+        <div class="min-w-0">
+          <p class="font-mono text-xs text-slate-500">Set {{ hw.created_at|date:"D j M Y" }}</p>
+          {% if hw.guidelines %}<p class="mt-1 text-xs text-slate-500">Guidelines: {{ hw.guidelines }}</p>{% endif %}
+          <p class="mt-1 whitespace-pre-line text-sm">{{ hw.content }}</p>
+        </div>
+        <form method="post" action="{% url 'homework_delete' hw.id %}"
+              onsubmit="return confirm('Delete this homework entry? This cannot be undone.');">
+          {% csrf_token %}
+          <button type="submit" class="btn-quiet shrink-0 px-3 py-1.5 text-xs text-red-600 hover:border-red-300">Delete</button>
+        </form>
+      </li>
+    {% endfor %}
+  </ol>
+{% else %}
+  <p class="mt-4 text-sm text-slate-500">No homework set for this session yet.</p>
+{% endif %}
+
 <script src="{% static 'js/lesson.js' %}" defer></script>
 {% endblock %}

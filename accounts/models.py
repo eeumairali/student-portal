@@ -35,3 +35,18 @@ class StudentProfile(models.Model):
 
     def __str__(self):
         return self.display_name
+
+
+class StudentComment(models.Model):
+    """A dated remark the tutor leaves on a student's profile — a running
+    feedback log, separate from the single teaching-notes textarea."""
+
+    profile = models.ForeignKey(StudentProfile, on_delete=models.CASCADE, related_name="comments")
+    body = models.TextField()
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["-created_at"]
+
+    def __str__(self):
+        return f"{self.profile} · {self.created_at:%Y-%m-%d %H:%M}"

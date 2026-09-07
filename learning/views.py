@@ -1,20 +1,22 @@
 import json
 import mimetypes
+from io import BytesIO
 
 from django.conf import settings
 from django.contrib.admin.views.decorators import staff_member_required
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
-from django.http import FileResponse, Http404, JsonResponse
+from django.http import FileResponse, Http404, HttpResponse, JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
+from django.utils.text import slugify
 from django.views.decorators.http import require_POST
 
-from accounts.models import StudentProfile
+from accounts.models import StudentComment, StudentProfile
 
 from .lesson_markdown import parse_lesson
 from .lesson_save import LessonSaveError, resolve_save_plan, save_lesson
-from .models import Course, Enrollment, HintReveal, Lesson, LessonFile, LessonProgress, Task
+from .models import Course, Enrollment, HintReveal, Homework, Lesson, LessonFile, LessonProgress, Task
 from .services import (
     course_progress, enrolled_courses, get_accessible_lesson, get_enrolled_course, student_lessons,
 )
@@ -77,6 +79,7 @@ def lesson_detail(request, lesson_id):
         parsed = parse_lesson(lesson.markdown_source)
         context = _document_context(parsed, lesson=lesson, can_edit=(request.user.id == lesson.student_id))
         context["locked"] = not lesson.is_published
+        context["homework_set"] = lesson.homework_set.all()
         return render(request, "learning/lesson_document_detail.html", context)
 
     record = LessonProgress.objects.filter(student=request.user, lesson=lesson).first()
@@ -132,6 +135,22 @@ def lesson_file(request, file_id):
     response["Content-Type"] = content_type
     response["Cache-Control"] = "private, no-store"
     return response
+
+
+def _markdown_response(text, filename):
+    response = HttpResponse(text, content_type="text/markdown; charset=utf-8")
+    response["Content-Disposition"] = f'attachment; filename="{filename}"'
+    response["Cache-Control"] = "private, no-store"
+    return response
+
+
+@login_required
+def lesson_markdown_download(request, lesson_id):
+    """The session note itself, as a .md file — the source, not the rendered page."""
+    lesson = get_accessible_lesson(request.user, lesson_id)
+    date_prefix = f"{lesson.date}-" if lesson.date else ""
+    filename = f"{date_prefix}{slugify(lesson.title) or 'session'}.md"
+    return _markdown_response(lesson.markdown_source, filename)
 
 
 # ---------------------------------------------------------- saving progress --
@@ -266,14 +285,31 @@ def student_detail(request, user_id):
         profile.save(update_fields=["notes"])
         return redirect("student_detail", user_id=student.id)
 
+    if request.method == "POST" and request.POST.get("action") == "add_comment" and profile:
+        body = request.POST.get("body", "").strip()
+        if body:
+            StudentComment.objects.create(profile=profile, body=body)
+        return redirect("student_detail", user_id=student.id)
+
     lessons = sorted(
         Lesson.objects.filter(student=student).order_by("-date", "-id"),
         key=lambda l: "project" not in l.meta,
     )
     courses = Course.objects.filter(enrollments__student=student, enrollments__is_active=True)
+    comments = profile.comments.all() if profile else []
     return render(request, "learning/tutor/student_detail.html", {
         "student": student, "profile": profile, "lessons": lessons, "courses": courses,
+        "comments": comments,
     })
+
+
+@staff_member_required
+@require_POST
+def comment_delete(request, comment_id):
+    comment = get_object_or_404(StudentComment, pk=comment_id)
+    student_id = comment.profile.user_id
+    comment.delete()
+    return redirect("student_detail", user_id=student_id)
 
 
 @staff_member_required
@@ -388,7 +424,34 @@ def lesson_tutor_view(request, lesson_id):
     parsed = parse_lesson(lesson.markdown_source)
     context = _document_context(parsed, lesson=lesson, can_edit=False)
     context["lesson"] = lesson
+    context["homework_set"] = lesson.homework_set.all()
     return render(request, "learning/tutor/lesson_tutor_view.html", context)
+
+
+@staff_member_required
+@require_POST
+def lesson_homework_save(request, lesson_id):
+    """Write homework against a session after it's happened. `guidelines` is
+    your own brief for what it should cover; `content` is what actually gets
+    given to the student."""
+    lesson = get_object_or_404(Lesson, pk=lesson_id)
+    content = request.POST.get("content", "").strip()
+    if content:
+        Homework.objects.create(
+            lesson=lesson,
+            guidelines=request.POST.get("guidelines", "").strip(),
+            content=content,
+        )
+    return redirect("lesson_tutor_view", lesson_id=lesson.id)
+
+
+@staff_member_required
+@require_POST
+def homework_delete(request, homework_id):
+    homework = get_object_or_404(Homework, pk=homework_id)
+    lesson_id = homework.lesson_id
+    homework.delete()
+    return redirect("lesson_tutor_view", lesson_id=lesson_id)
 
 
 @staff_member_required
@@ -398,3 +461,42 @@ def lesson_toggle_lock(request, lesson_id):
     lesson.is_published = not lesson.is_published
     lesson.save(update_fields=["is_published"])
     return redirect("lesson_tutor_view", lesson_id=lesson.id)
+
+
+@staff_member_required
+def student_export(request, user_id):
+    """Everything on file for one student — profile comments, and every
+    session's note plus its homework — as a single Markdown file."""
+    student = get_object_or_404(User, pk=user_id)
+    profile = getattr(student, "student_profile", None)
+    lessons = Lesson.objects.filter(student=student).order_by("date", "id").prefetch_related("homework_set")
+
+    display_name = profile.display_name if profile else student.username
+    parts = [f"# {display_name} — full record", ""]
+
+    if profile:
+        parts += ["## Comments", ""]
+        comments = profile.comments.order_by("created_at")
+        if comments:
+            for c in comments:
+                parts += [f"### {c.created_at:%Y-%m-%d %H:%M}", "", c.body, ""]
+        else:
+            parts += ["_No comments._", ""]
+
+    parts += ["## Sessions", ""]
+    if not lessons:
+        parts += ["_No sessions yet._", ""]
+    for lesson in lessons:
+        parts += [f"---", "", f"## {lesson.date or 'No date'} — {lesson.title}", ""]
+        parts += ["### Note", "", lesson.markdown_source or "_Empty._", ""]
+        homeworks = list(lesson.homework_set.order_by("created_at"))
+        if homeworks:
+            parts += ["### Homework", ""]
+            for hw in homeworks:
+                parts += [f"_Set {hw.created_at:%Y-%m-%d}_", ""]
+                if hw.guidelines:
+                    parts += [f"**Guidelines:** {hw.guidelines}", ""]
+                parts += [hw.content, ""]
+
+    filename = f"{slugify(display_name) or 'student'}-full-record.md"
+    return _markdown_response("\n".join(parts), filename)

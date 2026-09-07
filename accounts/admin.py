@@ -2,7 +2,7 @@ from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
 from django.contrib.auth.models import User
 
-from .models import StudentProfile
+from .models import StudentComment, StudentProfile
 
 
 class StudentProfileInline(admin.StackedInline):
@@ -24,3 +24,10 @@ class UserAdmin(BaseUserAdmin):
 
 admin.site.unregister(User)
 admin.site.register(User, UserAdmin)
+
+
+@admin.register(StudentComment)
+class StudentCommentAdmin(admin.ModelAdmin):
+    list_display = ("profile", "created_at")
+    search_fields = ("profile__display_name", "body")
+    raw_id_fields = ("profile",)
