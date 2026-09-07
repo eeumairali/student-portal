@@ -3,31 +3,22 @@
 @tailwind utilities;
 
 @layer base {
-  /* Dark is the default palette; [data-theme="light"] on <html> switches to
-     the light one. Toggled and persisted by static/js/theme-toggle.js. */
   :root {
-    --c-ink: 238 240 252;
-    --c-paper: 8 8 14;
-    --c-card: 19 18 32;
-    --c-line: 48 46 74;
-    --c-slate-500: 158 160 194;
-    --c-accent-1: 124 108 255;   /* indigo-violet */
-    --c-accent-2: 88 220 190;    /* mint */
-    --c-accent-3: 90 160 255;    /* sky-blue */
-    --c-glow: 124 108 255;
-    --grain-opacity: 0.05;
-  }
-  :root[data-theme="light"] {
-    --c-ink: 58 54 62;
-    --c-paper: 229 225 212;
-    --c-card: 243 240 230;
-    --c-line: 210 204 188;
-    --c-slate-500: 104 98 108;
-    --c-accent-1: 108 92 246;
-    --c-accent-2: 40 176 148;
-    --c-accent-3: 40 118 224;
-    --c-glow: 108 92 246;
-    --grain-opacity: 0.03;
+    /* "Neutral Elegance" — deep brown / taupe / beige-gray / soft peach on
+       white. --c-accent-1 is the primary brand brown (buttons, headings,
+       links); --c-accent-2 the muted taupe (secondary accents); --c-accent-3
+       the warm beige-gray (quiet fills); --c-peach a soft highlight tint. */
+    --c-ink: 43 33 26;
+    --c-paper: 255 255 255;
+    --c-card: 250 246 241;
+    --c-line: 224 213 199;
+    --c-slate-500: 130 108 89;
+    --c-accent-1: 102 73 48;
+    --c-accent-2: 153 126 103;
+    --c-accent-3: 204 190 177;
+    --c-peach: 255 219 187;
+    --c-glow: 102 73 48;
+    --grain-opacity: 0.02;
   }
 
   html { @apply bg-paper; scroll-behavior: smooth; }
@@ -35,29 +26,30 @@
     @apply bg-paper text-ink font-body antialiased;
     font-size: 18px; line-height: 1.65;
     background-image:
-      radial-gradient(60rem 30rem at 15% -10%, rgb(var(--c-accent-1) / 0.08), transparent 60%),
-      radial-gradient(50rem 26rem at 100% 0%, rgb(var(--c-accent-2) / 0.05), transparent 55%);
+      radial-gradient(60rem 30rem at 15% -10%, rgb(var(--c-peach) / 0.20), transparent 60%),
+      radial-gradient(50rem 26rem at 100% 0%, rgb(var(--c-accent-3) / 0.25), transparent 55%);
     background-attachment: fixed;
   }
   :focus-visible { @apply outline-none ring-2 ring-teal-600 ring-offset-2 ring-offset-paper rounded; }
-  ::selection { background: rgb(var(--c-accent-1) / 0.35); }
+  ::selection { background: rgb(var(--c-accent-1) / 0.22); }
+  [x-cloak] { display: none !important; }
 }
 
 @layer components {
   .btn {
-    @apply relative inline-flex items-center gap-2 rounded-xl px-4 py-2.5 text-base font-medium
-           transition-all duration-200 ease-out active:scale-[0.97];
+    @apply relative inline-flex items-center gap-2 rounded-lg px-4 py-2.5 text-base font-medium
+           transition-all duration-200 ease-out active:scale-[0.98];
   }
   .btn-primary {
     @apply btn text-white shadow-glow;
-    background: linear-gradient(135deg, rgb(var(--c-accent-1)), rgb(var(--c-accent-3)) 130%);
+    background: rgb(var(--c-accent-1));
   }
-  .btn-primary:hover { filter: brightness(1.08); transform: translateY(-1px); }
+  .btn-primary:hover { background: rgb(var(--c-ink)); transform: translateY(-1px); }
   .btn-quiet {
     @apply btn border border-line bg-card/70 text-ink backdrop-blur hover:border-mint-400 hover:-translate-y-px;
   }
   .card {
-    @apply relative rounded-2xl border border-line bg-card/80 shadow-card backdrop-blur-sm
+    @apply relative rounded-xl border border-line bg-card/80 shadow-card backdrop-blur-sm
            transition-all duration-300 ease-out;
   }
   a.card:hover, .card.is-interactive:hover {
@@ -69,12 +61,12 @@
   .chip {
     @apply inline-flex items-center gap-1.5 rounded-full border border-line bg-card/70 px-3 py-1 text-xs font-medium text-slate-500 backdrop-blur;
   }
-  .chip-dot { @apply h-1.5 w-1.5 rounded-full; background: rgb(var(--c-accent-2)); box-shadow: 0 0 8px 1px rgb(var(--c-accent-2) / 0.8); }
+  .chip-dot { @apply h-1.5 w-1.5 rounded-full; background: rgb(var(--c-accent-2)); box-shadow: 0 0 8px 1px rgb(var(--c-accent-2) / 0.5); }
   .text-gradient {
-    background: linear-gradient(100deg, rgb(var(--c-accent-1)), rgb(var(--c-accent-3)) 60%, rgb(var(--c-accent-2)));
+    background: linear-gradient(100deg, rgb(var(--c-accent-1)), rgb(var(--c-accent-2)) 60%, rgb(var(--c-accent-1)));
     -webkit-background-clip: text; background-clip: text; color: transparent;
   }
-  .glass-nav { @apply border-b border-line/70 bg-paper/60 backdrop-blur-xl; }
+  .glass-nav { @apply border-b border-line/70 bg-paper/70 backdrop-blur-xl; }
   .blob {
     @apply pointer-events-none absolute rounded-full blur-3xl;
     opacity: 0.35;
@@ -88,7 +80,7 @@
   }
   .blob-1 { background: rgb(var(--c-accent-1)); }
   .blob-2 { background: rgb(var(--c-accent-2)); animation-delay: 2s; }
-  .blob-3 { background: rgb(var(--c-accent-3)); }
+  .blob-3 { background: rgb(var(--c-peach)); }
   .text-accent-1 { color: rgb(var(--c-accent-1)); }
 }
 

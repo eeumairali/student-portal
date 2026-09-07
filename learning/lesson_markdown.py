@@ -129,13 +129,27 @@ class Card:
     template_name: str = "learning/lesson/blocks/card.html"
 
 
+ASIDE_COLORS = {
+    "purple": ("c6", "c6bg"),
+    "blue": ("c1", "c1bg"),
+    "amber": ("c2", "c2bg"),
+    "green": ("c3", "c3bg"),
+    "teal": ("c4", "c4bg"),
+    "indigo": ("c5", "c5bg"),
+    "gold": ("c7", "c7bg"),
+}
+ASIDE_DEFAULT_COLOR = "purple"
+
+
 @dataclass
 class Aside:
     """A titled side-note panel — a definition or a tangent worth flagging
-    without interrupting the main flow."""
+    without interrupting the main flow. `color` picks which accent from
+    ASIDE_COLORS the panel border/title/background use (default purple)."""
 
     title: str
     html: str
+    color: str = ASIDE_DEFAULT_COLOR
     template_name: str = "learning/lesson/blocks/aside.html"
 
 
@@ -746,7 +760,13 @@ def build_block(name: str, attrs: dict, content: str, practices: list, quizzes: 
     if name == "card":
         return Card(title=attrs.get("title", ""), html=render_markdown(content))
     if name == "aside":
-        return Aside(title=attrs.get("title", ""), html=render_markdown(content))
+        color = attrs.get("color", ASIDE_DEFAULT_COLOR).lower()
+        if color not in ASIDE_COLORS:
+            warnings.append(
+                f":::aside has color={color!r} — supported: {', '.join(ASIDE_COLORS)}. Using {ASIDE_DEFAULT_COLOR}."
+            )
+            color = ASIDE_DEFAULT_COLOR
+        return Aside(title=attrs.get("title", ""), html=render_markdown(content), color=color)
     if name == "rule":
         return build_rule(attrs, content)
     if name == "task":

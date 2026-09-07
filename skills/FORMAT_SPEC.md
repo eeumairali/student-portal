@@ -342,10 +342,10 @@ callout panel.
 note), `:::card` is a neutral panel for reference material or setup
 instructions that should sit quietly on the page.
 
-### `:::aside title="…"` — titled side-note
+### `:::aside title="…" color="…"` — titled side-note
 
 ```
-:::aside title="What a function actually is"
+:::aside title="What a function actually is" color="teal"
 `def clear_scene():` means *here is a job, and its name is clear_scene*.
 Nothing happens when Python reads it — you are only describing the job.
 :::
@@ -354,6 +354,11 @@ Nothing happens when Python reads it — you are only describing the job.
 `title` is optional; the body is ordinary markdown, shown in a
 dashed-border panel — for a definition or a tangent worth flagging
 without interrupting the main explanation.
+
+`color` is optional (default `purple`) and picks the panel's accent —
+one of `purple`, `blue`, `amber`, `green`, `teal`, `indigo`, `gold`. Use
+different colors for different asides on the same page so a run of notes
+doesn't read as one repetitive block.
 
 ### `:::rule title="…"` — worked checks
 

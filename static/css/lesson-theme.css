@@ -6,44 +6,22 @@
    solution reveal. */
 
 :root{
-  /* Dark is the default palette; [data-theme="light"] below switches to the
-     original light one. Toggled and persisted by static/js/theme-toggle.js. */
-  --ink:#F2F4FA; --paper:#000000; --card:#0D0F14; --line:#2B2E36; --muted:#A3ACC0;
-  --deep:#0B1730;
-  --amber:#E3A64C; --amberbg:#2B2210; --amberline:#5C4820;
-  --green:#3FCB92; --greenbg:#0F2A21; --greenline:#1F5B45;
-  --code:#0B1220; --codetext:#F1F5FC;
-  --examplelabel:#7FD4E8;
-  --ambertext:#F3D9A8; --amberhover:#3A2E15;
-  --greentext:#8FE8C0;
-  --redline:#5C2430; --redbg:#301419; --redtext:#F5A3AC;
-  --font-display:Georgia,"Times New Roman",serif;
-  --font-body:"Segoe UI",-apple-system,BlinkMacSystemFont,Roboto,sans-serif;
-  --font-mono:"SFMono-Regular",Consolas,"Liberation Mono",Menlo,monospace;
-  --base-size:16.5px; --base-line:1.65;
-  --radius:16px;
-  --shadow:0 1px 2px rgba(0,0,0,.25),0 10px 26px -14px rgba(0,0,0,.55);
-
-  /* block accent cycle */
-  --c1:#4C8FF0; --c1bg:#0F2138;
-  --c2:#E3A64C; --c2bg:#332510;
-  --c3:#4FC178; --c3bg:#132B1D;
-  --c4:#3FB8D1; --c4bg:#0F2A31;
-  --c5:#8B90F2; --c5bg:#211F3D;
-  --c6:#C97AE8; --c6bg:#301F3A;
-  --c7:#D9A93E; --c7bg:#332810;
-}
-:root[data-theme="light"]{
-  --ink:#3A3630; --paper:#E5E1D4; --card:#F3F0E6; --line:#D2CCBC; --muted:#6E6858;
-  --deep:#1B2A4A;
+  --ink:#2B211A; --paper:#FFFFFF; --card:#FAF6F1; --line:#E0D5C7; --muted:#82695A;
+  --deep:#664930;
   --amber:#C97A12; --amberbg:#FFF4E0; --amberline:#F0CE94;
   --green:#12805C; --greenbg:#E7F8F0; --greenline:#9FE0C4;
   --examplelabel:#0D5A6B;
   --ambertext:#7A4E0C; --amberhover:#FCE7C3;
   --greentext:#0E5C40;
   --redline:#F0B4B4; --redbg:#FDECEC; --redtext:#7A1E1E;
-  --shadow:0 1px 2px rgba(20,30,60,.05),0 10px 26px -14px rgba(20,30,60,.22);
+  --font-display:Georgia,"Times New Roman",serif;
+  --font-body:"Segoe UI",-apple-system,BlinkMacSystemFont,Roboto,sans-serif;
+  --font-mono:"SFMono-Regular",Consolas,"Liberation Mono",Menlo,monospace;
+  --base-size:16.5px; --base-line:1.65;
+  --radius:16px;
+  --shadow:0 1px 2px rgba(102,73,48,.05),0 10px 26px -14px rgba(102,73,48,.20);
 
+  /* block accent cycle */
   --c1:#2D6FCF; --c1bg:#E7F0FD;
   --c2:#C97A12; --c2bg:#FFF4E0;
   --c3:#2E9B4F; --c3bg:#EAF8EE;
@@ -64,17 +42,16 @@ body.lesson-doc{margin:0}
 /* ---------- header ---------- */
 .lesson-doc header.lhead{background:var(--deep);color:#fff;padding:46px 0 38px;margin-bottom:30px}
 .lesson-doc header.lhead .wrap{padding-bottom:0}
-.lesson-doc .eyebrow{color:#9FB4E8;font-family:var(--font-mono);font-size:12px;
+.lesson-doc .eyebrow{color:#E8D9C8;font-family:var(--font-mono);font-size:12px;
   letter-spacing:.6px;text-transform:uppercase;margin:0 0 10px}
 .lesson-doc h1.ltitle{font-family:var(--font-display);font-size:clamp(28px,5vw,42px);
   margin:0 0 8px;letter-spacing:-.5px;font-weight:700}
-.lesson-doc .lsub{color:#C7D5FA;font-size:17px;margin:0 0 12px}
-.lesson-doc .lmeta-line{color:#9FB4E8;font-size:13.5px;margin:0 0 14px}
+.lesson-doc .lsub{color:#F3E7DA;font-size:17px;margin:0 0 12px}
+.lesson-doc .lmeta-line{color:#E8D9C8;font-size:13.5px;margin:0 0 14px}
 .lesson-doc ul.topics{list-style:none;display:flex;flex-wrap:wrap;gap:8px;margin:0 0 18px;padding:0}
 .lesson-doc ul.topics li{background:rgba(255,255,255,.12);border-radius:999px;padding:6px 14px;font-size:13px}
 .lesson-doc .meta{display:flex;flex-wrap:wrap;gap:10px}
 .lesson-doc .pill{background:rgba(255,255,255,.14);border-radius:999px;padding:7px 15px;font-size:13px;font-weight:600}
-.lesson-doc .theme-toggle-btn{cursor:pointer;border:none;font:inherit}
 @media(max-width:700px){.lesson-doc header.lhead{padding:32px 0 26px;margin-bottom:22px}}
 
 /* ---------- progress bar ---------- */
@@ -174,7 +151,7 @@ body.lesson-doc{margin:0}
 .lesson-doc .hbtn:hover{background:var(--amberhover,#FCE7C3)}
 .lesson-doc .hbtn:disabled{cursor:default;opacity:.95}
 .lesson-doc .dbtn{background:var(--deep);color:#fff;font-size:13.5px;font-weight:600;padding:9px 17px}
-.lesson-doc .dbtn:hover{background:#132039}
+.lesson-doc .dbtn:hover{background:#4d3722}
 .lesson-doc .practice.done .dbtn{background:var(--green)}
 .lesson-doc .timer{display:flex;align-items:center;gap:9px;font-size:13.5px;color:var(--amber);font-weight:600}
 .lesson-doc .ring{width:26px;height:26px;border-radius:50%;flex:0 0 26px;
@@ -307,6 +284,20 @@ body.lesson-doc{margin:0}
 .lesson-doc .aside-title{font-weight:700;margin:0 0 8px;color:var(--c6)}
 .lesson-doc .aside-body p{margin:0 0 8px}
 .lesson-doc .aside-body p:last-child{margin-bottom:0}
+.lesson-doc .aside-purple{border-left-color:var(--c6);background:var(--c6bg)}
+.lesson-doc .aside-purple .aside-title{color:var(--c6)}
+.lesson-doc .aside-blue{border-left-color:var(--c1);background:var(--c1bg)}
+.lesson-doc .aside-blue .aside-title{color:var(--c1)}
+.lesson-doc .aside-amber{border-left-color:var(--c2);background:var(--c2bg)}
+.lesson-doc .aside-amber .aside-title{color:var(--c2)}
+.lesson-doc .aside-green{border-left-color:var(--c3);background:var(--c3bg)}
+.lesson-doc .aside-green .aside-title{color:var(--c3)}
+.lesson-doc .aside-teal{border-left-color:var(--c4);background:var(--c4bg)}
+.lesson-doc .aside-teal .aside-title{color:var(--c4)}
+.lesson-doc .aside-indigo{border-left-color:var(--c5);background:var(--c5bg)}
+.lesson-doc .aside-indigo .aside-title{color:var(--c5)}
+.lesson-doc .aside-gold{border-left-color:var(--c7);background:var(--c7bg)}
+.lesson-doc .aside-gold .aside-title{color:var(--c7)}
 
 /* ---------- rule (worked checks) ---------- */
 .lesson-doc .rule{background:var(--greenbg);border:1px solid var(--greenline);border-radius:14px;

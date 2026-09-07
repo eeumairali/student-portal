@@ -6,7 +6,6 @@
 {% block robots %}<meta name="robots" content="noindex, nofollow">{% endblock %}
 {% block meta_description %}{% endblock %}
 <meta name="color-scheme" content="light">
-<script>(function(){function d(){var h=new Date().getHours();return h>=6&&h<19?"light":"dark"}try{if((localStorage.getItem("theme")||d())==="light"){document.documentElement.setAttribute("data-theme","light")}}catch(e){if(d()==="light"){document.documentElement.setAttribute("data-theme","light")}}})();</script>
 <title>{% block title %}Student portal{% endblock %}</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -14,31 +13,29 @@
 <link rel="stylesheet" href="{% static 'css/app.css' %}">
 <script defer src="{% static 'js/alpine.min.js' %}"></script>
 <script src="{% static 'js/htmx.min.js' %}"></script>
-<script defer src="{% static 'js/theme-toggle.js' %}"></script>
 {% block extra_head %}{% endblock %}
 </head>
 <body class="min-h-full flex flex-col">
 <a href="#main" class="sr-only focus:not-sr-only focus:absolute focus:m-3 focus:rounded focus:bg-teal-600 focus:px-3 focus:py-2 focus:text-white">Skip to content</a>
 
-<header class="glass-nav sticky top-0 z-40">
-  <div class="mx-auto flex max-w-6xl items-center justify-between px-5 py-3.5">
+<header class="glass-nav sticky top-0 z-40" x-data="{ open: false }" @keyup.escape.window="open = false">
+  <div class="mx-auto flex max-w-6xl items-center justify-between px-5 py-4">
     <a href="{% url 'home' %}" class="group flex items-center gap-2.5">
-      <span class="brand-mark flex h-8 w-8 items-center justify-center rounded-lg text-sm font-display font-bold text-white shadow-glow transition-transform duration-300 group-hover:rotate-6">Sd</span>
+      <span class="brand-mark flex h-9 w-9 shrink-0 items-center justify-center rounded-lg text-sm font-display font-bold text-white shadow-glow transition-transform duration-300 group-hover:rotate-6">Sd</span>
       <span class="font-display text-lg leading-none text-ink">Study desk</span>
       <span class="hidden text-xs text-slate-500 sm:inline">· everything for your next session</span>
     </a>
-    <div class="flex items-center gap-2.5 text-sm">
+
+    <div class="hidden items-center gap-2.5 text-sm md:flex">
       {% if user.is_authenticated %}
-        <span class="hidden text-slate-500 md:inline">{{ user.student_profile.display_name|default:user.username }}</span>
+        <span class="text-slate-500">{{ user.student_profile.display_name|default:user.username }}</span>
         <a class="chip transition hover:border-mint-400 hover:text-ink" href="{% url 'dashboard' %}">Dashboard</a>
+        <a class="chip transition hover:border-mint-400 hover:text-ink" href="{% url 'password_change' %}">Change password</a>
         {% if user.is_staff %}
           <a class="chip transition hover:border-mint-400 hover:text-ink" href="{% url 'student_list' %}">Students</a>
           <a class="chip transition hover:border-mint-400 hover:text-ink" href="{% url 'article_list' %}">Articles</a>
           <a class="chip transition hover:border-mint-400 hover:text-ink" href="/admin/">Admin</a>
         {% endif %}
-      {% endif %}
-      <button type="button" data-theme-toggle class="btn-quiet px-3 py-1.5 text-xs">Dark mode</button>
-      {% if user.is_authenticated %}
         <form method="post" action="{% url 'logout' %}">{% csrf_token %}
           <button type="submit" class="text-slate-500 transition hover:text-ink">Sign out</button>
         </form>
@@ -46,14 +43,41 @@
         <a class="btn-primary px-4 py-1.5 text-xs" href="{% url 'login' %}">Login</a>
       {% endif %}
     </div>
+
+    <button type="button" class="flex h-9 w-9 items-center justify-center rounded-lg border border-line text-ink transition hover:border-mint-400 md:hidden"
+            @click="open = !open" :aria-expanded="open" aria-label="Toggle menu">
+      <svg x-show="!open" xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path stroke-linecap="round" d="M4 7h16M4 12h16M4 17h16"/></svg>
+      <svg x-show="open" x-cloak xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path stroke-linecap="round" d="M6 6l12 12M18 6L6 18"/></svg>
+    </button>
+  </div>
+
+  <div x-show="open" x-cloak x-transition.duration.150ms @click.outside="open = false"
+       class="border-t border-line/70 bg-paper/95 backdrop-blur-xl md:hidden">
+    <div class="mx-auto flex max-w-6xl flex-col gap-1 px-5 py-4 text-sm">
+      {% if user.is_authenticated %}
+        <span class="px-1 pb-2 text-slate-500">{{ user.student_profile.display_name|default:user.username }}</span>
+        <a class="rounded-lg px-3 py-2 transition hover:bg-card" href="{% url 'dashboard' %}">Dashboard</a>
+        <a class="rounded-lg px-3 py-2 transition hover:bg-card" href="{% url 'password_change' %}">Change password</a>
+        {% if user.is_staff %}
+          <a class="rounded-lg px-3 py-2 transition hover:bg-card" href="{% url 'student_list' %}">Students</a>
+          <a class="rounded-lg px-3 py-2 transition hover:bg-card" href="{% url 'article_list' %}">Articles</a>
+          <a class="rounded-lg px-3 py-2 transition hover:bg-card" href="/admin/">Admin</a>
+        {% endif %}
+        <form method="post" action="{% url 'logout' %}" class="pt-1">{% csrf_token %}
+          <button type="submit" class="w-full rounded-lg px-3 py-2 text-left text-slate-500 transition hover:bg-card hover:text-ink">Sign out</button>
+        </form>
+      {% else %}
+        <a class="btn-primary justify-center px-4 py-2 text-xs" href="{% url 'login' %}">Login</a>
+      {% endif %}
+    </div>
   </div>
 </header>
 
-<main id="main" class="mx-auto w-full max-w-6xl flex-1 px-5 py-8 sm:py-12">
+<main id="main" class="mx-auto w-full max-w-6xl flex-1 px-5 py-10 sm:py-14">
   {% block content %}{% endblock %}
 </main>
 
-<footer class="border-t border-line/70 py-8 text-center text-xs text-slate-500">
+<footer class="border-t border-line/70 bg-card/40 py-8 text-center text-xs text-slate-500">
   <p>Built for one-to-one tutoring. Your work is visible only to you and your tutor.</p>
 </footer>
 </body>

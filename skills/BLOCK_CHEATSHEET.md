@@ -49,10 +49,12 @@ A quiet, neutral panel for reference material or setup steps. `title` optional.
 :::
 ```
 
-### `:::aside title="…"`
-A titled side-note — a definition or tangent, dashed border. `title` optional.
+### `:::aside title="…" color="…"`
+A titled side-note — a definition or tangent, dashed border. `title` optional;
+`color` optional (default `purple`) — one of `purple`, `blue`, `amber`, `green`,
+`teal`, `indigo`, `gold`.
 ```
-:::aside title="What a function actually is"
+:::aside title="What a function actually is" color="teal"
 Writing the job and doing the job are two separate things.
 :::
 ```
