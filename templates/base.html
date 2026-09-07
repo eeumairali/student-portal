@@ -6,6 +6,7 @@
 {% block robots %}<meta name="robots" content="noindex, nofollow">{% endblock %}
 {% block meta_description %}{% endblock %}
 <meta name="color-scheme" content="light">
+<script>(function(){try{if(localStorage.getItem("theme")==="dark"){document.documentElement.setAttribute("data-theme","dark")}}catch(e){}})();</script>
 <title>{% block title %}Student portal{% endblock %}</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -13,6 +14,7 @@
 <link rel="stylesheet" href="{% static 'css/app.css' %}">
 <script defer src="{% static 'js/alpine.min.js' %}"></script>
 <script src="{% static 'js/htmx.min.js' %}"></script>
+<script src="{% static 'js/theme-toggle.js' %}"></script>
 {% block extra_head %}{% endblock %}
 </head>
 <body class="min-h-full flex flex-col">
@@ -42,6 +44,7 @@
       {% else %}
         <a class="btn-primary px-4 py-1.5 text-xs" href="{% url 'login' %}">Login</a>
       {% endif %}
+      <button type="button" data-theme-toggle class="btn-quiet px-3 py-1.5 text-xs">Dark mode</button>
     </div>
 
     <button type="button" class="flex h-9 w-9 items-center justify-center rounded-lg border border-line text-ink transition hover:border-mint-400 md:hidden"
@@ -69,6 +72,7 @@
       {% else %}
         <a class="btn-primary justify-center px-4 py-2 text-xs" href="{% url 'login' %}">Login</a>
       {% endif %}
+      <button type="button" data-theme-toggle class="btn-quiet mt-1 justify-center px-3 py-2 text-xs">Dark mode</button>
     </div>
   </div>
 </header>

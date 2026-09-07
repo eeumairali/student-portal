@@ -7,7 +7,9 @@
     /* "Neutral Elegance" — deep brown / taupe / beige-gray / soft peach on
        white. --c-accent-1 is the primary brand brown (buttons, headings,
        links); --c-accent-2 the muted taupe (secondary accents); --c-accent-3
-       the warm beige-gray (quiet fills); --c-peach a soft highlight tint. */
+       the warm beige-gray (quiet fills); --c-peach a soft highlight tint.
+       [data-theme="dark"] on <html> switches to the dark palette below,
+       toggled and persisted by static/js/theme-toggle.js. */
     --c-ink: 43 33 26;
     --c-paper: 255 255 255;
     --c-card: 250 246 241;
@@ -19,6 +21,19 @@
     --c-peach: 255 219 187;
     --c-glow: 102 73 48;
     --grain-opacity: 0.02;
+  }
+  :root[data-theme="dark"] {
+    --c-ink: 238 233 226;
+    --c-paper: 20 17 14;
+    --c-card: 30 26 22;
+    --c-line: 61 52 43;
+    --c-slate-500: 176 160 145;
+    --c-accent-1: 199 168 138;
+    --c-accent-2: 153 126 103;
+    --c-accent-3: 90 75 62;
+    --c-peach: 120 92 66;
+    --c-glow: 199 168 138;
+    --grain-opacity: 0.04;
   }
 
   html { @apply bg-paper; scroll-behavior: smooth; }
