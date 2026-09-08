@@ -10,7 +10,8 @@ each holding prose and any mix of: ``:::example``, ``:::tip``, ``:::practice``
 (a question worked out on the student's own computer, with hint/solution
 reveal), ``:::task ... type=choice`` (an ungraded multiple-choice warm-up),
 ``:::task ... type=step|code|answer`` (a tracked task step sharing progress
-with :::practice), ``:::journey``, ``:::figure``, ``:::objectives``, ``:::steps``,
+with :::practice), ``:::journey``, ``:::figure``, ``:::mermaid``,
+``:::objectives``, ``:::steps``,
 ``:::grid``, ``:::push``, ``:::card``, ``:::aside``, ``:::rule``, and
 ``:::checklist``. See skills/FORMAT_SPEC.md for the exact syntax of each
 — that file is the single source of truth; don't invent new block names.
@@ -83,6 +84,16 @@ class Figure:
     caption: str
     art: str
     template_name: str = "learning/lesson/blocks/figure.html"
+
+
+@dataclass
+class Mermaid:
+    """A Mermaid.js diagram (flowchart, sequence, etc.) — rendered client-side
+    from raw Mermaid syntax, never run through markdown formatting."""
+
+    code: str
+    caption: str = ""
+    template_name: str = "learning/lesson/blocks/mermaid.html"
 
 
 @dataclass
@@ -747,6 +758,8 @@ def build_block(name: str, attrs: dict, content: str, practices: list, quizzes: 
         return build_journey(content)
     if name == "figure":
         return build_figure(attrs, content)
+    if name == "mermaid":
+        return Mermaid(code=content.strip("\n"), caption=attrs.get("caption", ""))
     if name == "objectives":
         return build_objectives(content)
     if name == "steps":

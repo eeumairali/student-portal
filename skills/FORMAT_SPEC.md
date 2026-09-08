@@ -91,6 +91,7 @@ All use `:::name` … `:::` fencing, with optional `key=value` (or
 | `:::task id=… type=step\|code\|answer hint=N` | a tracked task step — an instruction, a code exercise, or a fill-in-the-blank observation — shares progress tracking with `:::practice` |
 | `:::journey` | a horizontal roadmap of stages (a course/week overview) |
 | `:::figure caption="…"` | preformatted ASCII art or a small diagram, with a caption |
+| `:::mermaid caption="…"` | a colorful Mermaid.js diagram — flowchart, sequence, etc. |
 | `:::objectives` | a numbered list of goals, each with an optional success check |
 | `:::steps` | a plain numbered recap list — "what we covered", no success check |
 | `:::grid` | two (or more) side-by-side comparison columns |
@@ -263,6 +264,29 @@ optional; omit it if no stage should be highlighted.
 The content is shown verbatim in a monospace block (whitespace and
 alignment preserved) — don't run it through markdown formatting. `caption`
 is optional, shown centered below the art.
+
+### `:::mermaid caption="…"` — Mermaid.js diagram
+
+```
+:::mermaid caption="How a recursive call unwinds"
+flowchart TD
+    A[countdown 3] --> B[countdown 2]
+    B --> C[countdown 1]
+    C --> D[countdown 0 — base case]
+    D -->|returns| C
+    C -->|returns| B
+    B -->|returns| A
+:::
+```
+
+The content is raw Mermaid syntax (flowchart, sequence diagram, class
+diagram, state diagram, etc. — anything Mermaid.js supports) and is
+rendered client-side into a colorful SVG diagram styled to match the site's
+accent palette. Don't run it through markdown formatting — write plain
+Mermaid syntax, same as you'd paste into the Mermaid Live Editor. `caption`
+is optional, shown centered below the diagram. See mermaid.js docs for the
+full syntax (flowchart, sequenceDiagram, classDiagram, stateDiagram-v2,
+erDiagram, gantt, pie, mindmap, and more all work).
 
 ### `:::objectives` — numbered goals with success checks
 

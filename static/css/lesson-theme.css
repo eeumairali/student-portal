@@ -210,6 +210,12 @@ body.lesson-doc{margin:0}
 .lesson-doc .lfigure figcaption{margin-top:8px;font-size:13px;color:var(--muted);
   text-align:center;font-style:italic}
 
+/* ---------- mermaid diagrams ---------- */
+.lesson-doc .mermaid-figure{background:var(--card);border:1.5px solid var(--line);
+  border-radius:14px;padding:18px;overflow-x:auto}
+.lesson-doc .mermaid-figure .mermaid{display:flex;justify-content:center}
+.lesson-doc .mermaid-figure svg{max-width:100%}
+
 /* ---------- objectives ---------- */
 .lesson-doc .objectives{margin:0 0 20px;padding:0;list-style:none;counter-reset:obj}
 .lesson-doc .objectives li{counter-increment:obj;position:relative;padding:2px 0 14px 38px;
