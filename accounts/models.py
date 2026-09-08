@@ -28,6 +28,9 @@ class StudentProfile(models.Model):
     notes = models.TextField(
         blank=True, help_text="Teaching notes only. Do not store anything sensitive here."
     )
+    is_archived = models.BooleanField(
+        default=False, help_text="Archived students are hidden from the active roster."
+    )
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:

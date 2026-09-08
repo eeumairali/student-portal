@@ -207,8 +207,25 @@ def lesson_preview(request):
 @staff_member_required
 def student_list(request):
     """Every registered student, tutor or not — this is the roster, not a
-    curated list, so a new sign-up shows up here with no extra step."""
-    profiles = StudentProfile.objects.select_related("user").order_by("display_name")
+    curated list, so a new sign-up shows up here with no extra step.
+
+    Split into an active tab and an archive tab, with a bulk action to move
+    selected students between the two."""
+    if request.method == "POST":
+        action = request.POST.get("action")
+        selected_ids = request.POST.getlist("selected")
+        if action in ("archive", "unarchive") and selected_ids:
+            StudentProfile.objects.filter(user_id__in=selected_ids).update(
+                is_archived=(action == "archive")
+            )
+        return redirect(f"{reverse('student_list')}?tab={'archive' if action == 'archive' else 'active'}")
+
+    tab = request.GET.get("tab", "active")
+    profiles = (
+        StudentProfile.objects.select_related("user")
+        .filter(is_archived=(tab == "archive"))
+        .order_by("display_name")
+    )
     rows = []
     for profile in profiles:
         lessons = Lesson.objects.filter(student=profile.user)
@@ -218,7 +235,15 @@ def student_list(request):
             "last_date": lessons.order_by("-date").values_list("date", flat=True).first(),
         })
     unlinked = User.objects.filter(student_profile__isnull=True, is_staff=False)
-    return render(request, "learning/tutor/student_list.html", {"rows": rows, "unlinked": unlinked})
+    active_count = StudentProfile.objects.filter(is_archived=False).count()
+    archived_count = StudentProfile.objects.filter(is_archived=True).count()
+    return render(request, "learning/tutor/student_list.html", {
+        "rows": rows,
+        "unlinked": unlinked,
+        "tab": tab,
+        "active_count": active_count,
+        "archived_count": archived_count,
+    })
 
 
 @staff_member_required

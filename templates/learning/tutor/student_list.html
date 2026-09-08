@@ -10,22 +10,54 @@
   <a href="{% url 'student_create' %}" class="btn-primary shrink-0">+ Add student</a>
 </div>
 
-<div class="mt-8 divide-y divide-line overflow-hidden rounded-xl border border-line bg-card shadow-card">
-  {% for row in rows %}
-    <a href="{% url 'student_detail' row.profile.user.id %}" class="flex items-center justify-between gap-4 p-4 transition hover:bg-paper">
-      <div class="min-w-0">
-        <p class="font-medium">{{ row.profile.display_name }} <span class="font-mono text-xs text-slate-500">@{{ row.profile.user.username }}</span></p>
-        <p class="mt-0.5 text-xs text-slate-500">
-          {{ row.profile.get_platform_display }}{% if row.profile.is_minor %} · minor — guardian on file{% endif %}
-          {% if row.last_date %} · last note {{ row.last_date }}{% endif %}
-        </p>
-      </div>
-      <span class="shrink-0 rounded-full bg-paper px-2.5 py-1 text-[11px] font-medium text-slate-500">{{ row.lesson_count }} note{{ row.lesson_count|pluralize }}</span>
-    </a>
-  {% empty %}
-    <p class="p-6 text-sm text-slate-500">No students yet — click "+ Add student" above.</p>
-  {% endfor %}
+<div class="mt-6 flex gap-2 border-b border-line">
+  <a href="?tab=active" class="border-b-2 px-3 py-2 text-sm font-medium {% if tab != 'archive' %}border-teal-600 text-teal-600{% else %}border-transparent text-slate-500 hover:text-slate-700{% endif %}">
+    Active <span class="ml-1 text-xs text-slate-400">{{ active_count }}</span>
+  </a>
+  <a href="?tab=archive" class="border-b-2 px-3 py-2 text-sm font-medium {% if tab == 'archive' %}border-teal-600 text-teal-600{% else %}border-transparent text-slate-500 hover:text-slate-700{% endif %}">
+    Archive <span class="ml-1 text-xs text-slate-400">{{ archived_count }}</span>
+  </a>
 </div>
+
+<form method="post" x-data="{ checked: [] }">
+  {% csrf_token %}
+  <input type="hidden" name="action" value="{% if tab == 'archive' %}unarchive{% else %}archive{% endif %}">
+
+  <div class="mt-4 flex items-center justify-between gap-4" x-show="checked.length">
+    <p class="text-sm text-slate-500"><span x-text="checked.length"></span> selected</p>
+    <button type="submit" class="btn-primary" x-bind:disabled="!checked.length">
+      {% if tab == 'archive' %}Move to active{% else %}Move to archive{% endif %}
+    </button>
+  </div>
+
+  <div class="mt-4 divide-y divide-line overflow-hidden rounded-xl border border-line bg-card shadow-card">
+    {% for row in rows %}
+      <label class="flex items-center gap-4 p-4 transition hover:bg-paper">
+        <input
+          type="checkbox"
+          name="selected"
+          value="{{ row.profile.user.id }}"
+          x-model="checked"
+          class="h-4 w-4 shrink-0 rounded border-line text-teal-600 focus:ring-teal-500"
+        >
+        <a href="{% url 'student_detail' row.profile.user.id %}" class="flex min-w-0 flex-1 items-center justify-between gap-4">
+          <div class="min-w-0">
+            <p class="font-medium">{{ row.profile.display_name }} <span class="font-mono text-xs text-slate-500">@{{ row.profile.user.username }}</span></p>
+            <p class="mt-0.5 text-xs text-slate-500">
+              {{ row.profile.get_platform_display }}{% if row.profile.is_minor %} · minor — guardian on file{% endif %}
+              {% if row.last_date %} · last note {{ row.last_date }}{% endif %}
+            </p>
+          </div>
+          <span class="shrink-0 rounded-full bg-paper px-2.5 py-1 text-[11px] font-medium text-slate-500">{{ row.lesson_count }} note{{ row.lesson_count|pluralize }}</span>
+        </a>
+      </label>
+    {% empty %}
+      <p class="p-6 text-sm text-slate-500">
+        {% if tab == 'archive' %}No archived students.{% else %}No students yet — click "+ Add student" above.{% endif %}
+      </p>
+    {% endfor %}
+  </div>
+</form>
 
 {% if unlinked %}
   <div class="card mt-6 p-4 text-sm">
