@@ -117,7 +117,9 @@ def countdown(n):
 ```
 
 Any markdown content — usually a fenced code block, sometimes prose or a
-small diagram.
+small diagram. Add the bare flag `protect` (`:::example protect`) to
+disable the copy button and text selection on the code inside — use it
+when the student should type the code themselves rather than paste it.
 
 ### `:::tip`
 

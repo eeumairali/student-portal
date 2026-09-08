@@ -60,6 +60,7 @@ class Prose:
 @dataclass
 class Example:
     html: str
+    protect: bool = False
     template_name: str = "learning/lesson/blocks/example.html"
 
 
@@ -334,11 +335,17 @@ def parse_lesson(raw_text: str) -> ParsedLesson:
 
 
 def parse_attrs(attr_str: str) -> dict:
+    """key=value (or key="value with spaces") pairs, plus bare flags like
+    `protect` (no `=`) which are stored as attrs[flag] = True."""
     attrs = {}
-    for m in re.finditer(r'(\w+)=("([^"]*)"|\'([^\']*)\'|(\S+))', attr_str):
-        key = m.group(1)
-        val = m.group(3) if m.group(3) is not None else (m.group(4) if m.group(4) is not None else m.group(5))
+    consumed = re.compile(r'\w+=("([^"]*)"|\'([^\']*)\'|(\S+))')
+    for m in consumed.finditer(attr_str):
+        key = m.group(0).split("=", 1)[0]
+        val = m.group(2) if m.group(2) is not None else (m.group(3) if m.group(3) is not None else m.group(4))
         attrs[key] = val
+    remainder = consumed.sub("", attr_str)
+    for flag in re.findall(r'\w+', remainder):
+        attrs[flag] = True
     return attrs
 
 
@@ -751,7 +758,7 @@ def build_block(name: str, attrs: dict, content: str, practices: list, quizzes: 
     if name == "practice":
         return build_practice(attrs, content, practices, warnings)
     if name == "example":
-        return Example(render_markdown(content))
+        return Example(render_markdown(content), protect=bool(attrs.get("protect")))
     if name == "tip":
         return Tip(render_markdown(content))
     if name == "journey":

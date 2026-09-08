@@ -104,6 +104,8 @@ body.lesson-doc{margin:0}
 .lesson-doc .example-body .prose{margin-bottom:0}
 .lesson-doc .example-body pre{background:var(--code);color:var(--codetext)}
 
+.lesson-doc .example-protect pre{-webkit-user-select:none;user-select:none}
+
 /* ---------- tip ---------- */
 .lesson-doc .tip{background:var(--amberbg);border:1px solid var(--amberline);border-left:5px solid var(--amber);
   border-radius:12px;padding:15px 18px;margin-bottom:20px;font-size:14.5px;color:var(--ambertext,#7A4E0C)}

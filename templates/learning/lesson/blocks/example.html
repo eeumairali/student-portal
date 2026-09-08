@@ -1,4 +1,4 @@
-<div class="example">
-  <span class="example-label">Example</span>
+<div class="example{% if node.protect %} example-protect{% endif %}">
+  <span class="example-label">Example{% if node.protect %} — type this yourself{% endif %}</span>
   <div class="example-body">{{ node.html|safe }}</div>
 </div>

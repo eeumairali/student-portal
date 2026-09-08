@@ -177,6 +177,7 @@
     // ---- copy-code buttons on every code block ----
     document.querySelectorAll(".lesson-doc pre").forEach(function (pre) {
       if (pre.closest(".code-block")) return;
+      if (pre.closest(".example-protect")) return;
       var wrap = document.createElement("div");
       wrap.className = "code-block";
       pre.parentNode.insertBefore(wrap, pre);
@@ -198,6 +199,13 @@
           }, 1500);
         });
       });
+    });
+
+    // ---- protected examples: no select, no copy, no right-click ----
+    document.querySelectorAll(".example-protect pre").forEach(function (pre) {
+      pre.addEventListener("copy", function (e) { e.preventDefault(); });
+      pre.addEventListener("contextmenu", function (e) { e.preventDefault(); });
+      pre.addEventListener("dragstart", function (e) { e.preventDefault(); });
     });
 
     // ---- quiz options: ungraded, click any option to see its feedback ----
