@@ -13,28 +13,7 @@
 </head>
 <body class="lesson-doc">
     {% include "learning/lesson/_document_body.html" %}
-<script src="https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.min.js"></script>
-<script>
-  mermaid.initialize({
-    startOnLoad: true,
-    theme: "base",
-    fontFamily: "inherit",
-    flowchart: { curve: "basis", htmlLabels: true },
-    themeVariables: {
-      primaryColor: "#E7F0FD",
-      primaryTextColor: "#2B211A",
-      primaryBorderColor: "#2D6FCF",
-      lineColor: "#82695A",
-      secondaryColor: "#FFF4E0",
-      secondaryBorderColor: "#C97A12",
-      tertiaryColor: "#EAF8EE",
-      tertiaryBorderColor: "#2E9B4F",
-      noteBkgColor: "#F6EAFB",
-      noteBorderColor: "#A34AC9",
-      fontSize: "16px"
-    }
-  });
-</script>
+{% include "learning/lesson/_mermaid_scripts.html" %}
 <script src="{% static 'js/lesson.js' %}" defer></script>
 </body>
 </html>

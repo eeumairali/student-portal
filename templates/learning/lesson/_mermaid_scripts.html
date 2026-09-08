@@ -1,0 +1,22 @@
+{% load static %}<script src="{% static 'js/mermaid.min.js' %}"></script>
+<script>
+  mermaid.initialize({
+    startOnLoad: true,
+    theme: "base",
+    fontFamily: "inherit",
+    flowchart: { curve: "basis", htmlLabels: true },
+    themeVariables: {
+      primaryColor: "#E7F0FD",
+      primaryTextColor: "#2B211A",
+      primaryBorderColor: "#2D6FCF",
+      lineColor: "#82695A",
+      secondaryColor: "#FFF4E0",
+      secondaryBorderColor: "#C97A12",
+      tertiaryColor: "#EAF8EE",
+      tertiaryBorderColor: "#2E9B4F",
+      noteBkgColor: "#F6EAFB",
+      noteBorderColor: "#A34AC9",
+      fontSize: "16px"
+    }
+  });
+</script>

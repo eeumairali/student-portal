@@ -39,6 +39,7 @@
     {% include "learning/lesson/_document_body.html" %}
   </div>
 </div>
+{% include "learning/lesson/_mermaid_scripts.html" %}
 
 <h2 class="mt-10 eyebrow">Homework</h2>
 <form method="post" action="{% url 'lesson_homework_save' lesson.id %}" class="card mt-4 p-5">
