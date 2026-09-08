@@ -177,8 +177,7 @@ body.lesson-doc{margin:0}
 .lesson-doc .back-to-editor a:hover{color:var(--deep);border-color:var(--c4);background:var(--c4bg)}
 
 /* ---------- student mini nav ---------- */
-.lesson-doc .lnav{position:sticky;top:0;z-index:30;background:color-mix(in srgb, var(--paper) 92%, transparent);
-  -webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px);border-bottom:1px solid var(--line)}
+.lesson-doc .lnav{background:var(--paper);border-bottom:1px solid var(--line)}
 .lesson-doc .lnav .wrap{display:flex;align-items:center;justify-content:space-between;
   padding-top:12px;padding-bottom:12px}
 .lesson-doc .lnav-brand{display:flex;align-items:center;gap:9px;text-decoration:none;color:var(--ink)}
