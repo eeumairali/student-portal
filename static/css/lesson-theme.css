@@ -190,6 +190,23 @@ body.lesson-doc{margin:0}
   border-radius:999px;padding:8px 16px 8px 13px;text-decoration:none;transition:.15s}
 .lesson-doc .lnav-back:hover{color:#fff;border-color:var(--deep);background:var(--deep)}
 
+/* ---------- gentle nudge toast ---------- */
+.lesson-doc .nudge-stack{position:fixed;top:90px;right:18px;z-index:50;
+  display:flex;flex-direction:column;gap:10px;width:250px;pointer-events:none}
+.lesson-doc .nudge{pointer-events:auto;background:var(--paper);border:1.5px solid var(--line);
+  border-left:4px solid var(--c4);border-radius:12px;padding:13px 15px;box-shadow:var(--shadow);
+  opacity:0;transform:translateX(16px);transition:opacity .2s,transform .2s}
+.lesson-doc .nudge.show{opacity:1;transform:none}
+.lesson-doc .nudge-text{margin:0 0 10px;font-size:13.5px;color:var(--ink);line-height:1.4}
+.lesson-doc .nudge-actions{display:flex;gap:8px;flex-wrap:wrap}
+.lesson-doc .nudge-yes{background:var(--c4);color:#fff;border:none;border-radius:7px;
+  font-size:12.5px;font-weight:600;padding:6px 11px}
+.lesson-doc .nudge-yes:hover{background:#177789}
+.lesson-doc .nudge-no{background:transparent;color:var(--muted);border:1px solid var(--line);
+  border-radius:7px;font-size:12.5px;font-weight:600;padding:6px 11px}
+.lesson-doc .nudge-no:hover{background:var(--card)}
+@media(max-width:620px){.lesson-doc .nudge-stack{left:14px;right:14px;width:auto}}
+
 /* ---------- finish ---------- */
 .lesson-doc .done-msg{margin-top:26px;padding:22px 26px;background:var(--deep);color:#fff;
   border-radius:var(--radius);display:none}

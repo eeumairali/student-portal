@@ -126,6 +126,54 @@
       });
     });
 
+    // ---- gentle nudge: scrolled past an unmarked step ----
+    if (total > 0 && "IntersectionObserver" in window) {
+      var stack = document.createElement("div");
+      stack.className = "nudge-stack";
+      document.body.appendChild(stack);
+      var nudged = {};
+
+      function showNudge(practice) {
+        var taskId = practice.dataset.taskId;
+        if (nudged[taskId] || practice.classList.contains("done")) return;
+        nudged[taskId] = true;
+
+        var index = practice.querySelector(".practice-num");
+        var label = index ? index.textContent : "";
+
+        var card = document.createElement("div");
+        card.className = "nudge";
+        card.innerHTML =
+          '<p class="nudge-text">Understood step ' + label + ' of ' + total + '?</p>' +
+          '<div class="nudge-actions">' +
+          '<button type="button" class="nudge-yes">Yes, mark done</button>' +
+          '<button type="button" class="nudge-no">Not yet</button>' +
+          "</div>";
+        stack.appendChild(card);
+        requestAnimationFrame(function () { card.classList.add("show"); });
+
+        function remove() {
+          card.classList.remove("show");
+          setTimeout(function () { card.remove(); }, 200);
+        }
+        card.querySelector(".nudge-yes").addEventListener("click", function () {
+          markDone(practice, true);
+          remove();
+        });
+        card.querySelector(".nudge-no").addEventListener("click", remove);
+        setTimeout(remove, 12000);
+      }
+
+      var observer = new IntersectionObserver(function (entries) {
+        entries.forEach(function (entry) {
+          if (!entry.isIntersecting && entry.boundingClientRect.top < 0) {
+            showNudge(entry.target);
+          }
+        });
+      }, { threshold: 0 });
+      practices.forEach(function (p) { observer.observe(p); });
+    }
+
     // ---- copy-code buttons on every code block ----
     document.querySelectorAll(".lesson-doc pre").forEach(function (pre) {
       if (pre.closest(".code-block")) return;
