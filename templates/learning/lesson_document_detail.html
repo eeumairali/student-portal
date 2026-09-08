@@ -12,12 +12,20 @@
 {% endif %}
 </head>
 <body class="lesson-doc">
+<nav class="lnav">
+  <div class="wrap">
+    <a href="{% url 'dashboard' %}" class="lnav-brand">
+      <span class="lnav-mark">Sd</span>
+      <span class="lnav-name">Study desk</span>
+    </a>
+    <a href="{% url 'dashboard' %}" class="lnav-back">&larr; Dashboard</a>
+  </div>
+</nav>
+{% if locked %}
 <div class="wrap" style="padding-top:16px">
-  <a href="{% url 'dashboard' %}" class="back-to-editor">&larr; back to dashboard</a>
-  {% if locked %}
-    <div class="tip preview-warnings">This lesson is locked — only you and your tutor can see it right now.</div>
-  {% endif %}
+  <div class="tip preview-warnings">This lesson is locked — only you and your tutor can see it right now.</div>
 </div>
+{% endif %}
 {% include "learning/lesson/_document_body.html" %}
 {% include "learning/lesson/_mermaid_scripts.html" %}
 {% if homework_set %}

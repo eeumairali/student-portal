@@ -8,6 +8,7 @@
 :root{
   --ink:#2B211A; --paper:#FFFFFF; --card:#FAF6F1; --line:#E0D5C7; --muted:#82695A;
   --deep:#664930;
+  --code:#2B211A; --codetext:#F3ECE3;
   --amber:#C97A12; --amberbg:#FFF4E0; --amberline:#F0CE94;
   --green:#12805C; --greenbg:#E7F8F0; --greenline:#9FE0C4;
   --examplelabel:#0D5A6B;
@@ -112,13 +113,13 @@ body.lesson-doc{margin:0}
 /* ---------- code blocks: copy button ---------- */
 .lesson-doc .code-block{position:relative}
 .lesson-doc .code-block pre{padding-right:76px}
-.lesson-doc .copy-btn{position:absolute;top:10px;right:10px;background:rgba(255,255,255,.1);
-  color:var(--codetext);border:1px solid rgba(255,255,255,.22);border-radius:6px;
-  font-family:var(--font-mono);font-size:12px;font-weight:600;padding:5px 10px;
-  cursor:pointer;transition:.15s;opacity:0;line-height:1}
+.lesson-doc .copy-btn{position:absolute;top:10px;right:10px;background:#F3ECE3;
+  color:#2B211A;border:1px solid rgba(255,255,255,.3);border-radius:6px;
+  font-family:var(--font-mono);font-size:12px;font-weight:700;padding:5px 10px;
+  cursor:pointer;transition:.15s;opacity:0;line-height:1;box-shadow:0 1px 3px rgba(0,0,0,.25)}
 .lesson-doc .code-block:hover .copy-btn,
 .lesson-doc .copy-btn:focus-visible{opacity:1}
-.lesson-doc .copy-btn:hover{background:rgba(255,255,255,.18)}
+.lesson-doc .copy-btn:hover{background:#fff}
 .lesson-doc .copy-btn.copied{background:var(--green);color:#fff;border-color:var(--green);opacity:1}
 @media(max-width:620px){.lesson-doc .copy-btn{opacity:1}}
 
@@ -174,6 +175,21 @@ body.lesson-doc{margin:0}
   border-radius:999px;padding:7px 14px 7px 12px;text-decoration:none;
   box-shadow:var(--shadow);transition:.15s}
 .lesson-doc .back-to-editor a:hover{color:var(--deep);border-color:var(--c4);background:var(--c4bg)}
+
+/* ---------- student mini nav ---------- */
+.lesson-doc .lnav{position:sticky;top:0;z-index:30;background:color-mix(in srgb, var(--paper) 92%, transparent);
+  -webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px);border-bottom:1px solid var(--line)}
+.lesson-doc .lnav .wrap{display:flex;align-items:center;justify-content:space-between;
+  padding-top:12px;padding-bottom:12px}
+.lesson-doc .lnav-brand{display:flex;align-items:center;gap:9px;text-decoration:none;color:var(--ink)}
+.lesson-doc .lnav-mark{display:grid;place-items:center;width:30px;height:30px;border-radius:9px;
+  background:var(--deep);color:#fff;font-family:var(--font-display);font-weight:700;font-size:14px}
+.lesson-doc .lnav-name{font-family:var(--font-display);font-size:16px;font-weight:600}
+.lesson-doc .lnav-back{display:inline-flex;align-items:center;gap:7px;
+  font-family:var(--font-mono);font-size:12.5px;font-weight:700;letter-spacing:.2px;
+  color:var(--deep);background:var(--card);border:1px solid var(--line);
+  border-radius:999px;padding:8px 16px 8px 13px;text-decoration:none;transition:.15s}
+.lesson-doc .lnav-back:hover{color:#fff;border-color:var(--deep);background:var(--deep)}
 
 /* ---------- finish ---------- */
 .lesson-doc .done-msg{margin-top:26px;padding:22px 26px;background:var(--deep);color:#fff;
