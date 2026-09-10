@@ -2,7 +2,7 @@ from django.contrib import admin
 from django.utils.html import format_html
 
 from .models import (
-    Course, Enrollment, HintReveal, Homework, Lesson, LessonFile, LessonProgress, Task,
+    Course, Enrollment, HintReveal, Homework, Lesson, LessonFile, LessonProgress, Notification, Task,
 )
 
 
@@ -114,4 +114,12 @@ class LessonProgressAdmin(admin.ModelAdmin):
     list_display = ("student", "lesson", "is_complete", "completed_at")
     list_filter = ("is_complete", "lesson__course")
     readonly_fields = ("updated_at",)
+    autocomplete_fields = ("student", "lesson")
+
+
+@admin.register(Notification)
+class NotificationAdmin(admin.ModelAdmin):
+    list_display = ("student", "message", "is_read", "created_at")
+    list_filter = ("is_read",)
+    search_fields = ("student__username", "message")
     autocomplete_fields = ("student", "lesson")

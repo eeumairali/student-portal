@@ -8,7 +8,7 @@ admin.site.index_title = "Courses, lessons and students"
 
 urlpatterns = [
     path("admin/", admin.site.urls),
-    path("accounts/login/", auth_views.LoginView.as_view(), name="login"),
+    path("accounts/login/", auth_views.LoginView.as_view(redirect_authenticated_user=True), name="login"),
     path("accounts/logout/", auth_views.LogoutView.as_view(), name="logout"),
     path("accounts/password_change/", auth_views.PasswordChangeView.as_view(
         success_url="/accounts/password_change/done/"), name="password_change"),

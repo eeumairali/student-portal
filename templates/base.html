@@ -31,6 +31,12 @@
     <div class="hidden items-center gap-2.5 text-sm md:flex">
       {% if user.is_authenticated %}
         <span class="text-slate-500">{{ user.student_profile.display_name|default:user.username }}</span>
+        <a class="chip relative transition hover:border-mint-400 hover:text-ink" href="{% url 'notification_list' %}" aria-label="Notifications">
+          &#128276;
+          {% if unread_notification_count %}
+            <span class="absolute -right-1 -top-1 flex h-4 w-4 items-center justify-center rounded-full bg-red-600 text-[10px] font-medium text-white">{{ unread_notification_count }}</span>
+          {% endif %}
+        </a>
         <a class="chip transition hover:border-mint-400 hover:text-ink" href="{% url 'dashboard' %}">Dashboard</a>
         <a class="chip transition hover:border-mint-400 hover:text-ink" href="{% url 'password_change' %}">Change password</a>
         {% if user.is_staff %}
@@ -59,6 +65,9 @@
     <div class="mx-auto flex max-w-6xl flex-col gap-1 px-5 py-4 text-sm">
       {% if user.is_authenticated %}
         <span class="px-1 pb-2 text-slate-500">{{ user.student_profile.display_name|default:user.username }}</span>
+        <a class="rounded-lg px-3 py-2 transition hover:bg-card" href="{% url 'notification_list' %}">
+          Notifications{% if unread_notification_count %} <span class="ml-1 rounded-full bg-red-600 px-1.5 py-0.5 text-[10px] font-medium text-white">{{ unread_notification_count }}</span>{% endif %}
+        </a>
         <a class="rounded-lg px-3 py-2 transition hover:bg-card" href="{% url 'dashboard' %}">Dashboard</a>
         <a class="rounded-lg px-3 py-2 transition hover:bg-card" href="{% url 'password_change' %}">Change password</a>
         {% if user.is_staff %}

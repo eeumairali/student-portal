@@ -220,3 +220,24 @@ class LessonProgress(models.Model):
 
     def __str__(self):
         return f"{self.student} · {self.lesson} · {'done' if self.is_complete else 'open'}"
+
+
+class Notification(models.Model):
+    """In-app notification for a student, e.g. a note being unlocked. Read
+    server-side (bell/badge in the base template) — no email involved."""
+
+    student = models.ForeignKey(
+        settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="notifications"
+    )
+    lesson = models.ForeignKey(
+        Lesson, on_delete=models.CASCADE, related_name="notifications", null=True, blank=True
+    )
+    message = models.CharField(max_length=255)
+    is_read = models.BooleanField(default=False)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["-created_at"]
+
+    def __str__(self):
+        return f"{self.student} · {self.message}"

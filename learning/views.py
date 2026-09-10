@@ -16,7 +16,7 @@ from accounts.models import StudentComment, StudentProfile
 
 from .lesson_markdown import parse_lesson
 from .lesson_save import LessonSaveError, resolve_save_plan, save_lesson
-from .models import Course, Enrollment, HintReveal, Homework, Lesson, LessonFile, LessonProgress, Task
+from .models import Course, Enrollment, HintReveal, Homework, Lesson, LessonFile, LessonProgress, Notification, Task
 from .services import (
     course_progress, enrolled_courses, get_accessible_lesson, get_enrolled_course, student_lessons,
 )
@@ -62,6 +62,20 @@ def dashboard(request):
     cards = [{"course": c, **course_progress(request.user, c)} for c in courses]
     notes = student_lessons(request.user)
     return render(request, "learning/dashboard.html", {"cards": cards, "notes": notes})
+
+
+@login_required
+def notification_list(request):
+    notifications = Notification.objects.filter(student=request.user)
+    notifications.filter(is_read=False).update(is_read=True)
+    return render(request, "learning/notifications.html", {"notifications": notifications})
+
+
+@login_required
+@require_POST
+def notification_mark_all_read(request):
+    Notification.objects.filter(student=request.user, is_read=False).update(is_read=True)
+    return redirect(request.POST.get("next") or "dashboard")
 
 
 @login_required
@@ -316,6 +330,21 @@ def student_detail(request, user_id):
             StudentComment.objects.create(profile=profile, body=body)
         return redirect("student_detail", user_id=student.id)
 
+    if request.method == "POST" and request.POST.get("action") in ("lock", "unlock", "delete"):
+        action = request.POST.get("action")
+        selected_ids = request.POST.getlist("selected")
+        selected_lessons = Lesson.objects.filter(student=student, id__in=selected_ids)
+        if action == "delete":
+            selected_lessons.delete()
+        else:
+            if action == "unlock":
+                Notification.objects.bulk_create([
+                    Notification(student=student, lesson=lesson, message=f"“{lesson.title}” was unlocked.")
+                    for lesson in selected_lessons.exclude(is_published=True)
+                ])
+            selected_lessons.update(is_published=(action == "unlock"))
+        return redirect("student_detail", user_id=student.id)
+
     lessons = sorted(
         Lesson.objects.filter(student=student).order_by("-date", "-id"),
         key=lambda l: "project" not in l.meta,
@@ -485,6 +514,10 @@ def lesson_toggle_lock(request, lesson_id):
     lesson = get_object_or_404(Lesson, pk=lesson_id)
     lesson.is_published = not lesson.is_published
     lesson.save(update_fields=["is_published"])
+    if lesson.is_published and lesson.student_id:
+        Notification.objects.create(
+            student=lesson.student, lesson=lesson, message=f"“{lesson.title}” was unlocked.",
+        )
     return redirect("lesson_tutor_view", lesson_id=lesson.id)
 
 

@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+{% block title %}Notifications{% endblock %}
+{% block content %}
+<p class="eyebrow">Notifications</p>
+<h1 class="mt-1 font-display text-3xl">Notifications</h1>
+
+{% if notifications %}
+  <ol class="mt-6 divide-y divide-line overflow-hidden rounded-xl border border-line bg-card shadow-card">
+    {% for n in notifications %}
+      <li class="flex items-center justify-between gap-4 p-4">
+        <div class="min-w-0">
+          <p class="text-sm">{{ n.message }}</p>
+          <p class="mt-0.5 font-mono text-xs text-slate-500">{{ n.created_at|date:"D j M Y, H:i" }}</p>
+        </div>
+        {% if n.lesson_id %}
+          <a href="{% url 'lesson_detail' n.lesson_id %}" class="btn-quiet shrink-0 px-3 py-1.5 text-xs">View note</a>
+        {% endif %}
+      </li>
+    {% endfor %}
+  </ol>
+{% else %}
+  <div class="card mt-6 p-8 text-center">
+    <p class="font-display text-xl">No notifications yet</p>
+    <p class="mt-2 text-sm text-slate-500">You'll see it here when your tutor unlocks a new note.</p>
+  </div>
+{% endif %}
+{% endblock %}

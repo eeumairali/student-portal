@@ -72,28 +72,48 @@
 
 <h2 class="mt-10 eyebrow">Session notes</h2>
 {% if lessons %}
-  <ol class="mt-4 divide-y divide-line overflow-hidden rounded-xl border border-line bg-card shadow-card">
-    {% for lesson in lessons %}
-      <li class="flex items-center gap-2 p-4">
-        <a href="{% url 'lesson_tutor_view' lesson.id %}" class="flex min-w-0 flex-1 items-center justify-between gap-4 transition hover:opacity-80">
-          <div class="min-w-0">
-            <p class="font-mono text-xs text-slate-500">{% if lesson.meta.project %}Project {{ lesson.meta.project }} · {% endif %}{{ lesson.date|default:"No date" }}{% if lesson.course %} · {{ lesson.course.title }}{% endif %}</p>
-            <p class="mt-0.5 font-medium">{{ lesson.title }}</p>
-          </div>
-          <span class="shrink-0 rounded-full px-2.5 py-1 text-[11px] font-medium {% if lesson.is_published %}bg-mint-100 text-teal-700{% else %}bg-paper text-slate-500{% endif %}">
-            {% if lesson.is_published %}Unlocked{% else %}Locked{% endif %}
-          </span>
-        </a>
-        <a href="{% url 'lesson_markdown_download' lesson.id %}" class="btn-quiet shrink-0 px-3 py-1.5 text-xs">Download .md</a>
-        <a href="{% url 'lesson_edit' student.id lesson.id %}" class="btn-quiet shrink-0 px-3 py-1.5 text-xs">Edit</a>
-        <form method="post" action="{% url 'lesson_delete' lesson.id %}"
-              onsubmit="return confirm('Delete “{{ lesson.title }}”? This removes the student’s saved answers too. This cannot be undone.');">
-          {% csrf_token %}
-          <button type="submit" class="btn-quiet shrink-0 px-3 py-1.5 text-xs text-red-600 hover:border-red-300">Delete</button>
-        </form>
-      </li>
-    {% endfor %}
-  </ol>
+  <form method="post" x-data="{ checked: [] }"
+        onsubmit="return event.submitter.value !== 'delete' || confirm(`Delete ${checked.length} note(s)? This removes the student’s saved answers too. This cannot be undone.`);">
+    {% csrf_token %}
+
+    <div class="mt-4 flex flex-wrap items-center justify-between gap-3" x-show="checked.length">
+      <p class="text-sm text-slate-500"><span x-text="checked.length"></span> selected</p>
+      <div class="flex gap-2">
+        <button type="submit" name="action" value="unlock" class="btn-quiet px-3 py-1.5 text-xs" x-bind:disabled="!checked.length">Unlock selected</button>
+        <button type="submit" name="action" value="lock" class="btn-quiet px-3 py-1.5 text-xs" x-bind:disabled="!checked.length">Lock selected</button>
+        <button type="submit" name="action" value="delete" class="btn-quiet px-3 py-1.5 text-xs text-red-600 hover:border-red-300" x-bind:disabled="!checked.length">Delete selected</button>
+      </div>
+    </div>
+
+    <ol class="mt-4 divide-y divide-line overflow-hidden rounded-xl border border-line bg-card shadow-card">
+      {% for lesson in lessons %}
+        <li class="flex items-center gap-2 p-4">
+          <input
+            type="checkbox"
+            name="selected"
+            value="{{ lesson.id }}"
+            x-model="checked"
+            title="Select this note"
+            class="h-4 w-4 shrink-0 rounded border-line text-teal-600 focus:ring-teal-500"
+          >
+          <a href="{% url 'lesson_tutor_view' lesson.id %}" class="flex min-w-0 flex-1 items-center justify-between gap-4 transition hover:opacity-80">
+            <div class="min-w-0">
+              <p class="font-mono text-xs text-slate-500">{% if lesson.meta.project %}Project {{ lesson.meta.project }} · {% endif %}{{ lesson.date|default:"No date" }}{% if lesson.course %} · {{ lesson.course.title }}{% endif %}</p>
+              <p class="mt-0.5 font-medium">{{ lesson.title }}</p>
+            </div>
+            <span class="shrink-0 rounded-full px-2.5 py-1 text-[11px] font-medium {% if lesson.is_published %}bg-mint-100 text-teal-700{% else %}bg-paper text-slate-500{% endif %}">
+              {% if lesson.is_published %}Unlocked{% else %}Locked{% endif %}
+            </span>
+          </a>
+          <a href="{% url 'lesson_markdown_download' lesson.id %}" class="btn-quiet shrink-0 px-3 py-1.5 text-xs">Download .md</a>
+          <a href="{% url 'lesson_edit' student.id lesson.id %}" class="btn-quiet shrink-0 px-3 py-1.5 text-xs">Edit</a>
+          <button type="submit" formaction="{% url 'lesson_delete' lesson.id %}" formnovalidate
+                  onclick="return confirm('Delete “{{ lesson.title }}”? This removes the student’s saved answers too. This cannot be undone.');"
+                  class="btn-quiet shrink-0 px-3 py-1.5 text-xs text-red-600 hover:border-red-300">Delete</button>
+        </li>
+      {% endfor %}
+    </ol>
+  </form>
 {% else %}
   <div class="card mt-4 p-8 text-center">
     <p class="font-display text-xl">No notes yet</p>
