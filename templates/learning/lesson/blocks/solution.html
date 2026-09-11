@@ -1,0 +1,20 @@
+{% if node.locked %}
+<div class="solution-lock" data-solution-lock data-solution-id="{{ node.solution_id }}">
+  <div class="solution-lock-prompt" data-solution-prompt>
+    <span class="solution-lock-icon" aria-hidden="true">&#128274;</span>
+    <p class="solution-lock-title">{{ node.title }}</p>
+    <p class="solution-lock-hint">Ask your tutor for the passcode to reveal the full code.</p>
+    <form class="solution-lock-form" data-solution-form>
+      <input type="password" class="solution-lock-input" placeholder="Passcode" data-solution-input autocomplete="off">
+      <button type="submit" class="solution-lock-submit">Unlock</button>
+    </form>
+    <p class="solution-lock-error" data-solution-error hidden></p>
+  </div>
+  <div class="solution-lock-body example-protect" data-solution-body hidden></div>
+</div>
+{% else %}
+<div class="solution">
+  <span class="solution-label">{{ node.title }}</span>
+  <div class="solution-body">{{ node.html|safe }}</div>
+</div>
+{% endif %}

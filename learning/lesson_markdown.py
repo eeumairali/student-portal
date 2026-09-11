@@ -12,8 +12,10 @@ reveal), ``:::task ... type=choice`` (an ungraded multiple-choice warm-up),
 ``:::task ... type=step|code|answer`` (a tracked task step sharing progress
 with :::practice), ``:::journey``, ``:::figure``, ``:::mermaid``,
 ``:::objectives``, ``:::steps``,
-``:::grid``, ``:::push``, ``:::card``, ``:::aside``, ``:::rule``, and
-``:::checklist``. See skills/FORMAT_SPEC.md for the exact syntax of each
+``:::grid``, ``:::push``, ``:::card``, ``:::aside``, ``:::rule``,
+``:::checklist``, and ``:::solution`` (a passcode-locked full code dump —
+hidden from the page source until the right passcode is entered). See
+skills/FORMAT_SPEC.md for the exact syntax of each
 — that file is the single source of truth; don't invent new block names.
 There is still no in-browser code execution.
 """
@@ -68,6 +70,26 @@ class Example:
 class Tip:
     html: str
     template_name: str = "learning/lesson/blocks/tip.html"
+
+
+@dataclass
+class Solution:
+    """A full code dump — e.g. the finished game at the end of a lesson.
+    With no `passcode` it just renders like :::example. With a `passcode`
+    set, `html` is left out of the template context sent to the student's
+    browser on the normal page render; it's only returned by the unlock
+    endpoint after the passcode checks out server-side, so it never sits
+    in the page source waiting to be viewed."""
+
+    solution_id: str
+    title: str
+    passcode: str | None
+    html: str
+    template_name: str = "learning/lesson/blocks/solution.html"
+
+    @property
+    def locked(self) -> bool:
+        return bool(self.passcode)
 
 
 @dataclass
@@ -526,6 +548,23 @@ def split_label_feedback(text: str) -> tuple[str, str]:
     return text[:m.start()].strip(), text[m.end():].strip()
 
 
+def build_solution(attrs: dict, content: str, warnings: list) -> "Solution | Prose":
+    passcode = attrs.get("passcode")
+    solution_id = attrs.get("id")
+    if passcode and not solution_id:
+        warnings.append(
+            ':::solution has passcode="..." but no id="..." — id is needed to know which '
+            "lock this is. Rendered as plain text so nothing is lost."
+        )
+        return Prose(render_markdown(content))
+    return Solution(
+        solution_id=str(solution_id or ""),
+        title=attrs.get("title") or "Full Code",
+        passcode=str(passcode) if passcode else None,
+        html=render_markdown(content),
+    )
+
+
 def build_journey(content: str) -> Journey:
     """- time/emoji | title | detail | now(optional) -- one line per stage."""
     steps = []
@@ -761,6 +800,8 @@ def build_block(name: str, attrs: dict, content: str, practices: list, quizzes: 
         return Example(render_markdown(content), protect=bool(attrs.get("protect")))
     if name == "tip":
         return Tip(render_markdown(content))
+    if name == "solution":
+        return build_solution(attrs, content, warnings)
     if name == "journey":
         return build_journey(content)
     if name == "figure":

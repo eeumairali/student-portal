@@ -220,6 +220,67 @@
       });
     });
 
+    // ---- solution lock: passcode-gated full code dump ----
+    document.querySelectorAll("[data-solution-lock]").forEach(function (lock) {
+      var solutionId = lock.dataset.solutionId;
+      var form = lock.querySelector("[data-solution-form]");
+      var input = lock.querySelector("[data-solution-input]");
+      var error = lock.querySelector("[data-solution-error]");
+      var prompt = lock.querySelector("[data-solution-prompt]");
+      var body = lock.querySelector("[data-solution-body]");
+      if (!form || !lessonId) return;
+
+      form.addEventListener("submit", function (e) {
+        e.preventDefault();
+        error.hidden = true;
+        var submitBtn = form.querySelector("button");
+        submitBtn.disabled = true;
+
+        fetch("/lesson/" + lessonId + "/solution/" + encodeURIComponent(solutionId) + "/unlock/", {
+          method: "POST",
+          headers: { "Content-Type": "application/json", "X-CSRFToken": csrftoken },
+          credentials: "same-origin",
+          body: JSON.stringify({ passcode: input.value }),
+        })
+          .then(function (res) { return res.json().then(function (data) { return { ok: res.ok, data: data }; }); })
+          .then(function (result) {
+            submitBtn.disabled = false;
+            if (!result.ok || !result.data.ok) {
+              error.textContent = (result.data && result.data.error) || "Incorrect passcode.";
+              error.hidden = false;
+              input.value = "";
+              input.focus();
+              return;
+            }
+            body.innerHTML = result.data.html;
+            body.hidden = false;
+            prompt.remove();
+            body.querySelectorAll("pre").forEach(function (pre) {
+              pre.addEventListener("copy", function (ev) { ev.preventDefault(); });
+              pre.addEventListener("contextmenu", function (ev) { ev.preventDefault(); });
+              pre.addEventListener("dragstart", function (ev) { ev.preventDefault(); });
+            });
+          })
+          .catch(function () {
+            submitBtn.disabled = false;
+            error.textContent = "Something went wrong — try again.";
+            error.hidden = false;
+          });
+      });
+    });
+
+    // ---- standalone links (a paragraph that's just [name](url)) become
+    // resource buttons — used for "notebook on Google Drive" style links ----
+    document.querySelectorAll(".lesson-doc p").forEach(function (p) {
+      var onlyChild = p.childNodes.length === 1 ? p.childNodes[0] : null;
+      if (onlyChild && onlyChild.tagName === "A") {
+        p.classList.add("resource-link-wrap");
+        onlyChild.classList.add("resource-link");
+        onlyChild.target = "_blank";
+        onlyChild.rel = "noopener noreferrer";
+      }
+    });
+
     // ---- checklist: self-check only, not saved to the server ----
     document.querySelectorAll(".checklist-check").forEach(function (btn) {
       btn.addEventListener("click", function () {

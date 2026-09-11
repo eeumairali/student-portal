@@ -1,5 +1,6 @@
 import json
 import mimetypes
+import secrets
 from io import BytesIO
 
 from django.conf import settings
@@ -14,7 +15,7 @@ from django.views.decorators.http import require_POST
 
 from accounts.models import StudentComment, StudentProfile
 
-from .lesson_markdown import parse_lesson
+from .lesson_markdown import Solution, parse_lesson
 from .lesson_save import LessonSaveError, resolve_save_plan, save_lesson
 from .models import Course, Enrollment, HintReveal, Homework, Lesson, LessonFile, LessonProgress, Notification, Task
 from .services import (
@@ -194,6 +195,33 @@ def lesson_reveal_hint(request, lesson_id, task_id):
     lesson = _owned_lesson_or_404(request, lesson_id)
     HintReveal.objects.create(lesson=lesson, task_id=task_id)
     return JsonResponse({"ok": True})
+
+
+@login_required
+@require_POST
+def lesson_unlock_solution(request, lesson_id, solution_id):
+    """Checks a passcode against a :::solution block and, only if it matches,
+    hands back the code it guards. The code never rides along in the normal
+    page render — see the Solution dataclass docstring in lesson_markdown.py."""
+    lesson = get_accessible_lesson(request.user, lesson_id)
+    data = json.loads(request.body or "{}")
+    submitted = str(data.get("passcode") or "")
+
+    parsed = parse_lesson(lesson.markdown_source)
+    node = None
+    for block in parsed.blocks:
+        for candidate in block.nodes:
+            if isinstance(candidate, Solution) and candidate.solution_id == solution_id:
+                node = candidate
+                break
+        if node:
+            break
+    if node is None:
+        raise Http404
+
+    if not secrets.compare_digest(submitted, node.passcode):
+        return JsonResponse({"ok": False, "error": "Incorrect passcode."}, status=403)
+    return JsonResponse({"ok": True, "html": node.html, "title": node.title})
 
 
 # --------------------------------------------------------------- staff tool --

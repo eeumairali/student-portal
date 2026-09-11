@@ -100,6 +100,7 @@ All use `:::name` … `:::` fencing, with optional `key=value` (or
 | `:::aside title="…"` | a titled side-note — a definition or tangent |
 | `:::rule title="…"` | a titled list of worked checks, one per `---`-separated group |
 | `:::checklist` | a client-side, self-tick checklist (not saved to the server) |
+| `:::solution title="…"` (optionally `id="…" passcode="…"`) | a full code dump (e.g. the finished game) — plain by default, or hidden behind a tutor passcode if you set one |
 
 ### `:::example`
 
@@ -120,6 +121,30 @@ Any markdown content — usually a fenced code block, sometimes prose or a
 small diagram. Add the bare flag `protect` (`:::example protect`) to
 disable the copy button and text selection on the code inside — use it
 when the student should type the code themselves rather than paste it.
+
+### `:::solution`
+
+```
+:::solution id="full-game" passcode="banana77" title="Full Game Code"
+```python
+# the complete, finished version of what the student built this lesson
+```
+:::
+```
+
+For the "here's the whole finished thing" moment at the end of a lesson —
+useful when giving out the full game/project would let a student just
+copy it instead of building it themselves.
+
+By default (no `passcode`) it just renders like `:::example` — a plain
+code panel, no lock. Add `passcode="…"` (and a matching `id="…"`, unique
+within the lesson) only when you want it gated: the code is then left out
+of the page entirely on normal load, the student sees a lock icon and a
+passcode box instead, and the code is fetched from the server only after
+the right passcode is submitted. The passcode is whatever you choose — it
+lives in this file, so only whoever can see the lesson source (i.e. you)
+knows it; read it out to a student in person when they've earned it.
+`title` is optional, defaults to "Full Code".
 
 ### `:::tip`
 

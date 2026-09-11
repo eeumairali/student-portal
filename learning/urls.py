@@ -9,6 +9,7 @@ urlpatterns = [
     path("lesson/<int:lesson_id>/toggle/", views.toggle_lesson, name="toggle_lesson"),
     path("lesson/<int:lesson_id>/task/<str:task_id>/complete/", views.lesson_toggle_task, name="lesson_toggle_task"),
     path("lesson/<int:lesson_id>/task/<str:task_id>/reveal/", views.lesson_reveal_hint, name="lesson_reveal_hint"),
+    path("lesson/<int:lesson_id>/solution/<str:solution_id>/unlock/", views.lesson_unlock_solution, name="lesson_unlock_solution"),
     path("file/<int:file_id>/", views.lesson_file, name="lesson_file"),
     path("lesson/<int:lesson_id>/download/", views.lesson_markdown_download, name="lesson_markdown_download"),
     path("preview/", views.lesson_preview, name="lesson_preview"),

@@ -106,6 +106,43 @@ body.lesson-doc{margin:0}
 
 .lesson-doc .example-protect pre{-webkit-user-select:none;user-select:none}
 
+/* ---------- solution (no passcode set — just a plain code panel) ---------- */
+.lesson-doc .solution{background:var(--c4bg);border:1px solid var(--c4);border-left:5px solid var(--c4);
+  border-radius:12px;padding:18px 20px;margin-bottom:20px}
+.lesson-doc .solution-label{display:block;font-family:var(--font-mono);font-size:11.5px;font-weight:700;
+  letter-spacing:.7px;text-transform:uppercase;color:var(--examplelabel);margin-bottom:10px}
+.lesson-doc .solution-body .prose{margin-bottom:0}
+.lesson-doc .solution-body pre{background:var(--code);color:var(--codetext)}
+
+/* ---------- solution lock (passcode set) ---------- */
+.lesson-doc .solution-lock{margin-bottom:20px}
+.lesson-doc .solution-lock-prompt{background:var(--c4bg);border:1px dashed var(--c4);border-radius:12px;
+  padding:28px 20px;text-align:center}
+.lesson-doc .solution-lock-icon{display:block;font-size:26px;margin-bottom:8px}
+.lesson-doc .solution-lock-title{font-family:var(--font-display);font-size:18px;font-weight:700;
+  color:var(--ink);margin:0 0 4px}
+.lesson-doc .solution-lock-hint{font-size:13px;color:var(--muted,#6b6259);margin:0 0 16px}
+.lesson-doc .solution-lock-form{display:flex;gap:8px;justify-content:center;flex-wrap:wrap}
+.lesson-doc .solution-lock-input{font-family:var(--font-mono);font-size:14px;padding:9px 12px;
+  border:1px solid var(--c4);border-radius:8px;background:#fff;min-width:180px}
+.lesson-doc .solution-lock-submit{font-family:var(--font-mono);font-size:13px;font-weight:700;
+  padding:9px 18px;border:none;border-radius:8px;background:var(--c4);color:#fff;cursor:pointer}
+.lesson-doc .solution-lock-submit:hover{filter:brightness(1.08)}
+.lesson-doc .solution-lock-submit:disabled{opacity:.6;cursor:default}
+.lesson-doc .solution-lock-error{font-size:13px;color:#B3261E;margin:12px 0 0}
+.lesson-doc .solution-lock-body{background:var(--c4bg);border:1px solid var(--c4);border-left:5px solid var(--c4);
+  border-radius:12px;padding:18px 20px}
+.lesson-doc .solution-lock-body pre{background:var(--code);color:var(--codetext)}
+
+/* ---------- standalone resource links (Drive doc / notebook / etc) ---------- */
+.lesson-doc .resource-link-wrap{margin-bottom:20px}
+.lesson-doc a.resource-link{display:inline-flex;align-items:center;gap:10px;font-family:var(--font-mono);
+  font-size:14px;font-weight:700;color:#fff;background:var(--c2,#2B6CB0);border-radius:10px;
+  padding:12px 20px;text-decoration:none;box-shadow:0 2px 0 rgba(0,0,0,.08)}
+.lesson-doc a.resource-link:hover{filter:brightness(1.08)}
+.lesson-doc a.resource-link:before{content:"\1F4C4";font-size:16px}
+.lesson-doc a.resource-link:after{content:"\2197";font-size:14px;opacity:.85}
+
 /* ---------- tip ---------- */
 .lesson-doc .tip{background:var(--amberbg);border:1px solid var(--amberline);border-left:5px solid var(--amber);
   border-radius:12px;padding:15px 18px;margin-bottom:20px;font-size:14.5px;color:var(--ambertext,#7A4E0C)}
