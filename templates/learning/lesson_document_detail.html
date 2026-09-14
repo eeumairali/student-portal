@@ -6,6 +6,7 @@
 <meta name="robots" content="noindex, nofollow">
 <meta name="color-scheme" content="light">
 <title>{{ front_matter.title }}{% if course %} · {{ course }}{% endif %}</title>
+<link rel="icon" type="image/svg+xml" href="{% static 'img/favicon.svg' %}">
 <link rel="stylesheet" href="{% static 'css/lesson-theme.css' %}">
 {% if front_matter.accent %}
 <style>:root{--accent:{{ front_matter.accent }};} .lesson-doc .dbtn{background:{{ front_matter.accent }}} .lesson-doc .fill{background:linear-gradient(90deg,{{ front_matter.accent }},var(--mint))}</style>
@@ -36,6 +37,28 @@
   {% endfor %}
 </div>
 {% endif %}
+
+{% if can_edit %}
+<button type="button" id="theme-toggle-btn" class="theme-toggle-btn" aria-label="Choose your own colors">🎨</button>
+<div id="theme-picker" class="theme-picker" hidden>
+  <p class="theme-picker-title">Make it yours</p>
+  <label class="theme-row">Background
+    <input type="color" id="theme-paper" data-var="--paper" data-default="#FFFFFF">
+  </label>
+  <label class="theme-row">Text
+    <input type="color" id="theme-ink" data-var="--ink" data-default="#2B211A">
+  </label>
+  <label class="theme-row">Cards
+    <input type="color" id="theme-card" data-var="--card" data-default="#FAF6F1">
+  </label>
+  <label class="theme-row">Accent
+    <input type="color" id="theme-accent" data-var="--deep" data-default="#664930">
+  </label>
+  <button type="button" id="theme-reset-btn" class="theme-reset-btn">Reset to default</button>
+</div>
+{% endif %}
+
 <script src="{% static 'js/lesson.js' %}" defer></script>
+{% if can_edit %}<script src="{% static 'js/lesson-theme-picker.js' %}" defer></script>{% endif %}
 </body>
 </html>

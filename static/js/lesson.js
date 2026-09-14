@@ -47,6 +47,7 @@
       practice.classList.toggle("done", done);
       var dbtn = practice.querySelector(".dbtn");
       if (dbtn) dbtn.textContent = done ? "Done" : "Mark done";
+      if (done && practice._cancelHintTimer) practice._cancelHintTimer();
       refresh();
       if (save !== false) {
         post("/lesson/" + lessonId + "/task/" + practice.dataset.taskId + "/complete/", { complete: done });
@@ -64,7 +65,7 @@
       if (practice) markDone(practice, true, false);
     });
 
-    // ---- mark-done + timed solution reveal ----
+    // ---- mark-done ----
     practices.forEach(function (practice) {
       var dbtn = practice.querySelector(".dbtn");
       if (dbtn) {
@@ -72,59 +73,88 @@
           markDone(practice, !practice.classList.contains("done"));
         });
       }
+    });
 
-      if (practice.dataset.hasSolution !== "1") return;
+    // ---- solution reveal: the countdown starts by itself as soon as a
+    // question scrolls into view, no click needed. "Reveal now" just skips
+    // the remaining wait. ----
+    if ("IntersectionObserver" in window) {
+      var hintObserver = new IntersectionObserver(function (entries) {
+        entries.forEach(function (entry) {
+          if (entry.isIntersecting && entry.target._startHintTimer) entry.target._startHintTimer();
+        });
+      }, { threshold: 0.4 });
 
-      var hbtn = practice.querySelector(".hbtn");
-      var hint = practice.querySelector(".hint");
-      var row = practice.querySelector(".practice-actions");
-      if (!hbtn || !hint || !row) return;
+      practices.forEach(function (practice) {
+        if (practice.dataset.hasSolution !== "1") return;
 
-      var holdSeconds = parseInt(practice.dataset.hintSeconds, 10);
-      if (isNaN(holdSeconds) || holdSeconds < 0) holdSeconds = DEFAULT_HINT_SECONDS;
+        var hbtn = practice.querySelector(".hbtn");
+        var hint = practice.querySelector(".hint");
+        var row = practice.querySelector(".practice-actions");
+        var dbtn = practice.querySelector(".dbtn");
+        if (!hbtn || !hint || !row) return;
 
-      function reveal() {
-        hint.classList.add("show");
-        hint.scrollIntoView({ behavior: "smooth", block: "nearest" });
-        post("/lesson/" + lessonId + "/task/" + practice.dataset.taskId + "/reveal/", {});
-      }
+        var holdSeconds = parseInt(practice.dataset.hintSeconds, 10);
+        if (isNaN(holdSeconds) || holdSeconds < 0) holdSeconds = DEFAULT_HINT_SECONDS;
 
-      hbtn.addEventListener("click", function () {
-        if (hbtn.disabled) return;
-        hbtn.disabled = true;
-        hbtn.style.display = "none";
+        var started = false;
+        var revealed = false;
+        var timer = null;
+        var iv = null;
 
-        if (holdSeconds === 0) {
-          reveal();
-          return;
+        function reveal() {
+          if (revealed) return;
+          revealed = true;
+          if (iv) clearInterval(iv);
+          if (timer) { timer.remove(); timer = null; }
+          hbtn.style.display = "none";
+          hint.classList.add("show");
+          hint.scrollIntoView({ behavior: "smooth", block: "nearest" });
+          post("/lesson/" + lessonId + "/task/" + practice.dataset.taskId + "/reveal/", {});
         }
 
-        var timer = document.createElement("div");
-        timer.className = "timer";
-        var ring = document.createElement("div");
-        ring.className = "ring";
-        var label = document.createElement("span");
-        timer.appendChild(ring);
-        timer.appendChild(label);
-        row.insertBefore(timer, dbtn);
+        practice._cancelHintTimer = function () {
+          if (iv) clearInterval(iv);
+          if (timer) { timer.remove(); timer = null; }
+        };
 
-        var left = holdSeconds;
-        var tick = function () {
-          var m = Math.floor(left / 60), s = left % 60;
-          label.textContent = "Answer in " + m + ":" + String(s).padStart(2, "0");
-          ring.style.background = "conic-gradient(var(--amber) " + ((holdSeconds - left) / holdSeconds * 360) + "deg,var(--amberbg) 0deg)";
-          if (left <= 0) {
-            clearInterval(iv);
-            timer.remove();
+        practice._startHintTimer = function () {
+          if (started || revealed || practice.classList.contains("done")) return;
+          started = true;
+
+          if (holdSeconds === 0) {
             reveal();
             return;
           }
-          left--;
+
+          timer = document.createElement("div");
+          timer.className = "timer";
+          var ring = document.createElement("div");
+          ring.className = "ring";
+          var label = document.createElement("span");
+          timer.appendChild(ring);
+          timer.appendChild(label);
+          row.insertBefore(timer, dbtn);
+
+          var left = holdSeconds;
+          var tick = function () {
+            var m = Math.floor(left / 60), s = left % 60;
+            label.textContent = "Answer in " + m + ":" + String(s).padStart(2, "0");
+            ring.style.background = "conic-gradient(var(--amber) " + ((holdSeconds - left) / holdSeconds * 360) + "deg,var(--amberbg) 0deg)";
+            if (left <= 0) {
+              reveal();
+              return;
+            }
+            left--;
+          };
+          tick();
+          iv = setInterval(tick, 1000);
         };
-        tick();
-        var iv = setInterval(tick, 1000);
+
+        hbtn.addEventListener("click", reveal);
+        hintObserver.observe(practice);
       });
-    });
+    }
 
     // ---- gentle nudge: scrolled past an unmarked step ----
     if (total > 0 && "IntersectionObserver" in window) {
@@ -135,7 +165,7 @@
 
       function showNudge(practice) {
         var taskId = practice.dataset.taskId;
-        if (nudged[taskId] || practice.classList.contains("done")) return;
+        if (nudged[taskId] || practice.classList.contains("done") || practice.classList.contains("locked")) return;
         nudged[taskId] = true;
 
         var index = practice.querySelector(".practice-num");

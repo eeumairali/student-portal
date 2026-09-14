@@ -1,26 +1,19 @@
-<div class="practice" data-task-id="{{ node.practice_id }}" {% if node.has_solution %}data-has-solution="1" data-hint-seconds="{{ node.effective_hint_seconds }}"{% endif %}>
+<div class="practice{% if node.is_locked %} locked{% endif %}" data-task-id="{{ node.practice_id }}"
+     {% if not node.is_locked and node.has_solution %}data-has-solution="1" data-hint-seconds="{{ node.effective_hint_seconds }}"{% endif %}>
   <div class="practice-top">
     <span class="practice-num">{{ node.index }}</span>
     <div class="practice-body">
-      <span class="practice-label">Practice — try this on your own computer</span>
-      <div class="practice-question">{{ node.question_html|safe }}</div>
+      {% if node.is_locked %}
+        {% include "learning/lesson/blocks/_practice_locked.html" %}
+      {% else %}
+        <span class="practice-label">Practice — try this on your own computer</span>
+        <div class="practice-question">{{ node.question_html|safe }}</div>
 
-      {% if node.expected %}
-        <div class="expect"><b>Expected</b><pre class="mono">{{ node.expected }}</pre></div>
-      {% endif %}
-
-      <div class="practice-actions">
-        {% if node.has_solution %}
-          <button type="button" class="hbtn">I'm stuck — start hint timer</button>
+        {% if node.expected %}
+          <div class="expect"><b>Expected</b><pre class="mono">{{ node.expected }}</pre></div>
         {% endif %}
-        <button type="button" class="dbtn">Mark done</button>
-      </div>
 
-      {% if node.has_solution %}
-        <div class="hint">
-          <h4>Solution</h4>
-          {{ node.solution_html|safe }}
-        </div>
+        {% include "learning/lesson/blocks/_practice_actions.html" %}
       {% endif %}
     </div>
   </div>

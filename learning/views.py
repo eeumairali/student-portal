@@ -25,6 +25,19 @@ from .services import (
 SAMPLE_LESSON_PATH = settings.BASE_DIR / "skills" / "LESSON_TEMPLATE.md"
 
 
+def _notify_tutors(lesson, message):
+    """Tell every staff account — the Notification model's 'student' field is
+    really just 'recipient', and the bell in base.html checks whoever is
+    logged in, so this reuses it as-is for the tutor side."""
+    for staff in User.objects.filter(is_staff=True):
+        Notification.objects.create(student=staff, lesson=lesson, message=message)
+
+
+def _student_display_name(student):
+    profile = getattr(student, "student_profile", None)
+    return profile.display_name if profile and profile.display_name else student.username
+
+
 def _document_context(parsed, *, lesson=None, can_edit=False, preview_warnings=None, preview_markdown=None,
                        back_to_editor_url=None):
     """Shared context builder for anything that renders learning/lesson/document.html
@@ -36,10 +49,32 @@ def _document_context(parsed, *, lesson=None, can_edit=False, preview_warnings=N
         )
 
     initial_state = {"completed": []}
+    task_status = {}
     if lesson is not None and lesson.pk:
-        initial_state["completed"] = list(
-            Task.objects.filter(lesson=lesson, is_complete=True).values_list("task_id", flat=True)
-        )
+        tasks = Task.objects.filter(lesson=lesson)
+        initial_state["completed"] = [t.task_id for t in tasks if t.is_complete]
+        task_status = {t.task_id: t for t in tasks}
+
+    # Only the student's own page is gated step-by-step — a tutor (or the
+    # preview tool) always sees everything, so they can review and approve
+    # what's ahead. A "with tutor" step stays locked for the next one until
+    # a tutor approves it; a "solo" step unlocks the next one by itself as
+    # soon as the student marks it done. Locking stops at the first step
+    # that isn't unlock-ready yet; everything after that stays hidden.
+    active_found = False
+    for practice in parsed.practices:
+        status = task_status.get(practice.practice_id)
+        practice.is_complete = bool(status and status.is_complete)
+        practice.is_approved = bool(status and status.is_approved)
+        practice.mode = status.mode if status else Task.WITH_TUTOR
+        practice.needs_approval = practice.mode == Task.WITH_TUTOR
+        unlock_ready = practice.is_complete and (practice.is_approved or not practice.needs_approval)
+        if can_edit and active_found:
+            practice.is_locked = True
+        else:
+            practice.is_locked = False
+            if can_edit and not unlock_ready:
+                active_found = True
 
     return {
         "front_matter": parsed.front_matter,
@@ -50,6 +85,7 @@ def _document_context(parsed, *, lesson=None, can_edit=False, preview_warnings=N
         "practices": parsed.practices,
         "lesson_id": lesson.id if (lesson is not None and lesson.pk) else "",
         "can_edit": can_edit,
+        "show_approve": bool(lesson is not None and lesson.pk and not can_edit),
         "initial_state_json": json.dumps(initial_state),
         "preview_warnings": preview_warnings,
         "preview_markdown": preview_markdown,
@@ -183,18 +219,29 @@ def _owned_lesson_or_404(request, lesson_id):
 @login_required
 @require_POST
 def lesson_mark_complete(request, lesson_id):
-    """The confirm button at the end of a lesson — forces every current
-    practice/task to done in one go, for a student who worked through
-    everything but whose individual step toggles never stuck (e.g. one
-    didn't save before the page was closed or reloaded)."""
+    """The confirm button at the end of a lesson. It only ever advances the
+    one step the student has actually reached — never skips ahead of a
+    locked step — so it can't be used to shortcut the tutor's approval gate.
+    It exists for the case where that same step's own toggle didn't stick."""
     lesson = _owned_lesson_or_404(request, lesson_id)
     if not lesson.is_document:
         raise Http404
     parsed = parse_lesson(lesson.markdown_source)
+    existing = {t.task_id: t for t in Task.objects.filter(lesson=lesson)}
     for practice in parsed.practices:
-        task, _ = Task.objects.get_or_create(lesson=lesson, task_id=practice.practice_id)
-        if not task.is_complete:
+        task = existing.get(practice.practice_id)
+        if task and task.is_unlock_ready:
+            continue  # already past this one — leave it alone
+        if not task or not task.is_complete:
+            task = task or Task.objects.get_or_create(lesson=lesson, task_id=practice.practice_id)[0]
             task.mark(True)
+            if task.needs_approval:
+                _notify_tutors(
+                    lesson,
+                    f"{_student_display_name(lesson.student)} marked step {practice.index} done in "
+                    f"“{lesson.title}” — waiting on your approval.",
+                )
+        break  # this is the current, reachable step — stop here regardless
     return redirect("lesson_detail", lesson_id=lesson.id)
 
 
@@ -203,8 +250,16 @@ def lesson_mark_complete(request, lesson_id):
 def lesson_toggle_task(request, lesson_id, task_id):
     lesson = _owned_lesson_or_404(request, lesson_id)
     data = json.loads(request.body or "{}")
+    complete = bool(data.get("complete"))
     task, _ = Task.objects.get_or_create(lesson=lesson, task_id=task_id)
-    task.mark(bool(data.get("complete")))
+    was_complete = task.is_complete
+    task.mark(complete)
+    if complete and not was_complete and task.needs_approval:
+        _notify_tutors(
+            lesson,
+            f"{_student_display_name(lesson.student)} marked a step done in "
+            f"“{lesson.title}” — waiting on your approval.",
+        )
     return JsonResponse({"ok": True})
 
 
@@ -529,6 +584,29 @@ def lesson_tutor_view(request, lesson_id):
     context["lesson_files"] = lesson.files.all()
     context["file_kinds"] = LessonFile.KINDS
     return render(request, "learning/tutor/lesson_tutor_view.html", context)
+
+
+@staff_member_required
+@require_POST
+def lesson_task_approve(request, lesson_id, task_id):
+    """Sign off on a step the student marked done. Only this unlocks the
+    next 'with tutor' step — a 'solo' step never needs it."""
+    lesson = get_object_or_404(Lesson, pk=lesson_id)
+    task, _ = Task.objects.get_or_create(lesson=lesson, task_id=task_id)
+    task.approve(not task.is_approved)
+    return redirect("lesson_tutor_view", lesson_id=lesson.id)
+
+
+@staff_member_required
+@require_POST
+def lesson_task_set_mode(request, lesson_id, task_id):
+    """Toggle whether a step needs the tutor to check it before the next one
+    unlocks, or whether the student can work through it alone."""
+    lesson = get_object_or_404(Lesson, pk=lesson_id)
+    task, _ = Task.objects.get_or_create(lesson=lesson, task_id=task_id)
+    task.mode = Task.SOLO if task.mode == Task.WITH_TUTOR else Task.WITH_TUTOR
+    task.save(update_fields=["mode"])
+    return redirect("lesson_tutor_view", lesson_id=lesson.id)
 
 
 @staff_member_required

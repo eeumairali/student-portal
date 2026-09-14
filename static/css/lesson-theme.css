@@ -184,6 +184,28 @@ body.lesson-doc{margin:0}
 .lesson-doc .expect .mono{color:var(--greentext,#0E5C40);display:block;white-space:pre-wrap;line-height:1.65;margin:0;font-family:var(--font-mono)}
 .lesson-doc .expect pre.mono{overflow-x:auto}
 
+/* ---------- locked (sequential gating) ---------- */
+.lesson-doc .practice.locked{background:var(--card);opacity:.75}
+.lesson-doc .practice.locked .practice-num{background:var(--muted)}
+.lesson-doc .practice-locked-msg{margin:0;font-size:14px;color:var(--muted)}
+
+/* ---------- awaiting tutor approval ---------- */
+.lesson-doc .awaiting-approval{margin-top:12px;background:var(--amberbg);border:1px solid var(--amberline);
+  border-radius:8px;padding:9px 13px;font-size:13px;color:var(--ambertext,#7A4E0C)}
+.lesson-doc .dbtn-approved{background:var(--green);color:#fff;font-size:13.5px;font-weight:600;
+  padding:9px 17px;border-radius:8px;display:inline-flex;align-items:center}
+
+/* ---------- tutor controls: mode + approve ---------- */
+.lesson-doc .tutor-controls{margin-top:14px;display:flex;align-items:center;gap:10px;flex-wrap:wrap;
+  border-top:1px dashed var(--line);padding-top:12px}
+.lesson-doc .mode-btn{background:var(--paper);border:1px solid var(--line);color:var(--muted);
+  font-size:12.5px;font-weight:600;padding:7px 13px}
+.lesson-doc .mode-btn.solo{background:var(--c5bg);border-color:var(--c5);color:var(--c5)}
+.lesson-doc .approve-btn{background:var(--amberbg);border:1px solid var(--amberline);color:var(--ambertext,#7A4E0C);
+  font-size:12.5px;font-weight:700;padding:7px 13px}
+.lesson-doc .approve-btn.approved{background:var(--greenbg);border-color:var(--greenline);color:var(--greentext,#0E5C40)}
+.lesson-doc .approve-pending{font-size:12.5px;color:var(--muted);font-style:italic}
+
 /* ---------- hint / timer / mark done ---------- */
 .lesson-doc .practice-actions{margin-top:14px;display:flex;align-items:center;gap:12px;flex-wrap:wrap}
 .lesson-doc button{font:inherit;cursor:pointer;border-radius:8px;border:1px solid transparent}
@@ -299,6 +321,26 @@ body.lesson-doc{margin:0}
   padding:15px 17px;overflow-x:auto;font-size:13px;line-height:1.5;margin:0}
 .lesson-doc .lfigure figcaption{margin-top:8px;font-size:13px;color:var(--muted);
   text-align:center;font-style:italic}
+
+/* ---------- student color picker ---------- */
+.theme-toggle-btn{position:fixed;right:18px;bottom:18px;z-index:60;width:46px;height:46px;
+  border-radius:50%;border:1px solid var(--line);background:var(--paper);font-size:20px;
+  box-shadow:var(--shadow);cursor:pointer;display:grid;place-items:center}
+.theme-toggle-btn:hover{filter:brightness(1.05)}
+.theme-picker{position:fixed;right:18px;bottom:72px;z-index:60;width:220px;background:var(--paper);
+  border:1px solid var(--line);border-radius:14px;box-shadow:var(--shadow);padding:16px}
+.theme-picker-title{margin:0 0 12px;font-family:var(--font-display);font-size:15px;font-weight:700;color:var(--ink)}
+.theme-row{display:flex;align-items:center;justify-content:space-between;gap:10px;
+  font-size:13.5px;color:var(--ink);padding:6px 0}
+.theme-row input[type=color]{width:38px;height:28px;border:1px solid var(--line);border-radius:6px;
+  padding:0;background:none;cursor:pointer}
+.theme-reset-btn{margin-top:10px;width:100%;background:var(--card);border:1px solid var(--line);
+  color:var(--muted);font-size:12.5px;font-weight:600;padding:8px;border-radius:8px;cursor:pointer}
+.theme-reset-btn:hover{background:var(--paper)}
+@media(max-width:480px){
+  .theme-toggle-btn{right:12px;bottom:12px}
+  .theme-picker{right:12px;bottom:64px;width:calc(100vw - 24px)}
+}
 
 /* ---------- mermaid diagrams ---------- */
 .lesson-doc .mermaid-figure{background:var(--card);border:1.5px solid var(--line);
