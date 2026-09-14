@@ -48,6 +48,29 @@
     <h3>All {{ practices|length }} done.</h3>
     <p>Nice work — bring anything you got stuck on to the next session.</p>
   </div>
+  {% if can_edit and lesson_id %}
+  <form method="post" action="{% url 'lesson_mark_complete' lesson_id %}" class="lesson-complete-form">
+    {% csrf_token %}
+    <button type="submit" class="lesson-complete-btn">Confirm lesson complete</button>
+  </form>
+  {% endif %}
+  {% endif %}
+
+  {% if files %}
+  <div class="lesson-files-section">
+    <h2 class="eyebrow" style="margin-top:32px">Files</h2>
+    <ul class="lesson-files">
+      {% for f in files %}
+        <li class="lesson-file">
+          <div>
+            <p class="lesson-file-label">{{ f.label }}</p>
+            <p class="lesson-file-meta">{{ f.get_kind_display }} · {{ f.original_name }} · {{ f.pretty_size }}</p>
+          </div>
+          <a class="lesson-file-download" href="{% url 'lesson_file' f.id %}">Download</a>
+        </li>
+      {% endfor %}
+    </ul>
+  </div>
   {% endif %}
 </div>
 

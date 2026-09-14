@@ -7,6 +7,7 @@ urlpatterns = [
     path("course/<slug:slug>/", views.course_detail, name="course_detail"),
     path("lesson/<int:lesson_id>/", views.lesson_detail, name="lesson_detail"),
     path("lesson/<int:lesson_id>/toggle/", views.toggle_lesson, name="toggle_lesson"),
+    path("lesson/<int:lesson_id>/complete/", views.lesson_mark_complete, name="lesson_mark_complete"),
     path("lesson/<int:lesson_id>/task/<str:task_id>/complete/", views.lesson_toggle_task, name="lesson_toggle_task"),
     path("lesson/<int:lesson_id>/task/<str:task_id>/reveal/", views.lesson_reveal_hint, name="lesson_reveal_hint"),
     path("lesson/<int:lesson_id>/solution/<str:solution_id>/unlock/", views.lesson_unlock_solution, name="lesson_unlock_solution"),
@@ -29,4 +30,6 @@ urlpatterns = [
     path("tutor/lesson/<int:lesson_id>/delete/", views.lesson_delete, name="lesson_delete"),
     path("tutor/lesson/<int:lesson_id>/homework/", views.lesson_homework_save, name="lesson_homework_save"),
     path("tutor/homework/<int:homework_id>/delete/", views.homework_delete, name="homework_delete"),
+    path("tutor/lesson/<int:lesson_id>/file/upload/", views.lesson_file_upload, name="lesson_file_upload"),
+    path("tutor/file/<int:file_id>/delete/", views.lesson_file_delete, name="lesson_file_delete"),
 ]

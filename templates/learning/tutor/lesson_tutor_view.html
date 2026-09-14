@@ -41,6 +41,58 @@
 </div>
 {% include "learning/lesson/_mermaid_scripts.html" %}
 
+<h2 class="mt-10 eyebrow">Files</h2>
+<p class="mt-2 max-w-2xl text-sm text-slate-500">
+  Attach anything the student needs alongside this lesson — slides, a dataset, or a
+  <span class="font-mono">.ipynb</span> Jupyter notebook. It shows up as a download on their page.
+</p>
+<form method="post" action="{% url 'lesson_file_upload' lesson.id %}" enctype="multipart/form-data" class="card mt-4 p-5">
+  {% csrf_token %}
+  <div class="flex flex-wrap items-end gap-3">
+    <div>
+      <label class="eyebrow" for="file-label">Label</label>
+      <input id="file-label" name="label" type="text" required placeholder="e.g. Session 9 notebook"
+        class="mt-2 w-56 rounded-lg border border-line bg-paper p-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-teal-600">
+    </div>
+    <div>
+      <label class="eyebrow" for="file-kind">Kind</label>
+      <select id="file-kind" name="kind"
+        class="mt-2 rounded-lg border border-line bg-paper p-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-teal-600">
+        {% for value, display in file_kinds %}
+          <option value="{{ value }}" {% if value == "notebook" %}selected{% endif %}>{{ display }}</option>
+        {% endfor %}
+      </select>
+    </div>
+    <div>
+      <label class="eyebrow" for="file-upload">File</label>
+      <input id="file-upload" name="upload" type="file" required class="mt-2 block text-sm">
+    </div>
+    <button type="submit" class="btn-quiet">Attach file</button>
+  </div>
+</form>
+{% if lesson_files %}
+  <ul class="mt-4 divide-y divide-line overflow-hidden rounded-xl border border-line bg-card shadow-card">
+    {% for f in lesson_files %}
+      <li class="flex items-center justify-between gap-4 p-4">
+        <div class="min-w-0">
+          <p class="truncate font-medium">{{ f.label }}</p>
+          <p class="truncate font-mono text-xs text-slate-500">{{ f.get_kind_display }} · {{ f.original_name }} · {{ f.pretty_size }}</p>
+        </div>
+        <div class="flex shrink-0 items-center gap-2">
+          <a class="btn-quiet" href="{% url 'lesson_file' f.id %}">Download</a>
+          <form method="post" action="{% url 'lesson_file_delete' f.id %}"
+                onsubmit="return confirm('Remove “{{ f.label }}”?');">
+            {% csrf_token %}
+            <button type="submit" class="btn-quiet text-red-600 hover:border-red-300">Remove</button>
+          </form>
+        </div>
+      </li>
+    {% endfor %}
+  </ul>
+{% else %}
+  <p class="mt-4 text-sm text-slate-500">No files attached yet.</p>
+{% endif %}
+
 <h2 class="mt-10 eyebrow">Homework</h2>
 <form method="post" action="{% url 'lesson_homework_save' lesson.id %}" class="card mt-4 p-5">
   {% csrf_token %}

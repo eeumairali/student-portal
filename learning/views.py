@@ -95,6 +95,7 @@ def lesson_detail(request, lesson_id):
         context = _document_context(parsed, lesson=lesson, can_edit=(request.user.id == lesson.student_id))
         context["locked"] = not lesson.is_published
         context["homework_set"] = lesson.homework_set.all()
+        context["files"] = lesson.files.all()
         return render(request, "learning/lesson_document_detail.html", context)
 
     record = LessonProgress.objects.filter(student=request.user, lesson=lesson).first()
@@ -177,6 +178,24 @@ def _owned_lesson_or_404(request, lesson_id):
     if not lesson.is_published:
         raise Http404
     return lesson
+
+
+@login_required
+@require_POST
+def lesson_mark_complete(request, lesson_id):
+    """The confirm button at the end of a lesson — forces every current
+    practice/task to done in one go, for a student who worked through
+    everything but whose individual step toggles never stuck (e.g. one
+    didn't save before the page was closed or reloaded)."""
+    lesson = _owned_lesson_or_404(request, lesson_id)
+    if not lesson.is_document:
+        raise Http404
+    parsed = parse_lesson(lesson.markdown_source)
+    for practice in parsed.practices:
+        task, _ = Task.objects.get_or_create(lesson=lesson, task_id=practice.practice_id)
+        if not task.is_complete:
+            task.mark(True)
+    return redirect("lesson_detail", lesson_id=lesson.id)
 
 
 @login_required
@@ -507,6 +526,8 @@ def lesson_tutor_view(request, lesson_id):
     context = _document_context(parsed, lesson=lesson, can_edit=False)
     context["lesson"] = lesson
     context["homework_set"] = lesson.homework_set.all()
+    context["lesson_files"] = lesson.files.all()
+    context["file_kinds"] = LessonFile.KINDS
     return render(request, "learning/tutor/lesson_tutor_view.html", context)
 
 
@@ -533,6 +554,33 @@ def homework_delete(request, homework_id):
     homework = get_object_or_404(Homework, pk=homework_id)
     lesson_id = homework.lesson_id
     homework.delete()
+    return redirect("lesson_tutor_view", lesson_id=lesson_id)
+
+
+@staff_member_required
+@require_POST
+def lesson_file_upload(request, lesson_id):
+    """Attach a downloadable file to a lesson — slides, a dataset, or a
+    Jupyter notebook (.ipynb). Anything the student needs alongside the
+    written lesson, not embedded in the markdown itself."""
+    lesson = get_object_or_404(Lesson, pk=lesson_id)
+    upload = request.FILES.get("upload")
+    label = request.POST.get("label", "").strip()
+    kind = request.POST.get("kind", "other")
+    if kind not in dict(LessonFile.KINDS):
+        kind = "other"
+    if upload and label:
+        LessonFile.objects.create(lesson=lesson, label=label, kind=kind, upload=upload)
+    return redirect("lesson_tutor_view", lesson_id=lesson.id)
+
+
+@staff_member_required
+@require_POST
+def lesson_file_delete(request, file_id):
+    lesson_file = get_object_or_404(LessonFile, pk=file_id)
+    lesson_id = lesson_file.lesson_id
+    lesson_file.upload.delete(save=False)
+    lesson_file.delete()
     return redirect("lesson_tutor_view", lesson_id=lesson_id)
 
 
