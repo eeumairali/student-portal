@@ -29,8 +29,6 @@ course: blender-python          # optional — groups lessons; created if missin
 topics:                          # optional — shown as pills under the title
   - Base case vs recursive case
   - Stack depth
-hint_seconds: 20                 # optional — default reveal timer, default 20
-visible: false                   # optional — default false; tutor publishes
 week: 5                          # unknown key — becomes a header pill
 platform: preply                 # unknown key — becomes a header pill
 ---
@@ -39,8 +37,9 @@ platform: preply                 # unknown key — becomes a header pill
 ### Known vs unknown keys
 
 **Known keys**: `student`, `date`, `title`, `subtitle`, `course`, `topics`,
-`hint_seconds`, `visible`, `accent`. These drive behaviour and map to model
-fields.
+`accent`. These drive behaviour and map to model fields.
+A lesson is always visible to its student as soon as it's saved — there is
+no publish/lock step.
 
 **Unknown keys** are not an error. Store them verbatim in a `JSONField`
 called `meta` and render each as a header pill, in file order. Adding
@@ -86,9 +85,9 @@ All use `:::name` … `:::` fencing, with optional `key=value` (or
 |---|---|
 | `:::example` | a colored panel holding a worked example — code, a diagram, a short explanation |
 | `:::tip` | a short amber note — a warning, a reminder, an aside |
-| `:::practice id=… hint=N` | a self-practice question, timer-gated solution, tracked per student |
+| `:::practice id=…` | a self-practice question, 30-second timer-gated solution, tracked per student |
 | `:::task id=… type=choice` | an ungraded multiple-choice warm-up question, per-option feedback |
-| `:::task id=… type=step\|code\|answer hint=N` | a tracked task step — an instruction, a code exercise, or a fill-in-the-blank observation — shares progress tracking with `:::practice` |
+| `:::task id=… type=step\|code\|answer` | a tracked task step — an instruction, a code exercise, or a fill-in-the-blank observation — shares progress tracking with `:::practice` |
 | `:::journey` | a horizontal roadmap of stages (a course/week overview) |
 | `:::figure caption="…"` | preformatted ASCII art or a small diagram, with a caption |
 | `:::mermaid caption="…"` | a colorful Mermaid.js diagram — flowchart, sequence, etc. |
@@ -100,7 +99,7 @@ All use `:::name` … `:::` fencing, with optional `key=value` (or
 | `:::aside title="…"` | a titled side-note — a definition or tangent |
 | `:::rule title="…"` | a titled list of worked checks, one per `---`-separated group |
 | `:::checklist` | a client-side, self-tick checklist (not saved to the server) |
-| `:::solution title="…"` (optionally `id="…" passcode="…"`) | a full code dump (e.g. the finished game) — plain by default, or hidden behind a tutor passcode if you set one |
+| `:::solution title="…"` | a full code dump (e.g. the finished game) |
 
 ### `:::example`
 
@@ -125,7 +124,7 @@ when the student should type the code themselves rather than paste it.
 ### `:::solution`
 
 ```
-:::solution id="full-game" passcode="banana77" title="Full Game Code"
+:::solution title="Full Game Code"
 ```python
 # the complete, finished version of what the student built this lesson
 ```
@@ -134,17 +133,8 @@ when the student should type the code themselves rather than paste it.
 
 For the "here's the whole finished thing" moment at the end of a lesson —
 useful when giving out the full game/project would let a student just
-copy it instead of building it themselves.
-
-By default (no `passcode`) it just renders like `:::example` — a plain
-code panel, no lock. Add `passcode="…"` (and a matching `id="…"`, unique
-within the lesson) only when you want it gated: the code is then left out
-of the page entirely on normal load, the student sees a lock icon and a
-passcode box instead, and the code is fetched from the server only after
-the right passcode is submitted. The passcode is whatever you choose — it
-lives in this file, so only whoever can see the lesson source (i.e. you)
-knows it; read it out to a student in person when they've earned it.
-`title` is optional, defaults to "Full Code".
+copy it instead of building it themselves. Renders like `:::example` — a
+plain code panel. `title` is optional, defaults to "Full Code".
 
 ### `:::tip`
 
@@ -160,7 +150,7 @@ Plain markdown, rendered in an amber note panel.
 ### `:::practice`
 
 ```
-:::practice id=p1 hint=20
+:::practice id=p1
 Question text. What exactly should the student write and run — on their own
 computer, never on this site.
 
@@ -169,16 +159,16 @@ what the correct output looks like
 
 SOLUTION
 ```python
-# the answer, revealed only after the hint timer (or instantly with hint=0)
+# the answer, revealed 30 seconds after the student clicks "I'm stuck?"
 ```
 :::
 ```
 
 - `id` — **required.** Stable identifier; a student's "done" state and hint
   reveals are keyed on it and saved server-side. Changing it loses that history.
-- `hint` — seconds before the SOLUTION unlocks after the student clicks
-  "I'm stuck". Falls back to `hint_seconds` from the front matter (default
-  20). `hint=0` reveals instantly.
+- The SOLUTION always takes a fixed 30-second countdown to reveal, once the
+  student clicks "I'm stuck?" — there's no per-question or per-lesson way to
+  change that, and no way to skip the wait.
 - `EXPECTED` is optional — the student compares their own output against it.
 - `SOLUTION` is optional. A practice question with no `SOLUTION` shows no
   hint button at all — legitimate for "try it and see what happens" tasks
@@ -214,10 +204,10 @@ OPTIONS
 - This is a warm-up/engagement tool, not a graded quiz — a student can click
   more than one option, and nothing is scored or saved.
 
-### `:::task id=… type=step|code|answer hint=N` — tracked task step
+### `:::task id=… type=step|code|answer` — tracked task step
 
 ```
-:::task id=t1 type=code hint=180
+:::task id=t1 type=code
 Your first cylinder
 
 NOTE
@@ -243,8 +233,8 @@ the student — everything before the first keyword line is the title
   (a fenced code block) or the table/prompts for `type=answer`.
 - `DONE WHEN` — optional. The observable success criterion, shown in its
   own highlighted line.
-- `SOLUTION` — optional, same timer-gated reveal as `:::practice`'s
-  `SOLUTION` (`hint=` seconds, falls back to `hint_seconds`).
+- `SOLUTION` — optional, same fixed 30-second timer-gated reveal as
+  `:::practice`'s `SOLUTION`.
 
 A `:::tip` may be nested inside `NOTE`, `DONE WHEN` or `SOLUTION` — nothing
 else may nest inside a `:::task`.

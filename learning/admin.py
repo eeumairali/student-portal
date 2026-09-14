@@ -16,7 +16,7 @@ class LessonFileInline(admin.TabularInline):
 class LessonInline(admin.TabularInline):
     model = Lesson
     extra = 1
-    fields = ("order", "title", "is_published")
+    fields = ("order", "title")
     show_change_link = True
     ordering = ("order",)
 
@@ -46,17 +46,17 @@ class CourseAdmin(admin.ModelAdmin):
 
 @admin.register(Lesson)
 class LessonAdmin(admin.ModelAdmin):
-    list_display = ("title", "student", "date", "course", "order", "file_count", "is_published")
-    list_filter = ("course", "is_published")
+    list_display = ("title", "student", "date", "course", "order", "file_count")
+    list_filter = ("course",)
     search_fields = ("title", "description", "student__username")
     autocomplete_fields = ("student", "course")
     inlines = [LessonFileInline]
     fieldsets = (
-        (None, {"fields": ("course", "order", "title", "is_published")}),
+        (None, {"fields": ("course", "order", "title")}),
         ("What the student sees (legacy shared lessons)", {"fields": ("description",)}),
         ("Dated document (Phase 2 — normally added via the Students page, not here)", {
             "classes": ("collapse",),
-            "fields": ("student", "date", "subtitle", "hint_seconds_default", "meta", "markdown_source"),
+            "fields": ("student", "date", "subtitle", "meta", "markdown_source"),
         }),
     )
 

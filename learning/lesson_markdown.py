@@ -13,8 +13,8 @@ reveal), ``:::task ... type=choice`` (an ungraded multiple-choice warm-up),
 with :::practice), ``:::journey``, ``:::figure``, ``:::mermaid``,
 ``:::objectives``, ``:::steps``,
 ``:::grid``, ``:::push``, ``:::card``, ``:::aside``, ``:::rule``,
-``:::checklist``, and ``:::solution`` (a passcode-locked full code dump —
-hidden from the page source until the right passcode is entered). See
+``:::checklist``, and ``:::solution`` (a full code dump, e.g. the finished
+project). See
 skills/FORMAT_SPEC.md for the exact syntax of each
 — that file is the single source of truth; don't invent new block names.
 There is still no in-browser code execution.
@@ -30,6 +30,10 @@ import yaml
 
 KNOWN_FRONT_MATTER_KEYS = {
     "student", "date", "title", "subtitle", "course",
+    # "visible" and "hint_seconds" no longer drive anything (lessons are
+    # never locked, and the hint timer is a fixed 30s for every question) —
+    # kept "known" so existing lesson files that still set them don't get
+    # them rendered as a stray header pill.
     "topics", "hint_seconds", "visible", "accent",
 }
 MD_EXTENSIONS = ["tables", "fenced_code", "sane_lists"]
@@ -74,22 +78,11 @@ class Tip:
 
 @dataclass
 class Solution:
-    """A full code dump — e.g. the finished game at the end of a lesson.
-    With no `passcode` it just renders like :::example. With a `passcode`
-    set, `html` is left out of the template context sent to the student's
-    browser on the normal page render; it's only returned by the unlock
-    endpoint after the passcode checks out server-side, so it never sits
-    in the page source waiting to be viewed."""
+    """A full code dump — e.g. the finished game at the end of a lesson."""
 
-    solution_id: str
     title: str
-    passcode: str | None
     html: str
     template_name: str = "learning/lesson/blocks/solution.html"
-
-    @property
-    def locked(self) -> bool:
-        return bool(self.passcode)
 
 
 @dataclass
@@ -225,7 +218,6 @@ class Practice:
 
     practice_id: str
     index: int
-    hint_seconds: int | None
     question_html: str
     expected: str | None
     solution_html: str | None
@@ -244,7 +236,6 @@ class TaskBlock:
     practice_id: str
     index: int
     kind: str  # "step" | "code" | "answer"
-    hint_seconds: int | None
     title_html: str
     note_html: str
     done_when_html: str
@@ -271,13 +262,6 @@ class ParsedLesson:
     practices: list[Practice]
     quizzes: list[Quiz]
     warnings: list[str]
-
-    @property
-    def hint_seconds_default(self) -> int:
-        try:
-            return int(self.front_matter.get("hint_seconds") or 20)
-        except (TypeError, ValueError):
-            return 20
 
     def practice_count(self) -> int:
         return len(self.practices)
@@ -499,14 +483,6 @@ def build_practice(attrs: dict, content: str, practices: list, warnings: list) -
         practice_id = f"p{len(practices) + 1}"
         warnings.append(f"A :::practice block is missing id= — assigned a temporary id ({practice_id}).")
 
-    hint_seconds = None
-    hint_raw = attrs.get("hint")
-    if hint_raw is not None:
-        try:
-            hint_seconds = int(hint_raw)
-        except ValueError:
-            warnings.append(f"Practice {practice_id}: hint= must be a whole number of seconds, got {hint_raw!r}.")
-
     sections = split_keyword_sections(content)
     question_html = render_markdown(sections.get(None, ""))
 
@@ -519,7 +495,7 @@ def build_practice(attrs: dict, content: str, practices: list, warnings: list) -
     solution_html = render_markdown(sections["SOLUTION"]) if has_solution else None
 
     practice = Practice(
-        practice_id=practice_id, index=len(practices) + 1, hint_seconds=hint_seconds,
+        practice_id=practice_id, index=len(practices) + 1,
         question_html=question_html, expected=expected,
         solution_html=solution_html, has_solution=has_solution,
     )
@@ -548,19 +524,9 @@ def split_label_feedback(text: str) -> tuple[str, str]:
     return text[:m.start()].strip(), text[m.end():].strip()
 
 
-def build_solution(attrs: dict, content: str, warnings: list) -> "Solution | Prose":
-    passcode = attrs.get("passcode")
-    solution_id = attrs.get("id")
-    if passcode and not solution_id:
-        warnings.append(
-            ':::solution has passcode="..." but no id="..." — id is needed to know which '
-            "lock this is. Rendered as plain text so nothing is lost."
-        )
-        return Prose(render_markdown(content))
+def build_solution(attrs: dict, content: str) -> "Solution":
     return Solution(
-        solution_id=str(solution_id or ""),
         title=attrs.get("title") or "Full Code",
-        passcode=str(passcode) if passcode else None,
         html=render_markdown(content),
     )
 
@@ -704,14 +670,6 @@ def build_task_block(attrs: dict, content: str, kind: str, practices: list, warn
         task_id = f"t{len(practices) + 1}"
         warnings.append(f"A :::task type={kind} block is missing id= — assigned a temporary id ({task_id}).")
 
-    hint_seconds = None
-    hint_raw = attrs.get("hint")
-    if hint_raw is not None:
-        try:
-            hint_seconds = int(hint_raw)
-        except ValueError:
-            warnings.append(f"Task {task_id}: hint= must be a whole number of seconds, got {hint_raw!r}.")
-
     sections = split_keyword_sections(content)
     title_html = render_inline(sections.get(None, ""))
 
@@ -727,7 +685,7 @@ def build_task_block(attrs: dict, content: str, kind: str, practices: list, warn
     solution_html = render_rich(sections["SOLUTION"], warnings) if has_solution else None
 
     task = TaskBlock(
-        practice_id=task_id, index=len(practices) + 1, kind=kind, hint_seconds=hint_seconds,
+        practice_id=task_id, index=len(practices) + 1, kind=kind,
         title_html=title_html, note_html=note_html, done_when_html=done_when_html,
         solution_html=solution_html, has_solution=has_solution,
     )
@@ -801,7 +759,7 @@ def build_block(name: str, attrs: dict, content: str, practices: list, quizzes: 
     if name == "tip":
         return Tip(render_markdown(content))
     if name == "solution":
-        return build_solution(attrs, content, warnings)
+        return build_solution(attrs, content)
     if name == "journey":
         return build_journey(content)
     if name == "figure":

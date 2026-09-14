@@ -1,6 +1,5 @@
 import json
 import mimetypes
-import secrets
 from io import BytesIO
 
 from django.conf import settings
@@ -15,7 +14,7 @@ from django.views.decorators.http import require_POST
 
 from accounts.models import StudentComment, StudentProfile
 
-from .lesson_markdown import Solution, parse_lesson
+from .lesson_markdown import parse_lesson
 from .lesson_save import LessonSaveError, resolve_save_plan, save_lesson
 from .models import Course, Enrollment, HintReveal, Homework, Lesson, LessonFile, LessonProgress, Notification, Task
 from .services import (
@@ -30,11 +29,6 @@ def _document_context(parsed, *, lesson=None, can_edit=False, preview_warnings=N
     """Shared context builder for anything that renders learning/lesson/document.html
     or its _document_body.html partial: the staff preview tool, a student's own
     lesson page, and the tutor's read-only view of a student's lesson."""
-    for practice in parsed.practices:
-        practice.effective_hint_seconds = (
-            practice.hint_seconds if practice.hint_seconds is not None else parsed.hint_seconds_default
-        )
-
     initial_state = {"completed": []}
     if lesson is not None and lesson.pk:
         initial_state["completed"] = list(
@@ -93,7 +87,6 @@ def lesson_detail(request, lesson_id):
     if lesson.is_document:
         parsed = parse_lesson(lesson.markdown_source)
         context = _document_context(parsed, lesson=lesson, can_edit=(request.user.id == lesson.student_id))
-        context["locked"] = not lesson.is_published
         context["homework_set"] = lesson.homework_set.all()
         context["files"] = lesson.files.all()
         return render(request, "learning/lesson_document_detail.html", context)
@@ -174,10 +167,7 @@ def lesson_markdown_download(request, lesson_id):
 def _owned_lesson_or_404(request, lesson_id):
     """A student may only write their own answers/progress — never a tutor's
     guess and never another student's, even if they can view a lesson."""
-    lesson = get_object_or_404(Lesson, pk=lesson_id, student=request.user)
-    if not lesson.is_published:
-        raise Http404
-    return lesson
+    return get_object_or_404(Lesson, pk=lesson_id, student=request.user)
 
 
 @login_required
@@ -214,33 +204,6 @@ def lesson_reveal_hint(request, lesson_id, task_id):
     lesson = _owned_lesson_or_404(request, lesson_id)
     HintReveal.objects.create(lesson=lesson, task_id=task_id)
     return JsonResponse({"ok": True})
-
-
-@login_required
-@require_POST
-def lesson_unlock_solution(request, lesson_id, solution_id):
-    """Checks a passcode against a :::solution block and, only if it matches,
-    hands back the code it guards. The code never rides along in the normal
-    page render — see the Solution dataclass docstring in lesson_markdown.py."""
-    lesson = get_accessible_lesson(request.user, lesson_id)
-    data = json.loads(request.body or "{}")
-    submitted = str(data.get("passcode") or "")
-
-    parsed = parse_lesson(lesson.markdown_source)
-    node = None
-    for block in parsed.blocks:
-        for candidate in block.nodes:
-            if isinstance(candidate, Solution) and candidate.solution_id == solution_id:
-                node = candidate
-                break
-        if node:
-            break
-    if node is None:
-        raise Http404
-
-    if not secrets.compare_digest(submitted, node.passcode):
-        return JsonResponse({"ok": False, "error": "Incorrect passcode."}, status=403)
-    return JsonResponse({"ok": True, "html": node.html, "title": node.title})
 
 
 # --------------------------------------------------------------- staff tool --
@@ -377,19 +340,9 @@ def student_detail(request, user_id):
             StudentComment.objects.create(profile=profile, body=body)
         return redirect("student_detail", user_id=student.id)
 
-    if request.method == "POST" and request.POST.get("action") in ("lock", "unlock", "delete"):
-        action = request.POST.get("action")
+    if request.method == "POST" and request.POST.get("action") == "delete":
         selected_ids = request.POST.getlist("selected")
-        selected_lessons = Lesson.objects.filter(student=student, id__in=selected_ids)
-        if action == "delete":
-            selected_lessons.delete()
-        else:
-            if action == "unlock":
-                Notification.objects.bulk_create([
-                    Notification(student=student, lesson=lesson, message=f"“{lesson.title}” was unlocked.")
-                    for lesson in selected_lessons.exclude(is_published=True)
-                ])
-            selected_lessons.update(is_published=(action == "unlock"))
+        Lesson.objects.filter(student=student, id__in=selected_ids).delete()
         return redirect("student_detail", user_id=student.id)
 
     lessons = sorted(
@@ -582,19 +535,6 @@ def lesson_file_delete(request, file_id):
     lesson_file.upload.delete(save=False)
     lesson_file.delete()
     return redirect("lesson_tutor_view", lesson_id=lesson_id)
-
-
-@staff_member_required
-@require_POST
-def lesson_toggle_lock(request, lesson_id):
-    lesson = get_object_or_404(Lesson, pk=lesson_id)
-    lesson.is_published = not lesson.is_published
-    lesson.save(update_fields=["is_published"])
-    if lesson.is_published and lesson.student_id:
-        Notification.objects.create(
-            student=lesson.student, lesson=lesson, message=f"“{lesson.title}” was unlocked.",
-        )
-    return redirect("lesson_tutor_view", lesson_id=lesson.id)
 
 
 @staff_member_required

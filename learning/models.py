@@ -38,13 +38,6 @@ class Course(models.Model):
     def __str__(self):
         return self.title
 
-    def visible_lessons(self):
-        """Unpublished-filtered only — NOT student-scoped. A course's personal
-        (student-owned) lessons must never be shown to another student, so
-        anything student-facing should go through services.course_progress,
-        not this. Safe for staff/admin-wide use only."""
-        return self.lessons.filter(is_published=True)
-
 
 class Enrollment(models.Model):
     student = models.ForeignKey(
@@ -65,8 +58,7 @@ class Enrollment(models.Model):
 class Lesson(models.Model):
     # Shared curriculum lesson (Phase 1): course set, student blank, ordered by `order`.
     # Personal dated document (Phase 2): student + date set, markdown_source holds the
-    # document. course is then just an optional grouping label. Never delete a Lesson —
-    # `is_published` ("visible" in the front matter) is how a tutor locks/unlocks it.
+    # document. course is then just an optional grouping label. Never delete a Lesson.
     course = models.ForeignKey(Course, on_delete=models.CASCADE, related_name="lessons", null=True, blank=True)
     student = models.ForeignKey(
         settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="personal_lessons",
@@ -79,8 +71,6 @@ class Lesson(models.Model):
     description = models.TextField(blank=True, help_text="What the student will do this session. (Legacy field — new lessons use markdown_source.)")
     markdown_source = models.TextField(blank=True, help_text="The lesson document. See skills/FORMAT_SPEC.md.")
     meta = models.JSONField(default=dict, blank=True, help_text="Unknown front-matter keys, rendered as header pills.")
-    hint_seconds_default = models.PositiveIntegerField(default=20)
-    is_published = models.BooleanField(default=True, help_text="Locked (unticked) lessons are invisible to the student.")
 
     class Meta:
         ordering = ["-date", "order", "id"]

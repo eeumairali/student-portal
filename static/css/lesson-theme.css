@@ -38,6 +38,10 @@ html:has(body.lesson-doc){background:var(--paper)}
   overflow-wrap:anywhere; word-break:break-word}
 body.lesson-doc{margin:0}
 .lesson-doc code, .lesson-doc .mono{ font-family:var(--font-mono) }
+/* Baseline safety net: a long unbroken line (e.g. a numpy array literal)
+   must scroll inside its own box, never push past the card border. Blocks
+   below layer padding/background/etc. on top of this. */
+.lesson-doc pre{overflow-x:auto;max-width:100%}
 .lesson-doc .wrap{max-width:880px;margin:0 auto;padding:0 24px 90px}
 @media(max-width:700px){.lesson-doc .wrap{padding:0 16px 60px}}
 
@@ -103,37 +107,19 @@ body.lesson-doc{margin:0}
 .lesson-doc .example-label{display:block;font-family:var(--font-mono);font-size:11.5px;font-weight:700;
   letter-spacing:.7px;text-transform:uppercase;color:var(--examplelabel);margin-bottom:10px}
 .lesson-doc .example-body .prose{margin-bottom:0}
-.lesson-doc .example-body pre{background:var(--code);color:var(--codetext)}
+.lesson-doc .example-body pre{background:var(--code);color:var(--codetext);border-radius:10px;
+  padding:15px 17px;overflow-x:auto;font-size:13.5px;line-height:1.55}
 
 .lesson-doc .example-protect pre{-webkit-user-select:none;user-select:none}
 
-/* ---------- solution (no passcode set — just a plain code panel) ---------- */
+/* ---------- solution (a plain code panel) ---------- */
 .lesson-doc .solution{background:var(--c4bg);border:1px solid var(--c4);border-left:5px solid var(--c4);
   border-radius:12px;padding:18px 20px;margin-bottom:20px}
 .lesson-doc .solution-label{display:block;font-family:var(--font-mono);font-size:11.5px;font-weight:700;
   letter-spacing:.7px;text-transform:uppercase;color:var(--examplelabel);margin-bottom:10px}
 .lesson-doc .solution-body .prose{margin-bottom:0}
-.lesson-doc .solution-body pre{background:var(--code);color:var(--codetext)}
-
-/* ---------- solution lock (passcode set) ---------- */
-.lesson-doc .solution-lock{margin-bottom:20px}
-.lesson-doc .solution-lock-prompt{background:var(--c4bg);border:1px dashed var(--c4);border-radius:12px;
-  padding:28px 20px;text-align:center}
-.lesson-doc .solution-lock-icon{display:block;font-size:26px;margin-bottom:8px}
-.lesson-doc .solution-lock-title{font-family:var(--font-display);font-size:18px;font-weight:700;
-  color:var(--ink);margin:0 0 4px}
-.lesson-doc .solution-lock-hint{font-size:13px;color:var(--muted,#6b6259);margin:0 0 16px}
-.lesson-doc .solution-lock-form{display:flex;gap:8px;justify-content:center;flex-wrap:wrap}
-.lesson-doc .solution-lock-input{font-family:var(--font-mono);font-size:14px;padding:9px 12px;
-  border:1px solid var(--c4);border-radius:8px;background:#fff;min-width:180px}
-.lesson-doc .solution-lock-submit{font-family:var(--font-mono);font-size:13px;font-weight:700;
-  padding:9px 18px;border:none;border-radius:8px;background:var(--c4);color:#fff;cursor:pointer}
-.lesson-doc .solution-lock-submit:hover{filter:brightness(1.08)}
-.lesson-doc .solution-lock-submit:disabled{opacity:.6;cursor:default}
-.lesson-doc .solution-lock-error{font-size:13px;color:#B3261E;margin:12px 0 0}
-.lesson-doc .solution-lock-body{background:var(--c4bg);border:1px solid var(--c4);border-left:5px solid var(--c4);
-  border-radius:12px;padding:18px 20px}
-.lesson-doc .solution-lock-body pre{background:var(--code);color:var(--codetext)}
+.lesson-doc .solution-body pre{background:var(--code);color:var(--codetext);border-radius:10px;
+  padding:15px 17px;overflow-x:auto;font-size:13.5px;line-height:1.55}
 
 /* ---------- standalone resource links (Drive doc / notebook / etc) ---------- */
 .lesson-doc .resource-link-wrap{margin-bottom:20px}
@@ -202,7 +188,7 @@ body.lesson-doc{margin:0}
 .lesson-doc .hint.show{display:block;animation:lesson-drop .3s ease}
 @keyframes lesson-drop{from{opacity:0;transform:translateY(-7px)}to{opacity:1;transform:none}}
 .lesson-doc .hint h4{margin:0 0 8px;font-size:11px;letter-spacing:.8px;color:var(--amber);text-transform:uppercase}
-.lesson-doc .hint pre{margin:0}
+.lesson-doc .hint pre{margin:0;overflow-x:auto}
 .lesson-doc .hint p{margin:9px 0 0;font-size:13.5px;color:var(--ambertext,#7A4E0C)}
 
 /* ---------- preview-only chrome ---------- */

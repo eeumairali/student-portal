@@ -7,7 +7,7 @@
 (function () {
   "use strict";
 
-  var DEFAULT_HINT_SECONDS = 20;
+  var HINT_SECONDS = 30;
 
   function getCookie(name) {
     var match = document.cookie.match("(^|;\\s*)" + name + "=([^;]*)");
@@ -75,86 +75,72 @@
       }
     });
 
-    // ---- solution reveal: the countdown starts by itself as soon as a
-    // question scrolls into view, no click needed. "Reveal now" just skips
-    // the remaining wait. ----
-    if ("IntersectionObserver" in window) {
-      var hintObserver = new IntersectionObserver(function (entries) {
-        entries.forEach(function (entry) {
-          if (entry.isIntersecting && entry.target._startHintTimer) entry.target._startHintTimer();
-        });
-      }, { threshold: 0.4 });
+    // ---- solution reveal: nothing starts until the student clicks "I'm
+    // stuck?" — that starts a countdown, which always has to finish on its
+    // own before the solution shows. No way to skip ahead. ----
+    practices.forEach(function (practice) {
+      if (practice.dataset.hasSolution !== "1") return;
 
-      practices.forEach(function (practice) {
-        if (practice.dataset.hasSolution !== "1") return;
+      var hbtn = practice.querySelector(".hbtn");
+      var hint = practice.querySelector(".hint");
+      var row = practice.querySelector(".practice-actions");
+      var dbtn = practice.querySelector(".dbtn");
+      if (!hbtn || !hint || !row) return;
 
-        var hbtn = practice.querySelector(".hbtn");
-        var hint = practice.querySelector(".hint");
-        var row = practice.querySelector(".practice-actions");
-        var dbtn = practice.querySelector(".dbtn");
-        if (!hbtn || !hint || !row) return;
+      var started = false;
+      var revealed = false;
+      var timer = null;
+      var iv = null;
 
-        var holdSeconds = parseInt(practice.dataset.hintSeconds, 10);
-        if (isNaN(holdSeconds) || holdSeconds < 0) holdSeconds = DEFAULT_HINT_SECONDS;
+      function reveal() {
+        if (revealed) return;
+        revealed = true;
+        if (iv) clearInterval(iv);
+        if (timer) { timer.remove(); timer = null; }
+        hbtn.style.display = "none";
+        hint.classList.add("show");
+        hint.scrollIntoView({ behavior: "smooth", block: "nearest" });
+        post("/lesson/" + lessonId + "/task/" + practice.dataset.taskId + "/reveal/", {});
+      }
 
-        var started = false;
-        var revealed = false;
-        var timer = null;
-        var iv = null;
+      practice._cancelHintTimer = function () {
+        if (iv) clearInterval(iv);
+        if (timer) { timer.remove(); timer = null; }
+      };
 
-        function reveal() {
-          if (revealed) return;
-          revealed = true;
-          if (iv) clearInterval(iv);
-          if (timer) { timer.remove(); timer = null; }
-          hbtn.style.display = "none";
-          hint.classList.add("show");
-          hint.scrollIntoView({ behavior: "smooth", block: "nearest" });
-          post("/lesson/" + lessonId + "/task/" + practice.dataset.taskId + "/reveal/", {});
-        }
+      practice._startHintTimer = function () {
+        if (started || revealed || practice.classList.contains("done")) return;
+        started = true;
+        hbtn.style.display = "none";
 
-        practice._cancelHintTimer = function () {
-          if (iv) clearInterval(iv);
-          if (timer) { timer.remove(); timer = null; }
-        };
+        timer = document.createElement("div");
+        timer.className = "timer";
+        var ring = document.createElement("div");
+        ring.className = "ring";
+        var label = document.createElement("span");
+        timer.appendChild(ring);
+        timer.appendChild(label);
+        row.insertBefore(timer, dbtn);
 
-        practice._startHintTimer = function () {
-          if (started || revealed || practice.classList.contains("done")) return;
-          started = true;
-
-          if (holdSeconds === 0) {
+        var left = HINT_SECONDS;
+        var tick = function () {
+          var m = Math.floor(left / 60), s = left % 60;
+          label.textContent = "Answer in " + m + ":" + String(s).padStart(2, "0");
+          ring.style.background = "conic-gradient(var(--amber) " + ((HINT_SECONDS - left) / HINT_SECONDS * 360) + "deg,var(--amberbg) 0deg)";
+          if (left <= 0) {
             reveal();
             return;
           }
-
-          timer = document.createElement("div");
-          timer.className = "timer";
-          var ring = document.createElement("div");
-          ring.className = "ring";
-          var label = document.createElement("span");
-          timer.appendChild(ring);
-          timer.appendChild(label);
-          row.insertBefore(timer, dbtn);
-
-          var left = holdSeconds;
-          var tick = function () {
-            var m = Math.floor(left / 60), s = left % 60;
-            label.textContent = "Answer in " + m + ":" + String(s).padStart(2, "0");
-            ring.style.background = "conic-gradient(var(--amber) " + ((holdSeconds - left) / holdSeconds * 360) + "deg,var(--amberbg) 0deg)";
-            if (left <= 0) {
-              reveal();
-              return;
-            }
-            left--;
-          };
-          tick();
-          iv = setInterval(tick, 1000);
+          left--;
         };
+        tick();
+        iv = setInterval(tick, 1000);
+      };
 
-        hbtn.addEventListener("click", reveal);
-        hintObserver.observe(practice);
+      hbtn.addEventListener("click", function () {
+        practice._startHintTimer();
       });
-    }
+    });
 
     // ---- gentle nudge: scrolled past an unmarked step ----
     if (total > 0 && "IntersectionObserver" in window) {
@@ -247,55 +233,6 @@
         var wrap = btn.closest(".quiz-option-wrap");
         var feedback = wrap && wrap.querySelector(".quiz-feedback");
         if (feedback) feedback.classList.add("show");
-      });
-    });
-
-    // ---- solution lock: passcode-gated full code dump ----
-    document.querySelectorAll("[data-solution-lock]").forEach(function (lock) {
-      var solutionId = lock.dataset.solutionId;
-      var form = lock.querySelector("[data-solution-form]");
-      var input = lock.querySelector("[data-solution-input]");
-      var error = lock.querySelector("[data-solution-error]");
-      var prompt = lock.querySelector("[data-solution-prompt]");
-      var body = lock.querySelector("[data-solution-body]");
-      if (!form || !lessonId) return;
-
-      form.addEventListener("submit", function (e) {
-        e.preventDefault();
-        error.hidden = true;
-        var submitBtn = form.querySelector("button");
-        submitBtn.disabled = true;
-
-        fetch("/lesson/" + lessonId + "/solution/" + encodeURIComponent(solutionId) + "/unlock/", {
-          method: "POST",
-          headers: { "Content-Type": "application/json", "X-CSRFToken": csrftoken },
-          credentials: "same-origin",
-          body: JSON.stringify({ passcode: input.value }),
-        })
-          .then(function (res) { return res.json().then(function (data) { return { ok: res.ok, data: data }; }); })
-          .then(function (result) {
-            submitBtn.disabled = false;
-            if (!result.ok || !result.data.ok) {
-              error.textContent = (result.data && result.data.error) || "Incorrect passcode.";
-              error.hidden = false;
-              input.value = "";
-              input.focus();
-              return;
-            }
-            body.innerHTML = result.data.html;
-            body.hidden = false;
-            prompt.remove();
-            body.querySelectorAll("pre").forEach(function (pre) {
-              pre.addEventListener("copy", function (ev) { ev.preventDefault(); });
-              pre.addEventListener("contextmenu", function (ev) { ev.preventDefault(); });
-              pre.addEventListener("dragstart", function (ev) { ev.preventDefault(); });
-            });
-          })
-          .catch(function () {
-            submitBtn.disabled = false;
-            error.textContent = "Something went wrong — try again.";
-            error.hidden = false;
-          });
       });
     });
 

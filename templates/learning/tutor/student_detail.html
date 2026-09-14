@@ -79,8 +79,6 @@
     <div class="mt-4 flex flex-wrap items-center justify-between gap-3" x-show="checked.length">
       <p class="text-sm text-slate-500"><span x-text="checked.length"></span> selected</p>
       <div class="flex gap-2">
-        <button type="submit" name="action" value="unlock" class="btn-quiet px-3 py-1.5 text-xs" x-bind:disabled="!checked.length">Unlock selected</button>
-        <button type="submit" name="action" value="lock" class="btn-quiet px-3 py-1.5 text-xs" x-bind:disabled="!checked.length">Lock selected</button>
         <button type="submit" name="action" value="delete" class="btn-quiet px-3 py-1.5 text-xs text-red-600 hover:border-red-300" x-bind:disabled="!checked.length">Delete selected</button>
       </div>
     </div>
@@ -101,9 +99,6 @@
               <p class="font-mono text-xs text-slate-500">{% if lesson.meta.project %}Project {{ lesson.meta.project }} · {% endif %}{{ lesson.date|default:"No date" }}{% if lesson.course %} · {{ lesson.course.title }}{% endif %}</p>
               <p class="mt-0.5 font-medium">{{ lesson.title }}</p>
             </div>
-            <span class="shrink-0 rounded-full px-2.5 py-1 text-[11px] font-medium {% if lesson.is_published %}bg-mint-100 text-teal-700{% else %}bg-paper text-slate-500{% endif %}">
-              {% if lesson.is_published %}Unlocked{% else %}Locked{% endif %}
-            </span>
           </a>
           <a href="{% url 'lesson_markdown_download' lesson.id %}" class="btn-quiet shrink-0 px-3 py-1.5 text-xs">Download .md</a>
           <a href="{% url 'lesson_edit' student.id lesson.id %}" class="btn-quiet shrink-0 px-3 py-1.5 text-xs">Edit</a>

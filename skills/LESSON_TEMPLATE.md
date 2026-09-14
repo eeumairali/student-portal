@@ -7,8 +7,6 @@ course: course-slug
 topics:
   - Sub-topic one
   - Sub-topic two
-hint_seconds: 20
-visible: false
 ---
 
 ## [First block title]
@@ -26,7 +24,7 @@ print("Example output")
 One short, useful note — a common mistake, a reminder, an aside.
 :::
 
-:::practice id=p1 hint=20
+:::practice id=p1
 [What the student should write and run, on their own computer, using the
 same idea as the example above but not the exact same example.]
 
@@ -43,7 +41,7 @@ SOLUTION
 
 [A different angle on the same concept, or the next concept in the session.]
 
-:::practice id=p2 hint=30
+:::practice id=p2
 [A slightly harder question testing the same skill.]
 
 EXPECTED

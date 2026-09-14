@@ -18,7 +18,6 @@
     {% if front_matter.date %} · {{ front_matter.date }}{% endif %}
     {% if plan.course %} · {{ plan.course.title }}{% endif %}
     · {{ practices|length }} practice question{{ practices|length|pluralize }}
-    · {{ front_matter.visible|yesno:"unlocked,locked" }}
   </p>
 
   {% if plan.warnings %}

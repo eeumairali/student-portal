@@ -84,12 +84,12 @@ AND THE HEIGHT
 
 ## Tracked tasks (saved server-side, per student)
 
-### `:::practice id=… hint=N`
+### `:::practice id=…`
 A self-practice question — code runs on the student's own computer, never
-here. Timer-gated `SOLUTION` reveal (`hint=` seconds, default from front
-matter's `hint_seconds`). `EXPECTED` and `SOLUTION` both optional.
+here. Fixed 30-second timer-gated `SOLUTION` reveal. `EXPECTED` and
+`SOLUTION` both optional.
 ```
-:::practice id=p1 hint=20
+:::practice id=p1
 What should the student write and run?
 
 EXPECTED
@@ -102,17 +102,17 @@ SOLUTION
 :::
 ```
 
-### `:::task id=… type=step|code|answer hint=N`
+### `:::task id=… type=step|code|answer`
 A generalised tracked task step — shares progress/hint mechanics with
 `:::practice`. First line (before any keyword) is the title.
 - `NOTE` — optional instructions, often a fenced code block.
 - `DONE WHEN` — optional observable success criterion.
-- `SOLUTION` — optional, same timer-gated reveal as `:::practice`.
+- `SOLUTION` — optional, same fixed 30-second timer-gated reveal as `:::practice`.
 - A `:::tip` may be nested inside `NOTE`/`DONE WHEN`/`SOLUTION` — nothing else may nest.
 
 `type=step` — a plain instruction, no code expected:
 ```
-:::task id=s1 type=step hint=60
+:::task id=s1 type=step
 Find the Scripting tab
 
 NOTE
@@ -125,7 +125,7 @@ You have an empty text area with a cursor in it.
 
 `type=code` — a code-writing exercise (code lives in `NOTE`):
 ```
-:::task id=t1 type=code hint=180
+:::task id=t1 type=code
 Your first cylinder
 
 NOTE
