@@ -67,8 +67,8 @@ class LessonAdmin(admin.ModelAdmin):
 
 @admin.register(Task)
 class TaskAdmin(admin.ModelAdmin):
-    list_display = ("lesson", "task_id", "is_complete", "is_approved", "is_orphaned", "completed_at")
-    list_filter = ("is_complete", "is_approved", "is_orphaned")
+    list_display = ("lesson", "task_id", "is_complete", "is_orphaned", "completed_at")
+    list_filter = ("is_complete", "is_orphaned")
     search_fields = ("task_id", "lesson__title", "lesson__student__username")
     autocomplete_fields = ("lesson",)
 

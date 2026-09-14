@@ -1,27 +1,22 @@
-<div class="practice task-{{ node.kind }}{% if node.is_locked %} locked{% endif %}" data-task-id="{{ node.practice_id }}"
-     {% if not node.is_locked and node.has_solution %}data-has-solution="1" data-hint-seconds="{{ node.effective_hint_seconds }}"{% endif %}>
+<div class="practice task-{{ node.kind }}" data-task-id="{{ node.practice_id }}" {% if node.has_solution %}data-has-solution="1" data-hint-seconds="{{ node.effective_hint_seconds }}"{% endif %}>
   <div class="practice-top">
     <span class="practice-num">{{ node.index }}</span>
     <div class="practice-body">
-      {% if node.is_locked %}
-        {% include "learning/lesson/blocks/_practice_locked.html" %}
-      {% else %}
-        <span class="practice-label">
-          {% if node.kind == "step" %}Step — do this in Blender
-          {% elif node.kind == "code" %}Code — try this on your own computer
-          {% elif node.kind == "answer" %}Fill in — observe and record
-          {% endif %}
-        </span>
-        <div class="practice-question">{{ node.title_html|safe }}</div>
-
-        {% if node.note_html %}<div class="task-note">{{ node.note_html|safe }}</div>{% endif %}
-
-        {% if node.done_when_html %}
-          <div class="task-done-when"><b>Done when</b>{{ node.done_when_html|safe }}</div>
+      <span class="practice-label">
+        {% if node.kind == "step" %}Step — do this in Blender
+        {% elif node.kind == "code" %}Code — try this on your own computer
+        {% elif node.kind == "answer" %}Fill in — observe and record
         {% endif %}
+      </span>
+      <div class="practice-question">{{ node.title_html|safe }}</div>
 
-        {% include "learning/lesson/blocks/_practice_actions.html" %}
+      {% if node.note_html %}<div class="task-note">{{ node.note_html|safe }}</div>{% endif %}
+
+      {% if node.done_when_html %}
+        <div class="task-done-when"><b>Done when</b>{{ node.done_when_html|safe }}</div>
       {% endif %}
+
+      {% include "learning/lesson/blocks/_practice_actions.html" %}
     </div>
   </div>
 </div>

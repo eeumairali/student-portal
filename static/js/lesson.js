@@ -165,7 +165,7 @@
 
       function showNudge(practice) {
         var taskId = practice.dataset.taskId;
-        if (nudged[taskId] || practice.classList.contains("done") || practice.classList.contains("locked")) return;
+        if (nudged[taskId] || practice.classList.contains("done")) return;
         nudged[taskId] = true;
 
         var index = practice.querySelector(".practice-num");

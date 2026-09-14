@@ -32,6 +32,4 @@ urlpatterns = [
     path("tutor/homework/<int:homework_id>/delete/", views.homework_delete, name="homework_delete"),
     path("tutor/lesson/<int:lesson_id>/file/upload/", views.lesson_file_upload, name="lesson_file_upload"),
     path("tutor/file/<int:file_id>/delete/", views.lesson_file_delete, name="lesson_file_delete"),
-    path("tutor/lesson/<int:lesson_id>/task/<str:task_id>/approve/", views.lesson_task_approve, name="lesson_task_approve"),
-    path("tutor/lesson/<int:lesson_id>/task/<str:task_id>/mode/", views.lesson_task_set_mode, name="lesson_task_set_mode"),
 ]

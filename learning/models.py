@@ -142,24 +142,12 @@ class Task(models.Model):
     removed from the source is marked orphaned, never deleted, so a student's
     progress on it is never silently lost."""
 
-    WITH_TUTOR = "with_tutor"
-    SOLO = "solo"
-    MODES = [
-        (WITH_TUTOR, "With tutor — next step waits for your approval"),
-        (SOLO, "Student does this alone — unlocks the next step by itself"),
-    ]
-
     lesson = models.ForeignKey(Lesson, on_delete=models.CASCADE, related_name="tasks")
     task_id = models.CharField(max_length=64)
     order = models.PositiveIntegerField(default=1)
     is_orphaned = models.BooleanField(default=False, help_text="No longer in the markdown source.")
     is_complete = models.BooleanField(default=False)
     completed_at = models.DateTimeField(null=True, blank=True)
-    is_approved = models.BooleanField(
-        default=False, help_text="Tutor has checked this step. The next step stays locked until then."
-    )
-    approved_at = models.DateTimeField(null=True, blank=True)
-    mode = models.CharField(max_length=10, choices=MODES, default=WITH_TUTOR)
 
     class Meta:
         unique_together = [("lesson", "task_id")]
@@ -172,21 +160,6 @@ class Task(models.Model):
         self.is_complete = complete
         self.completed_at = timezone.now() if complete else None
         self.save(update_fields=["is_complete", "completed_at"])
-
-    def approve(self, approved):
-        self.is_approved = approved
-        self.approved_at = timezone.now() if approved else None
-        self.save(update_fields=["is_approved", "approved_at"])
-
-    @property
-    def needs_approval(self):
-        return self.mode == self.WITH_TUTOR
-
-    @property
-    def is_unlock_ready(self):
-        """Done, and either self-paced or already checked off by the tutor —
-        i.e. the next step is allowed to appear."""
-        return self.is_complete and (self.is_approved or not self.needs_approval)
 
 
 class HintReveal(models.Model):

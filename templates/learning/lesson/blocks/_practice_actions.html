@@ -2,45 +2,12 @@
   {% if node.has_solution %}
     <button type="button" class="hbtn">Reveal now</button>
   {% endif %}
-  {% if node.is_approved %}
-    <span class="dbtn-approved">Approved ✓</span>
-  {% else %}
-    <button type="button" class="dbtn">Mark done</button>
-  {% endif %}
+  <button type="button" class="dbtn">Mark done</button>
 </div>
 
 {% if node.has_solution %}
   <div class="hint">
     <h4>Solution</h4>
     {{ node.solution_html|safe }}
-  </div>
-{% endif %}
-
-{% if node.is_complete and node.needs_approval and not node.is_approved %}
-  <p class="awaiting-approval">Marked done — waiting for your tutor to check this before the next step unlocks.</p>
-{% endif %}
-
-{% if show_approve %}
-  <div class="tutor-controls">
-    <form method="post" action="{% url 'lesson_task_set_mode' lesson_id node.practice_id %}">
-      {% csrf_token %}
-      <button type="submit" class="mode-btn{% if node.mode == 'solo' %} solo{% endif %}">
-        {% if node.mode == 'solo' %}Alone{% else %}With tutor{% endif %}
-      </button>
-    </form>
-    {% if node.needs_approval %}
-      {% if node.is_complete %}
-        <form method="post" action="{% url 'lesson_task_approve' lesson_id node.practice_id %}">
-          {% csrf_token %}
-          <button type="submit" class="approve-btn{% if node.is_approved %} approved{% endif %}">
-            {% if node.is_approved %}Approved ✓ (undo){% else %}Approve{% endif %}
-          </button>
-        </form>
-      {% else %}
-        <span class="approve-pending">Not marked done yet</span>
-      {% endif %}
-    {% else %}
-      <span class="approve-pending">Solo — unlocks automatically</span>
-    {% endif %}
   </div>
 {% endif %}
