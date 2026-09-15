@@ -244,6 +244,7 @@ class TutorUploadFlowTests(TestCase):
         lesson = Lesson.objects.get(student=self.andy, title="First note")
         self.assertRedirects(response, reverse("lesson_tutor_view", args=[lesson.id]))
         self.assertEqual(lesson.tasks.count(), 2)
+        self.assertTrue(lesson.is_published)  # visible: true in the fixture
 
     def test_mismatched_student_in_front_matter_is_rejected(self):
         self.client.force_login(self.staff)
@@ -292,6 +293,23 @@ class TutorUploadFlowTests(TestCase):
         task = Task.objects.get(lesson=lesson, task_id="q1")
         self.assertTrue(task.is_orphaned)
         self.assertTrue(task.is_complete)  # never lost, just hidden
+
+    def test_lock_unlock_hides_lesson_from_student(self):
+        self.client.force_login(self.staff)
+        md = SIMPLE_LESSON_MD.format(student="andy", title="Lockable")
+        self.client.post(reverse("lesson_upload", args=[self.andy.id]), {"markdown": md, "action": "confirm"})
+        lesson = Lesson.objects.get(student=self.andy, title="Lockable")
+        self.assertTrue(lesson.is_published)
+
+        self.client.post(reverse("lesson_toggle_lock", args=[lesson.id]))
+        lesson.refresh_from_db()
+        self.assertFalse(lesson.is_published)
+
+        self.client.force_login(self.andy)
+        self.assertEqual(self.client.get(reverse("lesson_detail", args=[lesson.id])).status_code, 404)
+
+        self.client.force_login(self.staff)
+        self.assertEqual(self.client.get(reverse("lesson_detail", args=[lesson.id])).status_code, 200)
 
     def test_uploading_a_session_under_a_course_auto_enrols_the_student(self):
         self.client.force_login(self.staff)

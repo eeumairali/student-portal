@@ -20,6 +20,12 @@
   <div class="flex shrink-0 flex-wrap gap-2">
     <a href="{% url 'lesson_markdown_download' lesson.id %}" class="btn-quiet">Download .md</a>
     <a href="{% url 'lesson_edit' lesson.student.id lesson.id %}" class="btn-quiet">Edit</a>
+    <form method="post" action="{% url 'lesson_toggle_lock' lesson.id %}">
+      {% csrf_token %}
+      <button type="submit" class="btn-quiet">
+        {% if lesson.is_published %}Lock (hide from student){% else %}Unlock (show to student){% endif %}
+      </button>
+    </form>
     <form method="post" action="{% url 'lesson_delete' lesson.id %}"
           onsubmit="return confirm('Delete “{{ front_matter.title }}”? This removes the student’s saved answers too. This cannot be undone.');">
       {% csrf_token %}

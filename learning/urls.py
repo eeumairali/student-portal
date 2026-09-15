@@ -25,6 +25,7 @@ urlpatterns = [
     path("students/<int:user_id>/export/", views.student_export, name="student_export"),
     path("tutor/comment/<int:comment_id>/delete/", views.comment_delete, name="comment_delete"),
     path("tutor/lesson/<int:lesson_id>/", views.lesson_tutor_view, name="lesson_tutor_view"),
+    path("tutor/lesson/<int:lesson_id>/lock/", views.lesson_toggle_lock, name="lesson_toggle_lock"),
     path("tutor/lesson/<int:lesson_id>/delete/", views.lesson_delete, name="lesson_delete"),
     path("tutor/lesson/<int:lesson_id>/homework/", views.lesson_homework_save, name="lesson_homework_save"),
     path("tutor/homework/<int:homework_id>/delete/", views.homework_delete, name="homework_delete"),

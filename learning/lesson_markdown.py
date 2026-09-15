@@ -30,10 +30,11 @@ import yaml
 
 KNOWN_FRONT_MATTER_KEYS = {
     "student", "date", "title", "subtitle", "course",
-    # "visible" and "hint_seconds" no longer drive anything (lessons are
-    # never locked, and the hint timer is a fixed 30s for every question) —
-    # kept "known" so existing lesson files that still set them don't get
-    # them rendered as a stray header pill.
+    # "visible: true" is what unlocks a lesson for the student on save — see
+    # save_lesson(). Lessons default to locked otherwise. "hint_seconds" no
+    # longer drives anything (the hint timer is a fixed 30s for every
+    # question) — kept "known" so existing lesson files that still set it
+    # don't get it rendered as a stray header pill.
     "topics", "hint_seconds", "visible", "accent",
 }
 MD_EXTENSIONS = ["tables", "fenced_code", "sane_lists"]

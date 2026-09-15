@@ -21,14 +21,18 @@ def get_enrolled_course(user, slug):
 def get_accessible_lesson(user, lesson_id):
     """A personal dated lesson (student set) is reachable only by that
     student or by staff. A shared curriculum lesson (student blank) needs
-    an active enrolment in its course, as before."""
+    an active enrolment in its course, as before. A locked (unpublished)
+    lesson is invisible to the student either way — that's the tutor's
+    lock/unlock control."""
     lesson = get_object_or_404(Lesson.objects.select_related("course"), pk=lesson_id)
     if lesson.student_id is not None:
         if lesson.student_id == user.id or user.is_staff:
-            return lesson
+            if lesson.is_published or user.is_staff:
+                return lesson
         raise Http404
     if (
-        lesson.course
+        lesson.is_published
+        and lesson.course
         and lesson.course.is_published
         and Enrollment.objects.filter(student=user, course=lesson.course, is_active=True).exists()
     ):
@@ -36,8 +40,11 @@ def get_accessible_lesson(user, lesson_id):
     raise Http404
 
 
-def student_lessons(student):
-    return Lesson.objects.filter(student=student).order_by("-date", "-id")
+def student_lessons(student, *, include_locked=False):
+    qs = Lesson.objects.filter(student=student).order_by("-date", "-id")
+    if not include_locked:
+        qs = qs.filter(is_published=True)
+    return qs
 
 
 def course_progress(user, course):
@@ -46,7 +53,8 @@ def course_progress(user, course):
     Shared curriculum lessons (student blank) are visible to every enrolled
     student, as before."""
     lessons = list(
-        course.lessons.filter(Q(student__isnull=True) | Q(student=user))
+        course.lessons.filter(is_published=True)
+        .filter(Q(student__isnull=True) | Q(student=user))
         .order_by("-date", "order", "id")
     )
     shared_lessons = [l for l in lessons if not l.is_document]

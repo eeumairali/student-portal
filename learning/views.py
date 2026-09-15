@@ -87,6 +87,7 @@ def lesson_detail(request, lesson_id):
     if lesson.is_document:
         parsed = parse_lesson(lesson.markdown_source)
         context = _document_context(parsed, lesson=lesson, can_edit=(request.user.id == lesson.student_id))
+        context["locked"] = not lesson.is_published
         context["homework_set"] = lesson.homework_set.all()
         context["files"] = lesson.files.all()
         return render(request, "learning/lesson_document_detail.html", context)
@@ -167,7 +168,10 @@ def lesson_markdown_download(request, lesson_id):
 def _owned_lesson_or_404(request, lesson_id):
     """A student may only write their own answers/progress — never a tutor's
     guess and never another student's, even if they can view a lesson."""
-    return get_object_or_404(Lesson, pk=lesson_id, student=request.user)
+    lesson = get_object_or_404(Lesson, pk=lesson_id, student=request.user)
+    if not lesson.is_published:
+        raise Http404
+    return lesson
 
 
 @login_required
@@ -340,9 +344,19 @@ def student_detail(request, user_id):
             StudentComment.objects.create(profile=profile, body=body)
         return redirect("student_detail", user_id=student.id)
 
-    if request.method == "POST" and request.POST.get("action") == "delete":
+    if request.method == "POST" and request.POST.get("action") in ("lock", "unlock", "delete"):
+        action = request.POST.get("action")
         selected_ids = request.POST.getlist("selected")
-        Lesson.objects.filter(student=student, id__in=selected_ids).delete()
+        selected_lessons = Lesson.objects.filter(student=student, id__in=selected_ids)
+        if action == "delete":
+            selected_lessons.delete()
+        else:
+            if action == "unlock":
+                Notification.objects.bulk_create([
+                    Notification(student=student, lesson=lesson, message=f"“{lesson.title}” was unlocked.")
+                    for lesson in selected_lessons.exclude(is_published=True)
+                ])
+            selected_lessons.update(is_published=(action == "unlock"))
         return redirect("student_detail", user_id=student.id)
 
     lessons = sorted(
@@ -535,6 +549,19 @@ def lesson_file_delete(request, file_id):
     lesson_file.upload.delete(save=False)
     lesson_file.delete()
     return redirect("lesson_tutor_view", lesson_id=lesson_id)
+
+
+@staff_member_required
+@require_POST
+def lesson_toggle_lock(request, lesson_id):
+    lesson = get_object_or_404(Lesson, pk=lesson_id)
+    lesson.is_published = not lesson.is_published
+    lesson.save(update_fields=["is_published"])
+    if lesson.is_published and lesson.student_id:
+        Notification.objects.create(
+            student=lesson.student, lesson=lesson, message=f"“{lesson.title}” was unlocked.",
+        )
+    return redirect("lesson_tutor_view", lesson_id=lesson.id)
 
 
 @staff_member_required

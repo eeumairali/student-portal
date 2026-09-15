@@ -104,6 +104,7 @@ def save_lesson(parsed: ParsedLesson, raw_markdown: str, plan: SavePlan) -> Less
     lesson.subtitle = parsed.front_matter.get("subtitle") or ""
     lesson.markdown_source = raw_markdown
     lesson.meta = parsed.meta
+    lesson.is_published = bool(parsed.front_matter.get("visible", False))
     lesson.description = ""
     lesson.save()
 
