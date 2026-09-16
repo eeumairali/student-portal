@@ -5,7 +5,7 @@ from django.db.models import Q
 from django.http import Http404
 from django.shortcuts import get_object_or_404
 
-from .models import Course, Enrollment, Lesson, LessonProgress, Task
+from .models import Course, Enrollment, Lesson, LessonProgress, QuizAttempt, Task
 
 
 def enrolled_courses(user):
@@ -89,3 +89,28 @@ def course_progress(user, course):
 
 def is_enrolled(user, course):
     return Enrollment.objects.filter(student=user, course=course, is_active=True).exists()
+
+
+def leaderboard_rows(min_attempts=3):
+    """One row per active student who has answered at least `min_attempts`
+    graded quiz questions (across all their personal lessons), ranked for
+    both the "most correct" and "highest accuracy" boards. The minimum
+    keeps a single lucky guess from topping the accuracy board."""
+    from accounts.models import StudentProfile
+
+    rows = []
+    profiles = StudentProfile.objects.filter(is_archived=False).select_related("user")
+    for profile in profiles:
+        attempts = QuizAttempt.objects.filter(lesson__student=profile.user)
+        total = attempts.count()
+        if total < min_attempts:
+            continue
+        correct = attempts.filter(is_correct=True).count()
+        rows.append({
+            "student": profile.user,
+            "display_name": profile.display_name,
+            "correct": correct,
+            "total": total,
+            "percent": round(correct / total * 100),
+        })
+    return rows

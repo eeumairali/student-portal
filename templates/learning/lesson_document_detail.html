@@ -23,6 +23,7 @@
     </a>
     <div class="lnav-links">
       <a href="{% url 'dashboard' %}" class="lnav-back">&larr; Dashboard</a>
+      <a href="{% url 'leaderboard' %}" class="lnav-back">Leaderboard</a>
       <a href="{% url 'notification_list' %}" class="lnav-back lnav-icon" aria-label="Notifications">
         &#128276;{% if unread_notification_count %}<span class="lnav-badge">{{ unread_notification_count }}</span>{% endif %}
       </a>

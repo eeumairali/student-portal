@@ -43,6 +43,7 @@
           {% endif %}
         </a>
         <a class="chip transition hover:border-mint-400 hover:text-ink" href="{% url 'dashboard' %}">Dashboard</a>
+        <a class="chip transition hover:border-mint-400 hover:text-ink" href="{% url 'leaderboard' %}">Leaderboard</a>
         <a class="chip transition hover:border-mint-400 hover:text-ink" href="{% url 'password_change' %}">Change password</a>
         {% if user.is_staff %}
           <a class="chip transition hover:border-mint-400 hover:text-ink" href="{% url 'student_list' %}">Students</a>
@@ -77,6 +78,7 @@
           Notifications{% if unread_notification_count %} <span class="ml-1 rounded-full bg-red-600 px-1.5 py-0.5 text-[10px] font-medium text-white">{{ unread_notification_count }}</span>{% endif %}
         </a>
         <a class="rounded-lg px-3 py-2 transition hover:bg-card" href="{% url 'dashboard' %}">Dashboard</a>
+        <a class="rounded-lg px-3 py-2 transition hover:bg-card" href="{% url 'leaderboard' %}">Leaderboard</a>
         <a class="rounded-lg px-3 py-2 transition hover:bg-card" href="{% url 'password_change' %}">Change password</a>
         {% if user.is_staff %}
           <a class="rounded-lg px-3 py-2 transition hover:bg-card" href="{% url 'student_list' %}">Students</a>

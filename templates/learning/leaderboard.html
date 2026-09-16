@@ -1,0 +1,52 @@
+{% extends "base.html" %}
+{% block content %}
+<p class="eyebrow">Quiz leaderboard</p>
+<h1 class="mt-2 font-display text-3xl sm:text-4xl">Who's <span class="text-gradient">on top</span></h1>
+<p class="mt-2 text-sm text-slate-500">Ranked from graded multiple-choice questions across every lesson. Needs at least 3 answered questions to appear.</p>
+
+<div class="mt-8 grid gap-6 lg:grid-cols-2">
+  <div class="card overflow-hidden">
+    <div class="p-5">
+      <p class="eyebrow">Most correct answers</p>
+      <h2 class="mt-1 font-display text-lg">Top scores</h2>
+    </div>
+    {% if by_score %}
+    <ol class="divide-y divide-line">
+      {% for row in by_score %}
+        <li class="flex items-center justify-between gap-4 p-4 {% if row.student.id == me.id %}bg-paper{% endif %}">
+          <div class="flex items-center gap-3 min-w-0">
+            <span class="font-mono text-sm text-slate-500 w-6 shrink-0 text-right">{{ forloop.counter }}</span>
+            <p class="font-medium truncate">{{ row.display_name }}{% if row.student.id == me.id %} <span class="text-xs text-slate-500">(you)</span>{% endif %}</p>
+          </div>
+          <p class="font-mono text-sm shrink-0">{{ row.correct }} / {{ row.total }}</p>
+        </li>
+      {% endfor %}
+    </ol>
+    {% else %}
+    <p class="p-5 text-sm text-slate-500">No quiz answers yet.</p>
+    {% endif %}
+  </div>
+
+  <div class="card overflow-hidden">
+    <div class="p-5">
+      <p class="eyebrow">Best accuracy</p>
+      <h2 class="mt-1 font-display text-lg">Top percentage</h2>
+    </div>
+    {% if by_percent %}
+    <ol class="divide-y divide-line">
+      {% for row in by_percent %}
+        <li class="flex items-center justify-between gap-4 p-4 {% if row.student.id == me.id %}bg-paper{% endif %}">
+          <div class="flex items-center gap-3 min-w-0">
+            <span class="font-mono text-sm text-slate-500 w-6 shrink-0 text-right">{{ forloop.counter }}</span>
+            <p class="font-medium truncate">{{ row.display_name }}{% if row.student.id == me.id %} <span class="text-xs text-slate-500">(you)</span>{% endif %}</p>
+          </div>
+          <p class="font-mono text-sm shrink-0">{{ row.percent }}%</p>
+        </li>
+      {% endfor %}
+    </ol>
+    {% else %}
+    <p class="p-5 text-sm text-slate-500">No quiz answers yet.</p>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}

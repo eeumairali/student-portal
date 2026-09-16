@@ -20,7 +20,8 @@ from .models import (
     Course, Enrollment, HintReveal, Homework, Lesson, LessonFile, LessonProgress, Notification, QuizAttempt, Task,
 )
 from .services import (
-    course_progress, enrolled_courses, get_accessible_lesson, get_enrolled_course, student_lessons,
+    course_progress, enrolled_courses, get_accessible_lesson, get_enrolled_course, leaderboard_rows,
+    student_lessons,
 )
 
 SAMPLE_LESSON_PATH = settings.BASE_DIR / "skills" / "LESSON_TEMPLATE.md"
@@ -65,6 +66,18 @@ def dashboard(request):
     cards = [{"course": c, **course_progress(request.user, c)} for c in courses]
     notes = student_lessons(request.user)
     return render(request, "learning/dashboard.html", {"cards": cards, "notes": notes})
+
+
+@login_required
+def leaderboard(request):
+    rows = leaderboard_rows()
+    by_score = sorted(rows, key=lambda r: (-r["correct"], -r["percent"]))
+    by_percent = sorted(rows, key=lambda r: (-r["percent"], -r["correct"]))
+    return render(request, "learning/leaderboard.html", {
+        "by_score": by_score,
+        "by_percent": by_percent,
+        "me": request.user,
+    })
 
 
 @login_required
