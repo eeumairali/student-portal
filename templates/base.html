@@ -7,6 +7,9 @@
 {% block meta_description %}{% endblock %}
 <meta name="color-scheme" content="light">
 <script>(function(){try{if(localStorage.getItem("theme")==="dark"){document.documentElement.setAttribute("data-theme","dark")}}catch(e){}})();</script>
+{% if user.is_authenticated and user.student_profile.theme_palette %}
+<script>(function(){try{localStorage.setItem("sitePalette","{{ user.student_profile.theme_palette|escapejs }}")}catch(e){}})();</script>
+{% endif %}
 <title>{% block title %}Student portal{% endblock %}</title>
 <link rel="icon" type="image/svg+xml" href="{% static 'img/favicon.svg' %}">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -15,6 +18,7 @@
 <link rel="stylesheet" href="{% static 'css/app.css' %}">
 <script defer src="{% static 'js/alpine.min.js' %}"></script>
 <script src="{% static 'js/htmx.min.js' %}"></script>
+<script src="{% static 'js/site-palette.js' %}"></script>
 <script src="{% static 'js/theme-toggle.js' %}"></script>
 {% block extra_head %}{% endblock %}
 </head>
@@ -52,6 +56,9 @@
         <a class="btn-primary px-4 py-1.5 text-xs" href="{% url 'login' %}">Login</a>
       {% endif %}
       <button type="button" data-theme-toggle class="btn-quiet px-3 py-1.5 text-xs">Dark mode</button>
+      {% if user.is_authenticated %}
+        <button type="button" class="palette-trigger btn-quiet px-3 py-1.5 text-xs">&#127912; Theme</button>
+      {% endif %}
     </div>
 
     <button type="button" class="flex h-9 w-9 items-center justify-center rounded-lg border border-line text-ink transition hover:border-mint-400 md:hidden"
@@ -83,8 +90,19 @@
         <a class="btn-primary justify-center px-4 py-2 text-xs" href="{% url 'login' %}">Login</a>
       {% endif %}
       <button type="button" data-theme-toggle class="btn-quiet mt-1 justify-center px-3 py-2 text-xs">Dark mode</button>
+      {% if user.is_authenticated %}
+        <button type="button" class="palette-trigger btn-quiet mt-1 justify-center px-3 py-2 text-xs">&#127912; Theme</button>
+      {% endif %}
     </div>
   </div>
+
+  {% if user.is_authenticated %}
+  <div id="palette-picker" class="palette-picker" hidden>
+    <p class="palette-picker-title">Choose your theme</p>
+    <div id="palette-grid" class="palette-grid"></div>
+    <button type="button" id="palette-reset-btn" class="palette-reset-btn">Default (Neutral Elegance)</button>
+  </div>
+  {% endif %}
 </header>
 
 <main id="main" class="mx-auto w-full max-w-6xl flex-1 px-5 py-10 sm:py-14">
@@ -94,5 +112,6 @@
 <footer class="border-t border-line/70 bg-card/40 py-8 text-center text-xs text-slate-500">
   <p>Built for one-to-one tutoring. Your work is visible only to you and your tutor.</p>
 </footer>
+
 </body>
 </html>

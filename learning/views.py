@@ -90,6 +90,8 @@ def lesson_detail(request, lesson_id):
         context["locked"] = not lesson.is_published
         context["homework_set"] = lesson.homework_set.all()
         context["files"] = lesson.files.all()
+        owner_profile = getattr(lesson.student, "student_profile", None)
+        context["theme_palette"] = owner_profile.theme_palette if owner_profile else ""
         return render(request, "learning/lesson_document_detail.html", context)
 
     record = LessonProgress.objects.filter(student=request.user, lesson=lesson).first()

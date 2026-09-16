@@ -31,6 +31,10 @@ class StudentProfile(models.Model):
     is_archived = models.BooleanField(
         default=False, help_text="Archived students are hidden from the active roster."
     )
+    theme_palette = models.CharField(
+        max_length=32, blank=True,
+        help_text="Key of the student's chosen site color palette. Blank means the default theme.",
+    )
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:

@@ -1,5 +1,5 @@
 {% load static %}<!doctype html>
-<html lang="en">
+<html lang="en"{% if theme_palette %} data-palette-key="{{ theme_palette }}"{% endif %}>
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -8,6 +8,8 @@
 <title>{{ front_matter.title }}{% if course %} · {{ course }}{% endif %}</title>
 <link rel="icon" type="image/svg+xml" href="{% static 'img/favicon.svg' %}">
 <link rel="stylesheet" href="{% static 'css/lesson-theme.css' %}">
+<script src="{% static 'js/site-palette.js' %}"></script>
+<script src="{% static 'js/lesson-site-theme.js' %}"></script>
 {% if front_matter.accent %}
 <style>:root{--accent:{{ front_matter.accent }};} .lesson-doc .dbtn{background:{{ front_matter.accent }}} .lesson-doc .fill{background:linear-gradient(90deg,{{ front_matter.accent }},var(--mint))}</style>
 {% endif %}

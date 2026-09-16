@@ -16,7 +16,11 @@
     --c-line: 224 213 199;
     --c-slate-500: 130 108 89;
     --c-accent-1: 102 73 48;
+    --c-accent-1-dark: 77 55 34;
+    --c-accent-1-tint: 251 243 236;
     --c-accent-2: 153 126 103;
+    --c-accent-2-light: 183 160 141;
+    --c-accent-2-tint: 243 234 224;
     --c-accent-3: 204 190 177;
     --c-peach: 255 219 187;
     --c-glow: 102 73 48;
@@ -29,7 +33,11 @@
     --c-line: 61 52 43;
     --c-slate-500: 176 160 145;
     --c-accent-1: 199 168 138;
+    --c-accent-1-dark: 224 202 176;
+    --c-accent-1-tint: 46 39 32;
     --c-accent-2: 153 126 103;
+    --c-accent-2-light: 183 160 141;
+    --c-accent-2-tint: 46 39 32;
     --c-accent-3: 90 75 62;
     --c-peach: 120 92 66;
     --c-glow: 199 168 138;
@@ -97,6 +105,29 @@
   .blob-2 { background: rgb(var(--c-accent-2)); animation-delay: 2s; }
   .blob-3 { background: rgb(var(--c-peach)); }
   .text-accent-1 { color: rgb(var(--c-accent-1)); }
+}
+
+@layer components {
+  .palette-picker {
+    @apply absolute right-5 top-full z-50 mt-2 flex w-64 flex-col rounded-2xl border border-line bg-card p-4 shadow-glow;
+    max-height: min(75vh, 520px);
+  }
+  .palette-picker-title { @apply mb-3 shrink-0 font-display text-sm font-semibold text-ink; }
+  .palette-grid { @apply grid grid-cols-2 gap-2 overflow-y-auto pr-1; }
+  .palette-swatch {
+    @apply flex flex-col items-start gap-1.5 rounded-xl border border-line bg-paper p-2.5 text-left transition hover:border-mint-400;
+  }
+  .palette-swatch.is-active { @apply border-teal-600 ring-1 ring-teal-600; }
+  .palette-dots { @apply flex gap-1; }
+  .palette-dot { @apply h-3 w-3 rounded-full border border-black/10; }
+  .palette-name { @apply text-[11px] font-medium leading-tight text-ink; }
+  .palette-reset-btn {
+    @apply mt-3 w-full shrink-0 rounded-lg border border-line bg-paper px-3 py-2 text-xs font-medium text-slate-500 transition hover:text-ink;
+  }
+  .palette-reset-btn.is-active { @apply border-teal-600 text-ink; }
+  @media (max-width: 480px) {
+    .palette-picker { right: 12px; left: 12px; width: auto; }
+  }
 }
 
 @layer utilities {

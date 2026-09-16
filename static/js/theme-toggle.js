@@ -13,6 +13,7 @@
     document.querySelectorAll("[data-theme-toggle]").forEach(function (btn) {
       btn.textContent = theme === "dark" ? "Light mode" : "Dark mode";
     });
+    if (window.SitePalette) window.SitePalette.reapply();
   }
 
   function current() {

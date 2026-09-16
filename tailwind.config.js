@@ -14,11 +14,21 @@ module.exports = {
         card: "rgb(var(--c-card) / <alpha-value>)",
         line: "rgb(var(--c-line) / <alpha-value>)",
         slate: { 500: "rgb(var(--c-slate-500) / <alpha-value>)" },
-        // Named "teal"/"mint" for historical reasons — both now map to the
-        // Neutral Elegance brand browns so every ring-teal-600 / hover:border-
-        // mint-400 utility already in the templates picks up the new palette.
-        teal: { 600: "#664930", 700: "#4d3722", 50: "#FBF3EC" },
-        mint: { 300: "#B7A08D", 400: "#997E67", 100: "#F3EAE0" },
+        // Named "teal"/"mint" for historical reasons — both are CSS variables
+        // (see input.css) so a student's chosen color palette (see
+        // static/js/site-palette.js) reskins every ring-teal-600 / hover:border-
+        // mint-400 utility already in the templates, the same way dark mode does.
+        teal: {
+          500: "rgb(var(--c-accent-1) / <alpha-value>)",
+          600: "rgb(var(--c-accent-1) / <alpha-value>)",
+          700: "rgb(var(--c-accent-1-dark) / <alpha-value>)",
+          50: "rgb(var(--c-accent-1-tint) / <alpha-value>)",
+        },
+        mint: {
+          100: "rgb(var(--c-accent-2-tint) / <alpha-value>)",
+          300: "rgb(var(--c-accent-2-light) / <alpha-value>)",
+          400: "rgb(var(--c-accent-2) / <alpha-value>)",
+        },
       },
       fontFamily: {
         display: ['"Fraunces"', "Georgia", "serif"],
