@@ -21,7 +21,21 @@
       <span class="lnav-mark">Sd</span>
       <span class="lnav-name">Study desk</span>
     </a>
-    <a href="{% url 'dashboard' %}" class="lnav-back">&larr; Dashboard</a>
+    <div class="lnav-links">
+      <a href="{% url 'dashboard' %}" class="lnav-back">&larr; Dashboard</a>
+      <a href="{% url 'notification_list' %}" class="lnav-back lnav-icon" aria-label="Notifications">
+        &#128276;{% if unread_notification_count %}<span class="lnav-badge">{{ unread_notification_count }}</span>{% endif %}
+      </a>
+      <a href="{% url 'password_change' %}" class="lnav-back">Change password</a>
+      {% if user.is_staff %}
+        <a href="{% url 'student_list' %}" class="lnav-back">Students</a>
+        <a href="{% url 'article_list' %}" class="lnav-back">Articles</a>
+        <a href="/admin/" class="lnav-back">Admin</a>
+      {% endif %}
+      <form method="post" action="{% url 'logout' %}" class="lnav-logout-form">{% csrf_token %}
+        <button type="submit" class="lnav-back">Sign out</button>
+      </form>
+    </div>
   </div>
 </nav>
 {% if locked %}

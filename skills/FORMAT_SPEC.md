@@ -86,7 +86,7 @@ All use `:::name` … `:::` fencing, with optional `key=value` (or
 | `:::example` | a colored panel holding a worked example — code, a diagram, a short explanation |
 | `:::tip` | a short amber note — a warning, a reminder, an aside |
 | `:::practice id=…` | a self-practice question, 30-second timer-gated solution, tracked per student |
-| `:::task id=… type=choice` | an ungraded multiple-choice warm-up question, per-option feedback |
+| `:::task id=… type=choice` | a graded multiple-choice question, scored server-side and saved per student |
 | `:::task id=… type=step\|code\|answer` | a tracked task step — an instruction, a code exercise, or a fill-in-the-blank observation — shares progress tracking with `:::practice` |
 | `:::journey` | a horizontal roadmap of stages (a course/week overview) |
 | `:::figure caption="…"` | preformatted ASCII art or a small diagram, with a caption |
@@ -178,7 +178,7 @@ SOLUTION
 - The code the student writes always runs on their own computer — this app
   never executes code in the browser or on the server.
 
-### `:::task id=… type=choice` — ungraded multiple-choice
+### `:::task id=… type=choice` — graded multiple-choice quiz
 
 ```
 :::task id=q1 type=choice
@@ -192,8 +192,8 @@ OPTIONS
 ```
 
 - `id` — required; a temporary one is auto-assigned (with a warning) if
-  missing. Used only to keep option ordering stable — **not** saved
-  server-side; nothing about a student's answer choice is persisted.
+  missing. Must be unique within the lesson — it's the key `QuizAttempt`
+  rows are saved under.
 - `type=choice` is required — it's the only supported task type right now.
 - The question is everything before the literal `OPTIONS` line (markdown).
 - Each option is one `- ` list line. Mark the correct one with a leading
@@ -201,8 +201,14 @@ OPTIONS
 - Split the option's own label from its feedback with an em dash ` — `
   (or ` -- ` / ` - ` as a fallback). Every option — right or wrong — should
   carry its own short feedback message; clicking an option reveals it.
-- This is a warm-up/engagement tool, not a graded quiz — a student can click
-  more than one option, and nothing is scored or saved.
+- Grading happens server-side against this markdown, never against a
+  client-submitted answer. The student's first click on any option in a
+  given quiz is saved as a `QuizAttempt` and locked in — clicking again
+  doesn't change the recorded result. The lesson header shows a running
+  "Score: correct / total" pill across all `type=choice` questions in the
+  document.
+- Aim for 1–3 questions per worked example/section — enough to check
+  understanding without turning the lesson into an exam.
 
 ### `:::task id=… type=step|code|answer` — tracked task step
 
@@ -475,8 +481,10 @@ saves until the tutor confirms.
 For each student, per lesson: which practice questions were completed, and
 **which solutions were revealed and when**. The reveal log is the most
 useful signal — it shows where the student actually struggled, which a
-completion tick does not. Multiple-choice (`:::task`) answers and checklist
-ticks are not tracked — they're ungraded warm-up/self-check tools by design.
+completion tick does not. Multiple-choice (`:::task type=choice`) answers
+are graded and saved per student (`QuizAttempt`), visible in the tutor's
+read-only view of the lesson. Checklist ticks are not tracked — they're an
+ungraded self-check tool by design.
 
 ---
 

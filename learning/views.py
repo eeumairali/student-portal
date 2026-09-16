@@ -16,7 +16,9 @@ from accounts.models import StudentComment, StudentProfile
 
 from .lesson_markdown import parse_lesson
 from .lesson_save import LessonSaveError, resolve_save_plan, save_lesson
-from .models import Course, Enrollment, HintReveal, Homework, Lesson, LessonFile, LessonProgress, Notification, Task
+from .models import (
+    Course, Enrollment, HintReveal, Homework, Lesson, LessonFile, LessonProgress, Notification, QuizAttempt, Task,
+)
 from .services import (
     course_progress, enrolled_courses, get_accessible_lesson, get_enrolled_course, student_lessons,
 )
@@ -29,11 +31,15 @@ def _document_context(parsed, *, lesson=None, can_edit=False, preview_warnings=N
     """Shared context builder for anything that renders learning/lesson/document.html
     or its _document_body.html partial: the staff preview tool, a student's own
     lesson page, and the tutor's read-only view of a student's lesson."""
-    initial_state = {"completed": []}
+    initial_state = {"completed": [], "quiz_answers": {}}
     if lesson is not None and lesson.pk:
         initial_state["completed"] = list(
             Task.objects.filter(lesson=lesson, is_complete=True).values_list("task_id", flat=True)
         )
+        initial_state["quiz_answers"] = {
+            row["quiz_id"]: {"selected_index": row["selected_index"], "is_correct": row["is_correct"]}
+            for row in QuizAttempt.objects.filter(lesson=lesson).values("quiz_id", "selected_index", "is_correct")
+        }
 
     return {
         "front_matter": parsed.front_matter,
@@ -42,6 +48,8 @@ def _document_context(parsed, *, lesson=None, can_edit=False, preview_warnings=N
         "topics": parsed.topics,
         "blocks": parsed.blocks,
         "practices": parsed.practices,
+        "quizzes": parsed.quizzes,
+        "quiz_score": sum(1 for v in initial_state["quiz_answers"].values() if v["is_correct"]),
         "lesson_id": lesson.id if (lesson is not None and lesson.pk) else "",
         "can_edit": can_edit,
         "initial_state_json": json.dumps(initial_state),
@@ -210,6 +218,47 @@ def lesson_reveal_hint(request, lesson_id, task_id):
     lesson = _owned_lesson_or_404(request, lesson_id)
     HintReveal.objects.create(lesson=lesson, task_id=task_id)
     return JsonResponse({"ok": True})
+
+
+@login_required
+@require_POST
+def lesson_answer_quiz(request, lesson_id, quiz_id):
+    """Grade a :::task type=choice question server-side against the parsed
+    markdown — the client only ever sends which option it picked, never
+    whether it was right. The first answer locks the result in; answering
+    again just returns that same locked result instead of re-grading."""
+    lesson = _owned_lesson_or_404(request, lesson_id)
+    parsed = parse_lesson(lesson.markdown_source)
+    quiz = next((q for q in parsed.quizzes if q.quiz_id == quiz_id), None)
+    if quiz is None:
+        raise Http404
+
+    attempt = QuizAttempt.objects.filter(lesson=lesson, quiz_id=quiz_id).first()
+    if attempt is None:
+        data = json.loads(request.body or "{}")
+        try:
+            selected_index = int(data.get("selected_index"))
+        except (TypeError, ValueError):
+            return JsonResponse({"ok": False, "error": "invalid selected_index"}, status=400)
+        if not (0 <= selected_index < len(quiz.options)):
+            return JsonResponse({"ok": False, "error": "invalid selected_index"}, status=400)
+        attempt = QuizAttempt.objects.create(
+            lesson=lesson,
+            quiz_id=quiz_id,
+            selected_index=selected_index,
+            is_correct=bool(quiz.options[selected_index]["is_correct"]),
+        )
+
+    correct_index = next((i for i, opt in enumerate(quiz.options) if opt["is_correct"]), None)
+    score_correct = QuizAttempt.objects.filter(lesson=lesson, is_correct=True).count()
+    return JsonResponse({
+        "ok": True,
+        "selected_index": attempt.selected_index,
+        "is_correct": attempt.is_correct,
+        "correct_index": correct_index,
+        "score_correct": score_correct,
+        "score_total": len(parsed.quizzes),
+    })
 
 
 # --------------------------------------------------------------- staff tool --

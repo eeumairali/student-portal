@@ -8,7 +8,8 @@ out, so it can be reused for the admin preview and for the real save path.
 Front matter, then a sequence of ``## `` blocks (auto-numbered "N of TOTAL"),
 each holding prose and any mix of: ``:::example``, ``:::tip``, ``:::practice``
 (a question worked out on the student's own computer, with hint/solution
-reveal), ``:::task ... type=choice`` (an ungraded multiple-choice warm-up),
+reveal), ``:::task ... type=choice`` (a graded multiple-choice question —
+scored server-side and saved to QuizAttempt on first answer),
 ``:::task ... type=step|code|answer`` (a tracked task step sharing progress
 with :::practice), ``:::journey``, ``:::figure``, ``:::mermaid``,
 ``:::objectives``, ``:::steps``,
@@ -202,8 +203,9 @@ class Checklist:
 
 @dataclass
 class Quiz:
-    """An ungraded multiple-choice warm-up question. Each option carries its
-    own feedback, shown when clicked — nothing is saved server-side."""
+    """A graded multiple-choice question. Each option carries its own
+    feedback, shown once the student picks and the server grades it —
+    see QuizAttempt for the saved result."""
 
     quiz_id: str
     question_html: str

@@ -12,6 +12,7 @@
     <div class="meta">
       <span class="pill">{{ blocks|length }} block{{ blocks|length|pluralize }}</span>
       {% if practices %}<span class="pill">{{ practices|length }} practice question{{ practices|length|pluralize }}</span>{% endif %}
+      {% if quizzes %}<span class="pill" id="lesson-quiz-score">Score: {{ quiz_score }} / {{ quizzes|length }}</span>{% endif %}
       {% for key, value in meta_pills %}<span class="pill">{{ key }}: {{ value }}</span>{% endfor %}
     </div>
   </div>

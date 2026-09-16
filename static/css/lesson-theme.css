@@ -215,6 +215,17 @@ body.lesson-doc{margin:0}
   color:var(--deep);background:var(--card);border:1px solid var(--line);
   border-radius:999px;padding:8px 16px 8px 13px;text-decoration:none;transition:.15s}
 .lesson-doc .lnav-back:hover{color:#fff;border-color:var(--deep);background:var(--deep)}
+.lesson-doc .lnav-links{display:flex;flex-wrap:wrap;align-items:center;gap:8px}
+.lesson-doc .lnav-icon{position:relative;padding:8px 12px}
+.lesson-doc .lnav-badge{position:absolute;top:-6px;right:-6px;background:#DC2626;color:#fff;
+  border-radius:999px;font-size:10px;font-weight:700;line-height:1;padding:3px 5px;min-width:16px;text-align:center}
+.lesson-doc .lnav-logout-form{display:inline-flex}
+.lesson-doc .lnav-logout-form .lnav-back{cursor:pointer;font:inherit}
+@media(max-width:700px){
+  .lesson-doc .lnav .wrap{flex-wrap:wrap;gap:10px;padding-bottom:12px}
+  .lesson-doc .lnav-links{gap:6px}
+  .lesson-doc .lnav-back{padding:7px 12px;font-size:12px}
+}
 
 /* ---------- gentle nudge toast ---------- */
 .lesson-doc .nudge-stack{position:fixed;top:90px;right:18px;z-index:50;
@@ -369,6 +380,8 @@ body.lesson-doc{margin:0}
 .lesson-doc .quiz-option:hover{border-color:var(--c4)}
 .lesson-doc .quiz-option.picked.correct{border-color:var(--green);background:var(--greenbg)}
 .lesson-doc .quiz-option.picked.incorrect{border-color:var(--redline);background:var(--redbg)}
+.lesson-doc .quiz-option:disabled{cursor:not-allowed;opacity:.7}
+.lesson-doc .quiz-option:disabled:not(.picked):hover{border-color:var(--line)}
 .lesson-doc .quiz-feedback{max-height:0;overflow:hidden;opacity:0;font-size:13.5px;
   color:var(--muted);padding:0 14px;transition:.2s}
 .lesson-doc .quiz-feedback.show{max-height:80px;opacity:1;padding:6px 14px 0}

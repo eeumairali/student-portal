@@ -170,6 +170,27 @@ class HintReveal(models.Model):
         return f"{self.lesson} · {self.task_id} · {self.revealed_at:%Y-%m-%d %H:%M}"
 
 
+class QuizAttempt(models.Model):
+    """One row per :::task type=choice question in a lesson's markdown_source,
+    once the student answers it. Grading happens server-side against the
+    parsed markdown (never trust a client-submitted "is_correct") and the
+    result is locked in on first answer — this is the student's score, not
+    a practice toggle they can flip back and forth."""
+
+    lesson = models.ForeignKey(Lesson, on_delete=models.CASCADE, related_name="quiz_attempts")
+    quiz_id = models.CharField(max_length=64)
+    selected_index = models.PositiveSmallIntegerField()
+    is_correct = models.BooleanField(default=False)
+    answered_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        unique_together = [("lesson", "quiz_id")]
+        ordering = ["answered_at"]
+
+    def __str__(self):
+        return f"{self.lesson} · {self.quiz_id} · {'correct' if self.is_correct else 'incorrect'}"
+
+
 class Homework(models.Model):
     """Homework set for a student after a session, written against the
     session's Lesson. `guidelines` is what the homework should cover (a

@@ -224,15 +224,53 @@
       pre.addEventListener("dragstart", function (e) { e.preventDefault(); });
     });
 
-    // ---- quiz options: ungraded, click any option to see its feedback ----
+    // ---- quiz options: graded and saved once per quiz when viewing your own
+    // lesson; a plain preview (no lesson id) just shows feedback locally ----
+    var scorePill = document.getElementById("lesson-quiz-score");
+
+    function lockQuiz(quiz, selectedIndex, isCorrect) {
+      quiz.querySelectorAll(".quiz-option").forEach(function (opt) {
+        var picked = Number(opt.dataset.index) === selectedIndex;
+        opt.classList.toggle("picked", picked);
+        if (picked) opt.classList.toggle("correct", isCorrect);
+        if (picked) opt.classList.toggle("incorrect", !isCorrect);
+        opt.disabled = true;
+        var wrap = opt.closest(".quiz-option-wrap");
+        var feedback = wrap && wrap.querySelector(".quiz-feedback");
+        if (picked && feedback) feedback.classList.add("show");
+      });
+    }
+
+    document.querySelectorAll(".quiz[data-quiz-id]").forEach(function (quiz) {
+      var quizId = quiz.dataset.quizId;
+      var saved = state.quiz_answers ? state.quiz_answers[quizId] : null;
+      if (saved) lockQuiz(quiz, saved.selected_index, saved.is_correct);
+    });
+
     document.querySelectorAll(".quiz-option").forEach(function (btn) {
       btn.addEventListener("click", function () {
-        btn.classList.add("picked");
-        btn.classList.toggle("correct", btn.dataset.correct === "1");
-        btn.classList.toggle("incorrect", btn.dataset.correct !== "1");
-        var wrap = btn.closest(".quiz-option-wrap");
-        var feedback = wrap && wrap.querySelector(".quiz-feedback");
-        if (feedback) feedback.classList.add("show");
+        var quiz = btn.closest(".quiz[data-quiz-id]");
+        if (quiz && quiz.querySelector(".quiz-option[disabled]")) return;
+
+        if (!canEdit) {
+          btn.classList.add("picked");
+          btn.classList.toggle("correct", btn.dataset.correct === "1");
+          btn.classList.toggle("incorrect", btn.dataset.correct !== "1");
+          var wrap = btn.closest(".quiz-option-wrap");
+          var feedback = wrap && wrap.querySelector(".quiz-feedback");
+          if (feedback) feedback.classList.add("show");
+          return;
+        }
+
+        var quizId = quiz.dataset.quizId;
+        var selectedIndex = Number(btn.dataset.index);
+        post("/lesson/" + lessonId + "/quiz/" + encodeURIComponent(quizId) + "/answer/", { selected_index: selectedIndex })
+          .then(function (res) { return res && res.json(); })
+          .then(function (data) {
+            if (!data || !data.ok) return;
+            lockQuiz(quiz, data.selected_index, data.is_correct);
+            if (scorePill) scorePill.textContent = "Score: " + data.score_correct + " / " + data.score_total;
+          });
       });
     });
 
