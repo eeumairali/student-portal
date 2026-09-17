@@ -51,6 +51,8 @@ def _document_context(parsed, *, lesson=None, can_edit=False, preview_warnings=N
         "practices": parsed.practices,
         "quizzes": parsed.quizzes,
         "quiz_score": sum(1 for v in initial_state["quiz_answers"].values() if v["is_correct"]),
+        "quiz_total": len(parsed.quizzes),
+        "quiz_answered": len(initial_state["quiz_answers"]),
         "lesson_id": lesson.id if (lesson is not None and lesson.pk) else "",
         "can_edit": can_edit,
         "initial_state_json": json.dumps(initial_state),
@@ -208,6 +210,12 @@ def lesson_mark_complete(request, lesson_id):
     if not lesson.is_document:
         raise Http404
     parsed = parse_lesson(lesson.markdown_source)
+    answered_quizzes = QuizAttempt.objects.filter(
+        lesson=lesson,
+        quiz_id__in=[quiz.quiz_id for quiz in parsed.quizzes],
+    ).count()
+    if answered_quizzes < len(parsed.quizzes):
+        return HttpResponse("Answer all multiple-choice questions before completing this lesson.", status=400)
     for practice in parsed.practices:
         task, _ = Task.objects.get_or_create(lesson=lesson, task_id=practice.practice_id)
         if not task.is_complete:

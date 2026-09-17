@@ -26,6 +26,7 @@
     var fill = document.getElementById("lesson-fill");
     var count = document.getElementById("lesson-count");
     var doneMsg = document.getElementById("lesson-donemsg");
+    var completeBtn = document.getElementById("lesson-complete-btn");
     var total = practices.length;
 
     function post(path, body) {
@@ -44,6 +45,18 @@
       if (count) count.textContent = n + " / " + total;
       if (doneMsg) doneMsg.classList.toggle("show", total > 0 && n === total);
     }
+
+    function refreshCompletionButton(answered) {
+      if (!completeBtn) return;
+      var totalQuizzes = Number(completeBtn.dataset.quizTotal || 0);
+      var answeredQuizzes = answered === undefined
+        ? Number(completeBtn.dataset.quizAnswered || 0)
+        : answered;
+      completeBtn.disabled = answeredQuizzes < totalQuizzes;
+      completeBtn.dataset.quizAnswered = String(answeredQuizzes);
+    }
+
+    refreshCompletionButton();
 
     function markDone(practice, done, save) {
       practice.classList.toggle("done", done);
@@ -287,6 +300,7 @@
           .then(function (data) {
             if (!data || !data.ok) return;
             lockQuiz(quiz, data.selected_index, data.is_correct);
+            refreshCompletionButton(Number(completeBtn && completeBtn.dataset.quizAnswered || 0) + 1);
             if (scorePill) scorePill.textContent = "Score: " + data.score_correct + " / " + data.score_total;
           });
       });
