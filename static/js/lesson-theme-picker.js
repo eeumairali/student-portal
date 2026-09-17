@@ -32,6 +32,14 @@
     var resetBtn = document.getElementById("theme-reset-btn");
     if (!toggleBtn || !panel) return;
 
+    function setOpen(isOpen) {
+      panel.hidden = !isOpen;
+      panel.classList.toggle("is-open", isOpen);
+      toggleBtn.setAttribute("aria-expanded", String(isOpen));
+    }
+
+    setOpen(false);
+
     var inputs = Array.prototype.slice.call(panel.querySelectorAll("input[type=color]"));
     var theme = load();
 
@@ -47,7 +55,7 @@
     apply(theme);
 
     toggleBtn.addEventListener("click", function () {
-      panel.hidden = !panel.hidden;
+      setOpen(!panel.classList.contains("is-open"));
     });
 
     if (resetBtn) {
@@ -63,7 +71,7 @@
 
     document.addEventListener("click", function (e) {
       if (!panel.hidden && !panel.contains(e.target) && e.target !== toggleBtn) {
-        panel.hidden = true;
+        setOpen(false);
       }
     });
   });

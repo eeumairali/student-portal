@@ -303,8 +303,8 @@ body.lesson-doc{margin:0}
   box-shadow:var(--shadow);cursor:pointer;display:grid;place-items:center}
 .theme-toggle-btn:hover{filter:brightness(1.05)}
 .theme-picker{position:fixed;right:18px;bottom:72px;z-index:60;width:220px;background:var(--paper);
-  border:1px solid var(--line);border-radius:14px;box-shadow:var(--shadow);padding:16px}
-.theme-picker[hidden]{display:none !important}
+  border:1px solid var(--line);border-radius:14px;box-shadow:var(--shadow);padding:16px;display:none}
+.theme-picker.is-open{display:block}
 .theme-picker-title{margin:0 0 12px;font-family:var(--font-display);font-size:15px;font-weight:700;color:var(--ink)}
 .theme-row{display:flex;align-items:center;justify-content:space-between;gap:10px;
   font-size:13.5px;color:var(--ink);padding:6px 0}

@@ -18,7 +18,7 @@
 <link rel="stylesheet" href="{% static 'css/app.css' %}">
 <script defer src="{% static 'js/alpine.min.js' %}"></script>
 <script src="{% static 'js/htmx.min.js' %}"></script>
-<script src="{% static 'js/site-palette.js' %}"></script>
+<script src="{% static 'js/site-palette.js' %}?v=2"></script>
 <script src="{% static 'js/theme-toggle.js' %}"></script>
 {% block extra_head %}{% endblock %}
 </head>
@@ -58,7 +58,7 @@
       {% endif %}
       <button type="button" data-theme-toggle class="btn-quiet px-3 py-1.5 text-xs">Dark mode</button>
       {% if user.is_authenticated %}
-        <button type="button" class="palette-trigger btn-quiet px-3 py-1.5 text-xs">&#127912; Theme</button>
+        <button type="button" class="palette-trigger btn-quiet px-3 py-1.5 text-xs" aria-expanded="false">&#127912; Theme</button>
       {% endif %}
     </div>
 
@@ -93,7 +93,7 @@
       {% endif %}
       <button type="button" data-theme-toggle class="btn-quiet mt-1 justify-center px-3 py-2 text-xs">Dark mode</button>
       {% if user.is_authenticated %}
-        <button type="button" class="palette-trigger btn-quiet mt-1 justify-center px-3 py-2 text-xs">&#127912; Theme</button>
+        <button type="button" class="palette-trigger btn-quiet mt-1 justify-center px-3 py-2 text-xs" aria-expanded="false">&#127912; Theme</button>
       {% endif %}
     </div>
   </div>

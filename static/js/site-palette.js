@@ -217,6 +217,16 @@
     var resetBtn = document.getElementById("palette-reset-btn");
     if (!toggleBtns.length || !panel || !grid) return;
 
+    function setOpen(isOpen) {
+      panel.hidden = !isOpen;
+      panel.classList.toggle("is-open", isOpen);
+      toggleBtns.forEach(function (btn) {
+        btn.setAttribute("aria-expanded", String(isOpen));
+      });
+    }
+
+    setOpen(false);
+
     PALETTES.forEach(function (p) {
       var btn = document.createElement("button");
       btn.type = "button";
@@ -254,7 +264,7 @@
 
     toggleBtns.forEach(function (btn) {
       btn.addEventListener("click", function () {
-        panel.hidden = !panel.hidden;
+        setOpen(!panel.classList.contains("is-open"));
       });
     });
 
@@ -268,7 +278,7 @@
     document.addEventListener("click", function (e) {
       if (panel.hidden) return;
       var onTrigger = toggleBtns.some(function (btn) { return btn === e.target || btn.contains(e.target); });
-      if (!onTrigger && !panel.contains(e.target)) panel.hidden = true;
+      if (!onTrigger && !panel.contains(e.target)) setOpen(false);
     });
   });
 })();

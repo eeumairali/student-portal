@@ -56,7 +56,7 @@
 {% endif %}
 
 {% if can_edit %}
-<button type="button" id="theme-toggle-btn" class="theme-toggle-btn" aria-label="Choose your own colors">🎨</button>
+<button type="button" id="theme-toggle-btn" class="theme-toggle-btn" aria-label="Choose your own colors" aria-expanded="false">🎨</button>
 <div id="theme-picker" class="theme-picker" hidden>
   <p class="theme-picker-title">Make it yours</p>
   <label class="theme-row">Background
@@ -76,6 +76,6 @@
 {% endif %}
 
 <script src="{% static 'js/lesson.js' %}?v=4" defer></script>
-{% if can_edit %}<script src="{% static 'js/lesson-theme-picker.js' %}" defer></script>{% endif %}
+{% if can_edit %}<script src="{% static 'js/lesson-theme-picker.js' %}?v=2" defer></script>{% endif %}
 </body>
 </html>

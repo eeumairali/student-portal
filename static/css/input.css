@@ -111,7 +111,9 @@
   .palette-picker {
     @apply absolute right-5 top-full z-50 mt-2 flex w-64 flex-col rounded-2xl border border-line bg-card p-4 shadow-glow;
     max-height: min(75vh, 520px);
+    display: none;
   }
+  .palette-picker.is-open { display: flex; }
   .palette-picker-title { @apply mb-3 shrink-0 font-display text-sm font-semibold text-ink; }
   .palette-grid { @apply grid grid-cols-2 gap-2 overflow-y-auto pr-1; }
   .palette-swatch {
