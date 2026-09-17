@@ -18,6 +18,8 @@
     var root = document.getElementById("lesson-root");
     var lessonId = root ? root.dataset.lessonId : "";
     var canEdit = !!(root && root.dataset.canEdit === "1" && lessonId);
+    var pagePath = window.location.pathname.replace(/\/$/, "");
+    var lessonBase = (root && root.dataset.lessonBase ? root.dataset.lessonBase : (lessonId ? pagePath : "")).replace(/\/$/, "");
     var csrftoken = getCookie("csrftoken");
 
     var practices = Array.prototype.slice.call(document.querySelectorAll(".practice[data-task-id]"));
@@ -50,7 +52,7 @@
       if (done && practice._cancelHintTimer) practice._cancelHintTimer();
       refresh();
       if (save !== false) {
-        post("/lesson/" + lessonId + "/task/" + practice.dataset.taskId + "/complete/", { complete: done });
+        post(lessonBase + "/task/" + practice.dataset.taskId + "/complete/", { complete: done });
       }
     }
 
@@ -100,7 +102,7 @@
         hbtn.style.display = "none";
         hint.classList.add("show");
         hint.scrollIntoView({ behavior: "smooth", block: "nearest" });
-        post("/lesson/" + lessonId + "/task/" + practice.dataset.taskId + "/reveal/", {});
+        post(lessonBase + "/task/" + practice.dataset.taskId + "/reveal/", {});
       }
 
       practice._cancelHintTimer = function () {
@@ -241,6 +243,22 @@
       });
     }
 
+    function shuffleQuizOptions(quiz) {
+      var container = quiz.querySelector(".quiz-options");
+      var options = Array.prototype.slice.call(quiz.querySelectorAll(".quiz-option-wrap"));
+      if (!container || options.length < 2) return;
+
+      for (var index = options.length - 1; index > 0; index -= 1) {
+        var swapIndex = Math.floor(Math.random() * (index + 1));
+        var current = options[index];
+        options[index] = options[swapIndex];
+        options[swapIndex] = current;
+      }
+      options.forEach(function (option) { container.appendChild(option); });
+    }
+
+    document.querySelectorAll(".quiz[data-quiz-id]").forEach(shuffleQuizOptions);
+
     document.querySelectorAll(".quiz[data-quiz-id]").forEach(function (quiz) {
       var quizId = quiz.dataset.quizId;
       var saved = state.quiz_answers ? state.quiz_answers[quizId] : null;
@@ -250,7 +268,7 @@
     document.querySelectorAll(".quiz-option").forEach(function (btn) {
       btn.addEventListener("click", function () {
         var quiz = btn.closest(".quiz[data-quiz-id]");
-        if (quiz && quiz.querySelector(".quiz-option[disabled]")) return;
+        if (!quiz || quiz.querySelector(".quiz-option[disabled]")) return;
 
         if (!canEdit) {
           btn.classList.add("picked");
@@ -264,7 +282,7 @@
 
         var quizId = quiz.dataset.quizId;
         var selectedIndex = Number(btn.dataset.index);
-        post("/lesson/" + lessonId + "/quiz/" + encodeURIComponent(quizId) + "/answer/", { selected_index: selectedIndex })
+        post(lessonBase + "/quiz/" + encodeURIComponent(quizId) + "/answer/", { selected_index: selectedIndex })
           .then(function (res) { return res && res.json(); })
           .then(function (data) {
             if (!data || !data.ok) return;

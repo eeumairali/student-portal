@@ -27,7 +27,7 @@
 </div>
 {% endif %}
 
-<div class="wrap" id="lesson-root" data-lesson-id="{{ lesson_id|default:'' }}" data-can-edit="{% if can_edit %}1{% else %}0{% endif %}">
+<div class="wrap" id="lesson-root" data-lesson-id="{{ lesson_id|default:'' }}" data-lesson-base="{% if lesson_id %}{% url 'lesson_detail' lesson_id %}{% endif %}" data-can-edit="{% if can_edit %}1{% else %}0{% endif %}">
   {% if preview_warnings %}
     <div class="tip preview-warnings">
       <strong>Preview warnings — not shown to students:</strong>
