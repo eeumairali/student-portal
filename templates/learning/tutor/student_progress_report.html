@@ -3,7 +3,11 @@
 {% block extra_head %}<style>@media print { header, footer, .print-hide { display: none !important; } main { max-width: none; padding: 0; } .report-card { box-shadow: none; border: 1px solid #d7ddd9; } }</style>{% endblock %}
 {% block content %}
 <div class="print-hide flex items-center justify-between gap-4">
-  <a href="{% url 'student_detail' report.student.id %}" class="text-sm text-slate-500 hover:text-ink">&larr; Back to student</a>
+  {% if user.is_staff %}
+    <a href="{% url 'student_detail' report.student.id %}" class="text-sm text-slate-500 hover:text-ink">&larr; Back to student</a>
+  {% else %}
+    <a href="{% url 'dashboard' %}" class="text-sm text-slate-500 hover:text-ink">&larr; Back to dashboard</a>
+  {% endif %}
   <button type="button" onclick="window.print()" class="btn-primary">Print / save as PDF</button>
 </div>
 <section class="report-card mt-6 rounded-2xl border border-line bg-card p-6 shadow-card sm:p-10">

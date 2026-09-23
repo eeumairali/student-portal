@@ -36,6 +36,14 @@
 <p class="eyebrow mt-10">Your courses</p>
 <h1 class="mt-2 font-display text-3xl sm:text-4xl">Hello, <span class="text-gradient">{{ user.student_profile.display_name|default:user.username }}</span></h1>
 
+<div class="mt-6 flex flex-wrap items-center justify-between gap-4 rounded-xl border border-line bg-card p-4 shadow-card">
+  <div>
+    <p class="font-medium">Your progress report</p>
+    <p class="mt-1 text-sm text-slate-500">See your topics, achievements, quiz results, and next steps.</p>
+  </div>
+  <a href="{% url 'student_progress_report' user.id %}" class="btn-primary">View my report</a>
+</div>
+
 {% if cards %}
 <div class="mt-8 grid gap-4 sm:grid-cols-2">
   {% for card in cards %}

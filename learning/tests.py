@@ -590,6 +590,18 @@ class StudentSavesOwnProgressTests(TestCase):
         self.assertEqual(self.client.post(url, data=payload, content_type="application/json").status_code, 200)
         self.assertEqual(quiz_lesson.quiz_attempts.count(), 2)
 
+    def test_student_can_view_only_own_progress_report(self):
+        self.client.force_login(self.andy)
+        self.assertEqual(
+            self.client.get(reverse("student_progress_report", args=[self.andy.id])).status_code,
+            200,
+        )
+        self.client.force_login(self.priya)
+        self.assertEqual(
+            self.client.get(reverse("student_progress_report", args=[self.andy.id])).status_code,
+            404,
+        )
+
     def test_tutor_view_shows_saved_state_and_is_staff_only(self):
         self.client.force_login(self.andy)
         self.client.post(

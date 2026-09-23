@@ -460,9 +460,11 @@ def student_detail(request, user_id):
     })
 
 
-@staff_member_required
+@login_required
 def student_progress_report_view(request, user_id):
     student = get_object_or_404(User, pk=user_id)
+    if not request.user.is_staff and request.user.id != student.id:
+        raise Http404
     return render(request, "learning/tutor/student_progress_report.html", {
         "report": student_progress_report(student),
         "profile": getattr(student, "student_profile", None),
