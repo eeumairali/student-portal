@@ -1,9 +1,11 @@
 import json
+from datetime import timedelta
 
 from django.conf import settings
 from django.contrib.auth.models import User
 from django.core.files.base import ContentFile
 from django.test import TestCase
+from django.utils import timezone
 from django.urls import reverse
 
 from accounts.models import StudentProfile
@@ -47,6 +49,24 @@ print("hi")
 
 :::practice id=q1
 Pick a number and print it.
+:::
+"""
+
+SIMPLE_QUIZ_MD = """---
+student: {student}
+date: 2026-01-10
+title: {title}
+visible: true
+---
+
+## Quiz
+
+:::task id=q1 type=choice
+Which value is a number?
+
+OPTIONS
+- [x] 42 - Correct
+- [ ] hello - Try again
 :::
 """
 
@@ -551,6 +571,24 @@ class StudentSavesOwnProgressTests(TestCase):
         self.client.force_login(self.andy)
         self.client.post(reverse("lesson_reveal_hint", args=[self.lesson.id, "t1"]), data="{}", content_type="application/json")
         self.assertEqual(HintReveal.objects.filter(lesson=self.lesson, task_id="t1").count(), 1)
+
+    def test_quiz_retry_is_blocked_until_one_hour_has_passed(self):
+        quiz_lesson = Lesson.objects.create(
+            student=self.andy, date="2026-01-10", title="Retry quiz",
+            markdown_source=SIMPLE_QUIZ_MD.format(student="andy2", title="Retry quiz"),
+            is_published=True,
+        )
+        self.client.force_login(self.andy)
+        url = reverse("lesson_answer_quiz", args=[quiz_lesson.id, "q1"])
+        payload = json.dumps({"selected_index": 0})
+        self.assertEqual(self.client.post(url, data=payload, content_type="application/json").status_code, 200)
+        self.assertEqual(self.client.post(url, data=payload, content_type="application/json").status_code, 429)
+
+        attempt = quiz_lesson.quiz_attempts.first()
+        attempt.answered_at = timezone.now() - timedelta(hours=1, seconds=1)
+        attempt.save(update_fields=["answered_at"])
+        self.assertEqual(self.client.post(url, data=payload, content_type="application/json").status_code, 200)
+        self.assertEqual(quiz_lesson.quiz_attempts.count(), 2)
 
     def test_tutor_view_shows_saved_state_and_is_staff_only(self):
         self.client.force_login(self.andy)

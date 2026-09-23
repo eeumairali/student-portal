@@ -103,10 +103,13 @@ def leaderboard_rows(min_attempts=3):
     profiles = StudentProfile.objects.filter(is_archived=False).select_related("user")
     for profile in profiles:
         attempts = QuizAttempt.objects.filter(lesson__student=profile.user)
-        total = attempts.count()
+        best_by_question = {}
+        for attempt in attempts.order_by("lesson_id", "quiz_id", "-is_correct", "-answered_at"):
+            best_by_question.setdefault((attempt.lesson_id, attempt.quiz_id), attempt.is_correct)
+        total = len(best_by_question)
         if total < min_attempts:
             continue
-        correct = attempts.filter(is_correct=True).count()
+        correct = sum(best_by_question.values())
         rows.append({
             "student": profile.user,
             "display_name": profile.display_name,

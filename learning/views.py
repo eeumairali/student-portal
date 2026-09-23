@@ -1,5 +1,6 @@
 import json
 import mimetypes
+from datetime import timedelta
 from io import BytesIO
 
 from django.conf import settings
@@ -9,6 +10,7 @@ from django.contrib.auth.models import User
 from django.http import FileResponse, Http404, HttpResponse, JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
+from django.utils import timezone
 from django.utils.text import slugify
 from django.views.decorators.http import require_POST
 
@@ -25,6 +27,7 @@ from .services import (
 )
 
 SAMPLE_LESSON_PATH = settings.BASE_DIR / "skills" / "LESSON_TEMPLATE.md"
+QUIZ_RETRY_SECONDS = 60 * 60
 
 
 def _document_context(parsed, *, lesson=None, can_edit=False, preview_warnings=None, preview_markdown=None,
@@ -37,10 +40,15 @@ def _document_context(parsed, *, lesson=None, can_edit=False, preview_warnings=N
         initial_state["completed"] = list(
             Task.objects.filter(lesson=lesson, is_complete=True).values_list("task_id", flat=True)
         )
-        initial_state["quiz_answers"] = {
-            row["quiz_id"]: {"selected_index": row["selected_index"], "is_correct": row["is_correct"]}
-            for row in QuizAttempt.objects.filter(lesson=lesson).values("quiz_id", "selected_index", "is_correct")
-        }
+        initial_state["quiz_answers"] = {}
+        initial_state["quiz_retry_at"] = {}
+        for attempt in QuizAttempt.objects.filter(lesson=lesson).order_by("answered_at", "id"):
+            initial_state["quiz_answers"][attempt.quiz_id] = {
+                "selected_index": attempt.selected_index, "is_correct": attempt.is_correct,
+            }
+            initial_state["quiz_retry_at"][attempt.quiz_id] = (
+                attempt.answered_at + timedelta(seconds=QUIZ_RETRY_SECONDS)
+            ).isoformat()
 
     return {
         "front_matter": parsed.front_matter,
@@ -254,24 +262,33 @@ def lesson_answer_quiz(request, lesson_id, quiz_id):
     if quiz is None:
         raise Http404
 
-    attempt = QuizAttempt.objects.filter(lesson=lesson, quiz_id=quiz_id).first()
-    if attempt is None:
-        data = json.loads(request.body or "{}")
-        try:
-            selected_index = int(data.get("selected_index"))
-        except (TypeError, ValueError):
-            return JsonResponse({"ok": False, "error": "invalid selected_index"}, status=400)
-        if not (0 <= selected_index < len(quiz.options)):
-            return JsonResponse({"ok": False, "error": "invalid selected_index"}, status=400)
-        attempt = QuizAttempt.objects.create(
-            lesson=lesson,
-            quiz_id=quiz_id,
-            selected_index=selected_index,
-            is_correct=bool(quiz.options[selected_index]["is_correct"]),
-        )
+    latest = QuizAttempt.objects.filter(lesson=lesson, quiz_id=quiz_id).order_by("-answered_at", "-id").first()
+    now = timezone.now()
+    if latest and now < latest.answered_at + timedelta(seconds=QUIZ_RETRY_SECONDS):
+        retry_at = latest.answered_at + timedelta(seconds=QUIZ_RETRY_SECONDS)
+        return JsonResponse({
+            "ok": False, "error": "cooldown", "retry_after": max(0, int((retry_at - now).total_seconds())),
+        }, status=429)
+
+    data = json.loads(request.body or "{}")
+    try:
+        selected_index = int(data.get("selected_index"))
+    except (TypeError, ValueError):
+        return JsonResponse({"ok": False, "error": "invalid selected_index"}, status=400)
+    if not (0 <= selected_index < len(quiz.options)):
+        return JsonResponse({"ok": False, "error": "invalid selected_index"}, status=400)
+    attempt = QuizAttempt.objects.create(
+        lesson=lesson,
+        quiz_id=quiz_id,
+        selected_index=selected_index,
+        is_correct=bool(quiz.options[selected_index]["is_correct"]),
+    )
 
     correct_index = next((i for i, opt in enumerate(quiz.options) if opt["is_correct"]), None)
-    score_correct = QuizAttempt.objects.filter(lesson=lesson, is_correct=True).count()
+    score_correct = sum(
+        1 for quiz_key in QuizAttempt.objects.filter(lesson=lesson).values_list("quiz_id", flat=True).distinct()
+        if QuizAttempt.objects.filter(lesson=lesson, quiz_id=quiz_key, is_correct=True).exists()
+    )
     return JsonResponse({
         "ok": True,
         "selected_index": attempt.selected_index,

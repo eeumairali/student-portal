@@ -71,7 +71,7 @@
 
     // ---- hydrate saved state ----
     var stateEl = document.getElementById("lesson-state");
-    var state = { completed: [] };
+    var state = { completed: [], quiz_answers: {}, quiz_retry_at: {} };
     if (stateEl) {
       try { state = JSON.parse(stateEl.textContent); } catch (e) { /* ignore */ }
     }
@@ -275,7 +275,20 @@
     document.querySelectorAll(".quiz[data-quiz-id]").forEach(function (quiz) {
       var quizId = quiz.dataset.quizId;
       var saved = state.quiz_answers ? state.quiz_answers[quizId] : null;
-      if (saved) lockQuiz(quiz, saved.selected_index, saved.is_correct);
+      var retryAt = state.quiz_retry_at ? Date.parse(state.quiz_retry_at[quizId] || "") : NaN;
+      if (saved && (!retryAt || retryAt > Date.now())) {
+        lockQuiz(quiz, saved.selected_index, saved.is_correct);
+        if (retryAt) {
+          setTimeout(function () {
+            quiz.querySelectorAll(".quiz-option").forEach(function (option) {
+              option.disabled = false;
+              option.classList.remove("picked", "correct", "incorrect");
+              var feedback = option.closest(".quiz-option-wrap").querySelector(".quiz-feedback");
+              if (feedback) feedback.classList.remove("show");
+            });
+          }, Math.max(0, retryAt - Date.now()));
+        }
+      }
     });
 
     document.querySelectorAll(".quiz-option").forEach(function (btn) {

@@ -171,11 +171,11 @@ class HintReveal(models.Model):
 
 
 class QuizAttempt(models.Model):
-    """One row per :::task type=choice question in a lesson's markdown_source,
-    once the student answers it. Grading happens server-side against the
-    parsed markdown (never trust a client-submitted "is_correct") and the
-    result is locked in on first answer — this is the student's score, not
-    a practice toggle they can flip back and forth."""
+    """One row per answer to a choice question.
+
+    Students may retry after the cooldown; the full history is retained so
+    improvement can be measured and the leaderboard can use best results.
+    """
 
     lesson = models.ForeignKey(Lesson, on_delete=models.CASCADE, related_name="quiz_attempts")
     quiz_id = models.CharField(max_length=64)
@@ -184,7 +184,6 @@ class QuizAttempt(models.Model):
     answered_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
-        unique_together = [("lesson", "quiz_id")]
         ordering = ["answered_at"]
 
     def __str__(self):
