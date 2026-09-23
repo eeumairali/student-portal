@@ -21,7 +21,7 @@ from .models import (
 )
 from .services import (
     course_progress, enrolled_courses, get_accessible_lesson, get_enrolled_course, leaderboard_rows,
-    student_lessons,
+    student_lessons, student_progress_report,
 )
 
 SAMPLE_LESSON_PATH = settings.BASE_DIR / "skills" / "LESSON_TEMPLATE.md"
@@ -440,6 +440,15 @@ def student_detail(request, user_id):
     return render(request, "learning/tutor/student_detail.html", {
         "student": student, "profile": profile, "lessons": lessons, "courses": courses,
         "comments": comments,
+    })
+
+
+@staff_member_required
+def student_progress_report_view(request, user_id):
+    student = get_object_or_404(User, pk=user_id)
+    return render(request, "learning/tutor/student_progress_report.html", {
+        "report": student_progress_report(student),
+        "profile": getattr(student, "student_profile", None),
     })
 
 

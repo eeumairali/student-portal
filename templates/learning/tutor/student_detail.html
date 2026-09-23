@@ -10,6 +10,7 @@
     <p class="mt-1 font-mono text-xs text-slate-500">@{{ student.username }}{% if profile.guardian_email %} · guardian: {{ profile.guardian_email }}{% endif %}</p>
   </div>
   <div class="flex shrink-0 flex-wrap gap-2">
+    <a href="{% url 'student_progress_report' student.id %}" class="btn-primary">View progress report</a>
     <a href="{% url 'student_export' student.id %}" class="btn-quiet">Download full record</a>
     <a href="{% url 'lesson_bulk_upload' student.id %}" class="btn-quiet">+ Add multiple notes</a>
     <a href="{% url 'lesson_upload' student.id %}" class="btn-primary">+ Add a note</a>

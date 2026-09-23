@@ -20,6 +20,7 @@ urlpatterns = [
     path("students/", views.student_list, name="student_list"),
     path("students/new/", views.student_create, name="student_create"),
     path("students/<int:user_id>/", views.student_detail, name="student_detail"),
+    path("students/<int:user_id>/progress-report/", views.student_progress_report_view, name="student_progress_report"),
     path("students/<int:user_id>/course/<int:course_id>/unenroll/", views.unenroll_course, name="unenroll_course"),
     path("students/<int:user_id>/upload/", views.lesson_upload, name="lesson_upload"),
     path("students/<int:user_id>/bulk-upload/", views.lesson_bulk_upload, name="lesson_bulk_upload"),

@@ -9,6 +9,7 @@ from django.urls import reverse
 from accounts.models import StudentProfile
 from learning.lesson_markdown import parse_lesson
 from learning.models import Course, Enrollment, HintReveal, Lesson, LessonFile, LessonProgress, Task
+from learning.services import student_progress_report
 
 LESSON_TEMPLATE_PATH = settings.BASE_DIR / "skills" / "LESSON_TEMPLATE.md"
 W5D1_KMEANS_PATH = settings.BASE_DIR / "skills" / "W5D1_KMEANS.md"
@@ -220,6 +221,25 @@ class TutorUploadFlowTests(TestCase):
     def test_student_list_requires_staff(self):
         self.client.force_login(self.andy)
         self.assertEqual(self.client.get(reverse("student_list")).status_code, 302)
+
+    def test_progress_report_updates_from_saved_activity(self):
+        self.client.force_login(self.staff)
+        md = SIMPLE_LESSON_MD.format(student="andy", title="Progress note")
+        self.client.post(reverse("lesson_upload", args=[self.andy.id]), {"markdown": md, "action": "confirm"})
+        lesson = Lesson.objects.get(student=self.andy, title="Progress note")
+        Task.objects.filter(lesson=lesson, task_id="t1").update(is_complete=True)
+        HintReveal.objects.create(lesson=lesson, task_id="q1")
+
+        report = student_progress_report(self.andy)
+        self.assertEqual(report["lesson_count"], 1)
+        self.assertEqual(report["completed_tasks"], 1)
+        self.assertEqual(report["hint_count"], 1)
+        self.assertIn("Progress note", report["topics"])
+
+        self.assertContains(
+            self.client.get(reverse("student_progress_report", args=[self.andy.id])),
+            "Parent progress report",
+        )
 
     def test_student_list_shows_every_registered_student(self):
         self.client.force_login(self.staff)

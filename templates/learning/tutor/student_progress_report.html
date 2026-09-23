@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+{% block title %}{{ profile.display_name|default:report.student.username }} · Progress report{% endblock %}
+{% block extra_head %}<style>@media print { header, footer, .print-hide { display: none !important; } main { max-width: none; padding: 0; } .report-card { box-shadow: none; border: 1px solid #d7ddd9; } }</style>{% endblock %}
+{% block content %}
+<div class="print-hide flex items-center justify-between gap-4">
+  <a href="{% url 'student_detail' report.student.id %}" class="text-sm text-slate-500 hover:text-ink">&larr; Back to student</a>
+  <button type="button" onclick="window.print()" class="btn-primary">Print / save as PDF</button>
+</div>
+<section class="report-card mt-6 rounded-2xl border border-line bg-card p-6 shadow-card sm:p-10">
+  <div class="flex flex-wrap items-start justify-between gap-6 border-b border-line pb-6">
+    <div><p class="eyebrow">Parent progress report</p><h1 class="mt-2 font-display text-4xl">{{ profile.display_name|default:report.student.username }}</h1><p class="mt-2 text-sm text-slate-500">Automatically updated from {{ report.lesson_count }} recorded session{{ report.lesson_count|pluralize }}</p></div>
+    <div class="rounded-xl bg-mint-100 px-4 py-3 text-right"><p class="eyebrow text-teal-700">Practice completed</p><p class="mt-1 font-display text-3xl text-teal-800">{{ report.task_percent }}%</p></div>
+  </div>
+  <div class="mt-7 grid gap-4 sm:grid-cols-3">
+    <div class="rounded-xl border border-line p-4"><p class="eyebrow">Topics covered</p><p class="mt-2 text-2xl font-semibold">{{ report.topics|length }}</p><p class="mt-1 text-xs text-slate-500">{{ report.topics|join:", "|default:"No topics recorded yet" }}</p></div>
+    <div class="rounded-xl border border-line p-4"><p class="eyebrow">Questions answered</p><p class="mt-2 text-2xl font-semibold">{{ report.total_quizzes }}</p><p class="mt-1 text-xs text-slate-500">{{ report.correct_quizzes }} correct</p></div>
+    <div class="rounded-xl border border-line p-4"><p class="eyebrow">Independent practice</p><p class="mt-2 text-2xl font-semibold">{{ report.completed_tasks }} / {{ report.total_tasks }}</p><p class="mt-1 text-xs text-slate-500">{{ report.hint_count }} hint{{ report.hint_count|pluralize }} recorded</p></div>
+  </div>
+  <div class="mt-8 grid gap-8 md:grid-cols-2">
+    <div><h2 class="eyebrow">What was covered</h2><ul class="mt-3 space-y-2 text-sm">{% for topic in report.topics %}<li class="rounded-lg bg-paper px-3 py-2">{{ topic }}</li>{% empty %}<li class="text-slate-500">No topics recorded yet.</li>{% endfor %}</ul></div>
+    <div><h2 class="eyebrow">What is going well</h2><ul class="mt-3 space-y-2 text-sm">{% for item in report.strengths %}<li class="flex gap-2"><span class="text-teal-600">&#10003;</span><span>{{ item }}</span></li>{% endfor %}</ul></div>
+  </div>
+  <div class="mt-8 rounded-xl bg-paper p-5"><h2 class="eyebrow">Best next steps for the future</h2><ul class="mt-3 space-y-2 text-sm">{% for item in report.next_steps %}<li class="flex gap-2"><span class="text-amber-600">&#8594;</span><span>{{ item }}</span></li>{% endfor %}</ul></div>
+  <div class="mt-8"><h2 class="eyebrow">Session-by-session record</h2><div class="mt-3 divide-y divide-line rounded-xl border border-line">{% for session in report.sessions %}<div class="p-4"><div class="flex flex-wrap justify-between gap-2"><div><p class="font-medium">{{ session.lesson.title }}</p><p class="font-mono text-xs text-slate-500">{{ session.lesson.date|default:"No date" }} · {{ session.topics|join:", " }}</p></div><span class="text-xs text-slate-500">{% if session.complete %}Completed{% else %}In progress{% endif %}</span></div><p class="mt-2 text-sm text-slate-600">{{ session.question_count }} question{{ session.question_count|pluralize }}: {{ session.completed_tasks }}/{{ session.task_count }} practice step{{ session.task_count|pluralize }} completed{% if session.quiz_count %}; {{ session.quiz_correct }}/{{ session.quiz_answered }} checked question{{ session.quiz_answered|pluralize }} correct{% endif %}{% if session.hints %}; {{ session.hints }} hint{{ session.hints|pluralize }} used{% endif %}.</p></div>{% empty %}<p class="p-4 text-sm text-slate-500">No sessions recorded yet.</p>{% endfor %}</div></div>
+</section>
+{% endblock %}
