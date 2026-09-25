@@ -1,0 +1,86 @@
+{% load static %}<!doctype html>
+<html lang="en"{% if theme_palette %} data-palette-key="{{ theme_palette }}"{% endif %}>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<meta name="color-scheme" content="light">
+<title>Second chance · {{ lesson.title }}</title>
+<link rel="icon" type="image/svg+xml" href="{% static 'img/favicon.svg' %}">
+<link rel="stylesheet" href="{% static 'css/lesson-theme.css' %}">
+<script src="{% static 'js/site-palette.js' %}"></script>
+<script src="{% static 'js/lesson-site-theme.js' %}"></script>
+{% if front_matter.accent %}<style>:root{--accent:{{ front_matter.accent }};}</style>{% endif %}
+</head>
+<body class="lesson-doc">
+<nav class="lnav">
+  <div class="wrap">
+    <a href="{% url 'dashboard' %}" class="lnav-brand">
+      <span class="lnav-mark">Sd</span>
+      <span class="lnav-name">Study desk</span>
+    </a>
+    <div class="lnav-links">
+      <a href="{% url 'dashboard' %}" class="lnav-back">&larr; Dashboard</a>
+      <a href="{% url 'lesson_detail' lesson.id %}" class="lnav-back">Full notebook</a>
+    </div>
+  </div>
+</nav>
+
+<header class="lhead">
+  <div class="wrap">
+    <p class="eyebrow">Second chance{% if course %} · {{ course }}{% endif %}</p>
+    <h1 class="ltitle">{{ lesson.title }}</h1>
+    {% if wrong_count %}
+      <p class="lsub">{{ wrong_count }} question{{ wrong_count|pluralize }} to try again. Re-read the section above each one, then pick your answer.</p>
+    {% endif %}
+  </div>
+</header>
+
+<div class="wrap" id="lesson-root" data-lesson-id="{{ lesson.id }}" data-lesson-base="{% url 'lesson_second_chance' lesson.id %}" data-can-edit="1">
+  {% if not wrong_count %}
+    <div class="done-msg show">
+      <h3>Nothing to redo here.</h3>
+      <p>Every question in this notebook is answered correctly. <a href="{% url 'dashboard' %}">Back to dashboard</a></p>
+    </div>
+  {% elif waiting %}
+    <div class="tip" id="second-chance-wait" data-available-at="{{ available_at.isoformat }}">
+      Your second chance opens in <strong id="second-chance-left">…</strong>. Take a moment to look back over the notebook first.
+    </div>
+    <script>
+      (function () {
+        var box = document.getElementById("second-chance-wait");
+        var label = document.getElementById("second-chance-left");
+        var at = Date.parse(box.dataset.availableAt);
+        function tick() {
+          var left = Math.max(0, Math.ceil((at - Date.now()) / 1000));
+          label.textContent = Math.floor(left / 60) + ":" + String(left % 60).padStart(2, "0");
+          if (left <= 0) { window.location.reload(); return; }
+          setTimeout(tick, 1000);
+        }
+        tick();
+      })();
+    </script>
+  {% else %}
+    {% for section in sections %}
+      <section class="block">
+        {% if section.block.title %}
+          <div class="block-head">
+            {% if section.block.total %}<span class="block-count">Section {{ section.block.index }} of {{ section.block.total }}</span>{% endif %}
+            <h2 class="block-title">{{ section.block.title }}</h2>
+          </div>
+        {% endif %}
+        <div class="block-body">
+          {% for n in section.content %}{% include n.template_name with node=n %}{% endfor %}
+          {% for n in section.quizzes %}{% include n.template_name with node=n %}{% endfor %}
+        </div>
+      </section>
+    {% endfor %}
+    <p class="back-to-editor"><a href="{% url 'dashboard' %}">&larr; Back to dashboard</a></p>
+  {% endif %}
+</div>
+
+<script id="lesson-state" type="application/json">{"completed": [], "quiz_answers": {}, "quiz_retry_at": {}}</script>
+{% include "learning/lesson/_mermaid_scripts.html" %}
+<script src="{% static 'js/lesson.js' %}?v=4" defer></script>
+</body>
+</html>

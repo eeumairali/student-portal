@@ -1,11 +1,13 @@
 """Shared query helpers. Everything a student can reach is filtered by
 enrolment (or, for a personal dated lesson, by student match) here, so no
 view can accidentally leak another student's data."""
+from datetime import timedelta
+
 from django.db.models import Q
 from django.http import Http404
 from django.shortcuts import get_object_or_404
 
-from .lesson_markdown import parse_lesson
+from .lesson_markdown import Practice, Quiz, TaskBlock, parse_lesson
 from .models import Course, Enrollment, HintReveal, Lesson, LessonProgress, QuizAttempt, Task
 
 
@@ -118,6 +120,60 @@ def leaderboard_rows(min_attempts=3):
             "percent": round(correct / total * 100),
         })
     return rows
+
+
+SECOND_CHANCE_SECONDS = 60
+
+
+def wrong_quiz_attempts(lesson, parsed=None):
+    """{quiz_id: latest attempt} for every choice question in the lesson whose
+    most recent answer is wrong. A question answered correctly later (on the
+    lesson page or on a second chance) drops out."""
+    parsed = parsed or parse_lesson(lesson.markdown_source or "")
+    current_ids = {quiz.quiz_id for quiz in parsed.quizzes}
+    latest = {}
+    for attempt in QuizAttempt.objects.filter(lesson=lesson, quiz_id__in=current_ids).order_by("answered_at", "id"):
+        latest[attempt.quiz_id] = attempt
+    return {quiz_id: attempt for quiz_id, attempt in latest.items() if not attempt.is_correct}
+
+
+def second_chance_rows(student, *, include_locked=False):
+    """One row per notebook where the student still has wrong answers: how
+    many, and when the redo opens (SECOND_CHANCE_SECONDS after the most
+    recent wrong answer in that notebook)."""
+    lessons = student_lessons(student, include_locked=include_locked).exclude(markdown_source="")
+    rows = []
+    for lesson in lessons.filter(quiz_attempts__is_correct=False).distinct():
+        parsed = parse_lesson(lesson.markdown_source)
+        wrong = wrong_quiz_attempts(lesson, parsed)
+        if not wrong:
+            continue
+        last_wrong_at = max(attempt.answered_at for attempt in wrong.values())
+        rows.append({
+            "lesson": lesson,
+            "wrong_count": len(wrong),
+            "quiz_total": len(parsed.quizzes),
+            "available_at": last_wrong_at + timedelta(seconds=SECOND_CHANCE_SECONDS),
+        })
+    return rows
+
+
+def second_chance_sections(parsed, wrong_ids):
+    """The wrong questions grouped under the lesson section they came from,
+    with that section's teaching content (prose, examples, tips…) so the
+    student can re-read it before trying again. Other questions and
+    practice steps in the section are left out."""
+    skip = (Quiz, Practice, TaskBlock)
+    sections = []
+    for block in parsed.blocks:
+        quizzes = [n for n in block.nodes if isinstance(n, Quiz) and n.quiz_id in wrong_ids]
+        if quizzes:
+            sections.append({
+                "block": block,
+                "content": [n for n in block.nodes if not isinstance(n, skip)],
+                "quizzes": quizzes,
+            })
+    return sections
 
 
 def student_progress_report(student):

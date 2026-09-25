@@ -22,8 +22,9 @@ from .models import (
     Course, Enrollment, HintReveal, Homework, Lesson, LessonFile, LessonProgress, Notification, QuizAttempt, Task,
 )
 from .services import (
-    course_progress, enrolled_courses, get_accessible_lesson, get_enrolled_course, leaderboard_rows,
-    student_lessons, student_progress_report,
+    SECOND_CHANCE_SECONDS, course_progress, enrolled_courses, get_accessible_lesson, get_enrolled_course,
+    leaderboard_rows, second_chance_rows, second_chance_sections, student_lessons, student_progress_report,
+    wrong_quiz_attempts,
 )
 
 SAMPLE_LESSON_PATH = settings.BASE_DIR / "skills" / "LESSON_TEMPLATE.md"
@@ -75,7 +76,9 @@ def dashboard(request):
     courses = enrolled_courses(request.user)
     cards = [{"course": c, **course_progress(request.user, c)} for c in courses]
     notes = student_lessons(request.user)
-    return render(request, "learning/dashboard.html", {"cards": cards, "notes": notes})
+    return render(request, "learning/dashboard.html", {
+        "cards": cards, "notes": notes, "second_chance": second_chance_rows(request.user),
+    })
 
 
 @login_required
@@ -270,6 +273,13 @@ def lesson_answer_quiz(request, lesson_id, quiz_id):
             "ok": False, "error": "cooldown", "retry_after": max(0, int((retry_at - now).total_seconds())),
         }, status=429)
 
+    return _grade_quiz_answer(request, lesson, parsed, quiz)
+
+
+def _grade_quiz_answer(request, lesson, parsed, quiz):
+    """Validate the picked option, save the attempt, and return the graded
+    result plus the lesson's running score."""
+    quiz_id = quiz.quiz_id
     data = json.loads(request.body or "{}")
     try:
         selected_index = int(data.get("selected_index"))
@@ -297,6 +307,58 @@ def lesson_answer_quiz(request, lesson_id, quiz_id):
         "score_correct": score_correct,
         "score_total": len(parsed.quizzes),
     })
+
+
+@login_required
+def lesson_second_chance(request, lesson_id):
+    """Redo only the questions the student got wrong in one notebook, each
+    shown under the section of the lesson it came from so they can re-read
+    the material first. Opens SECOND_CHANCE_SECONDS after the last wrong
+    answer in the notebook."""
+    lesson = _owned_lesson_or_404(request, lesson_id)
+    if not lesson.is_document:
+        raise Http404
+    parsed = parse_lesson(lesson.markdown_source)
+    wrong = wrong_quiz_attempts(lesson, parsed)
+    available_at = None
+    if wrong:
+        available_at = max(a.answered_at for a in wrong.values()) + timedelta(seconds=SECOND_CHANCE_SECONDS)
+    waiting = available_at is not None and timezone.now() < available_at
+    owner_profile = getattr(lesson.student, "student_profile", None)
+    return render(request, "learning/second_chance.html", {
+        "lesson": lesson,
+        "front_matter": parsed.front_matter,
+        "course": parsed.front_matter.get("course"),
+        "sections": [] if waiting else second_chance_sections(parsed, set(wrong)),
+        "wrong_count": len(wrong),
+        "available_at": available_at,
+        "waiting": waiting,
+        "theme_palette": owner_profile.theme_palette if owner_profile else "",
+    })
+
+
+@login_required
+@require_POST
+def lesson_second_chance_answer(request, lesson_id, quiz_id):
+    """Answer a wrong question again from the second-chance page. Only a
+    question whose latest answer is wrong can be redone, and only once
+    SECOND_CHANCE_SECONDS have passed since that answer."""
+    lesson = _owned_lesson_or_404(request, lesson_id)
+    parsed = parse_lesson(lesson.markdown_source)
+    quiz = next((q for q in parsed.quizzes if q.quiz_id == quiz_id), None)
+    if quiz is None:
+        raise Http404
+
+    latest = wrong_quiz_attempts(lesson, parsed).get(quiz_id)
+    if latest is None:
+        return JsonResponse({"ok": False, "error": "not a wrong question"}, status=400)
+    retry_at = latest.answered_at + timedelta(seconds=SECOND_CHANCE_SECONDS)
+    now = timezone.now()
+    if now < retry_at:
+        return JsonResponse({
+            "ok": False, "error": "cooldown", "retry_after": max(0, int((retry_at - now).total_seconds())),
+        }, status=429)
+    return _grade_quiz_answer(request, lesson, parsed, quiz)
 
 
 # --------------------------------------------------------------- staff tool --
@@ -456,7 +518,7 @@ def student_detail(request, user_id):
     comments = profile.comments.all() if profile else []
     return render(request, "learning/tutor/student_detail.html", {
         "student": student, "profile": profile, "lessons": lessons, "courses": courses,
-        "comments": comments,
+        "comments": comments, "second_chance": second_chance_rows(student, include_locked=True),
     })
 
 

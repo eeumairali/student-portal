@@ -121,4 +121,26 @@
     <p class="mt-2 text-sm text-slate-500">Add the first one — paste or upload a Markdown file.</p>
   </div>
 {% endif %}
+
+<h2 class="mt-10 eyebrow">Second chance</h2>
+{% if second_chance %}
+  <p class="mt-1 text-sm text-slate-500">Notebooks where the student's latest answer to a question is still wrong. They can redo these from their dashboard.</p>
+  <ol class="mt-4 divide-y divide-line overflow-hidden rounded-xl border border-line bg-card shadow-card">
+    {% for row in second_chance %}
+      <li>
+        <a href="{% url 'lesson_tutor_view' row.lesson.id %}" class="flex items-center justify-between gap-4 p-4 transition hover:bg-paper">
+          <div class="min-w-0">
+            <p class="font-mono text-xs text-slate-500">{{ row.lesson.date|default:"No date" }}</p>
+            <p class="mt-0.5 font-medium">{{ row.lesson.title }}</p>
+          </div>
+          <span class="shrink-0 rounded-full bg-red-50 px-2.5 py-1 text-[11px] font-medium text-red-700">
+            {{ row.wrong_count }} of {{ row.quiz_total }} wrong
+          </span>
+        </a>
+      </li>
+    {% endfor %}
+  </ol>
+{% else %}
+  <p class="mt-4 text-sm text-slate-500">No wrong answers to redo.</p>
+{% endif %}
 {% endblock %}

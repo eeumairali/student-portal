@@ -627,3 +627,103 @@ PortalTests = override_settings(
         "staticfiles": {"BACKEND": "django.contrib.staticfiles.storage.StaticFilesStorage"},
     }
 )(PortalTests)
+
+
+SECOND_CHANCE_MD = """---
+student: {student}
+date: 2026-01-12
+title: {title}
+visible: true
+---
+
+## Numbers
+
+A number is a value you can do maths with, like 42.
+
+:::task id=q1 type=choice
+Which value is a number?
+
+OPTIONS
+- [x] 42 - Correct
+- [ ] hello - Try again
+:::
+
+## Text
+
+Text sits inside quotes.
+
+:::task id=q2 type=choice
+Which value is text?
+
+OPTIONS
+- [ ] 7 - Try again
+- [x] "hi" - Correct
+:::
+"""
+
+
+class SecondChanceTests(TestCase):
+    def setUp(self):
+        self.andy = User.objects.create_user("andy3", password="pw-andy-123456")
+        self.priya = User.objects.create_user("priya3", password="pw-priya-123456")
+        StudentProfile.objects.create(user=self.andy, display_name="Andy3")
+        self.lesson = Lesson.objects.create(
+            student=self.andy, date="2026-01-12", title="Values",
+            markdown_source=SECOND_CHANCE_MD.format(student="andy3", title="Values"), is_published=True,
+        )
+        self.client.force_login(self.andy)
+        answer = lambda qid, idx: self.client.post(
+            reverse("lesson_answer_quiz", args=[self.lesson.id, qid]),
+            data=json.dumps({"selected_index": idx}), content_type="application/json",
+        )
+        answer("q1", 1)  # wrong
+        answer("q2", 1)  # right
+
+    def _age_attempts(self, seconds):
+        self.lesson.quiz_attempts.update(answered_at=timezone.now() - timedelta(seconds=seconds))
+
+    def _redo(self, quiz_id, idx):
+        return self.client.post(
+            reverse("lesson_second_chance_answer", args=[self.lesson.id, quiz_id]),
+            data=json.dumps({"selected_index": idx}), content_type="application/json",
+        )
+
+    def test_dashboard_lists_notebook_with_wrong_count(self):
+        response = self.client.get(reverse("dashboard"))
+        self.assertContains(response, "Second chance")
+        self.assertContains(response, "1 of 2 questions wrong")
+        self.assertContains(response, reverse("lesson_second_chance", args=[self.lesson.id]))
+
+    def test_page_waits_for_timer_then_shows_only_wrong_question_with_its_section(self):
+        url = reverse("lesson_second_chance", args=[self.lesson.id])
+        waiting = self.client.get(url)
+        self.assertContains(waiting, "second-chance-wait")
+        self.assertNotContains(waiting, "Which value is a number?")
+
+        self._age_attempts(61)
+        response = self.client.get(url)
+        self.assertContains(response, "A number is a value you can do maths with")
+        self.assertContains(response, "Which value is a number?")
+        self.assertNotContains(response, "Which value is text?")
+
+    def test_redo_blocked_during_timer_and_for_correct_questions(self):
+        self.assertEqual(self._redo("q1", 0).status_code, 429)
+        self._age_attempts(61)
+        self.assertEqual(self._redo("q2", 1).status_code, 400)
+
+    def test_correct_redo_clears_the_notebook_from_second_chance(self):
+        self._age_attempts(61)
+        response = self._redo("q1", 0)
+        self.assertTrue(response.json()["is_correct"])
+        self.assertNotContains(self.client.get(reverse("dashboard")), "questions wrong")
+
+    def test_other_student_cannot_open_or_answer(self):
+        self._age_attempts(61)
+        self.client.force_login(self.priya)
+        self.assertEqual(self.client.get(reverse("lesson_second_chance", args=[self.lesson.id])).status_code, 404)
+        self.assertEqual(self._redo("q1", 0).status_code, 404)
+
+    def test_tutor_sees_wrong_count_on_student_profile(self):
+        staff = User.objects.create_user("tutor4", password="pw-tutor-12345", is_staff=True)
+        self.client.force_login(staff)
+        self.assertContains(self.client.get(reverse("student_detail", args=[self.andy.id])), "1 of 2 wrong")
