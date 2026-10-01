@@ -28,12 +28,13 @@
 <header class="glass-nav sticky top-0 z-40" x-data="{ open: false }" @keyup.escape.window="open = false">
   <div class="mx-auto flex max-w-6xl items-center justify-between px-5 py-4">
     <a href="{% url 'home' %}" class="group flex items-center gap-2.5">
-      <span class="brand-mark flex h-9 w-9 shrink-0 items-center justify-center rounded-lg text-sm font-display font-bold text-white shadow-glow transition-transform duration-300 group-hover:rotate-6">Sd</span>
-      <span class="font-display text-lg leading-none text-ink">Study desk</span>
-      <span class="hidden text-xs text-slate-500 sm:inline">· everything for your next session</span>
+      <span class="brand-mark flex h-9 w-9 shrink-0 items-center justify-center rounded-lg text-sm font-display font-bold text-white shadow-glow transition-transform duration-300 group-hover:rotate-6">UA</span>
+      <span class="font-display text-lg leading-none text-ink">Umair Code Lab</span>
+      <span class="hidden text-xs text-slate-500 sm:inline">· learn Python by building</span>
     </a>
 
     <div class="hidden items-center gap-2.5 text-sm md:flex">
+      <a class="chip transition hover:border-mint-400 hover:text-ink" href="{% url 'home' %}#about">About me</a>
       {% if user.is_authenticated %}
         <span class="text-slate-500">{{ user.student_profile.display_name|default:user.username }}</span>
         <a class="chip relative transition hover:border-mint-400 hover:text-ink" href="{% url 'notification_list' %}" aria-label="Notifications">
@@ -72,6 +73,7 @@
   <div x-show="open" x-cloak x-transition.duration.150ms @click.outside="open = false"
        class="border-t border-line/70 bg-paper/95 backdrop-blur-xl md:hidden">
     <div class="mx-auto flex max-w-6xl flex-col gap-1 px-5 py-4 text-sm">
+      <a class="rounded-lg px-3 py-2 transition hover:bg-card" href="{% url 'home' %}#about">About me</a>
       {% if user.is_authenticated %}
         <span class="px-1 pb-2 text-slate-500">{{ user.student_profile.display_name|default:user.username }}</span>
         <a class="rounded-lg px-3 py-2 transition hover:bg-card" href="{% url 'notification_list' %}">
@@ -112,7 +114,7 @@
 </main>
 
 <footer class="border-t border-line/70 bg-card/40 py-8 text-center text-xs text-slate-500">
-  <p>Built for one-to-one tutoring. Your work is visible only to you and your tutor.</p>
+  <p>Umair Code Lab · Python, data science, machine learning, and practical web development.</p>
 </footer>
 
 </body>
