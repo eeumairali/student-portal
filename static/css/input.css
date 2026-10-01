@@ -109,6 +109,9 @@
   .landing-page .card, .landing-page figure { min-width: 0; overflow: hidden; }
   .landing-page h1, .landing-page h2, .landing-page h3, .landing-page p, .landing-page blockquote { overflow-wrap: anywhere; }
   .landing-reveal { animation: landing-rise .7s cubic-bezier(.2,.7,.2,1) both; }
+  .landing-scroll-reveal { opacity: 0; transform: translateY(22px); transition: opacity .7s ease, transform .7s cubic-bezier(.2,.7,.2,1); }
+  .landing-scroll-reveal.is-visible { opacity: 1; transform: translateY(0); }
+  .landing-stat { font-variant-numeric: tabular-nums; }
   .landing-delay-1 { animation-delay: .1s; }
   .landing-delay-2 { animation-delay: .2s; }
   .landing-delay-3 { animation-delay: .3s; }
@@ -126,7 +129,7 @@
   @media (prefers-reduced-motion: reduce) { .review-control { transition: none; } .review-dot { transition: none; } }
   .landing-section-heading { min-width: 0; }
   @keyframes landing-rise { from { opacity: 0; transform: translateY(18px); } to { opacity: 1; transform: translateY(0); } }
-  @media (prefers-reduced-motion: reduce) { .landing-reveal { animation: none; } .landing-card { transition: none; } }
+  @media (prefers-reduced-motion: reduce) { .landing-reveal { animation: none; } .landing-scroll-reveal { opacity: 1; transform: none; transition: none; } .landing-card { transition: none; } }
   @media (max-width: 640px) { .landing-path-card { min-height: 0; } }
 }
 

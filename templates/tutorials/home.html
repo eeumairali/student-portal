@@ -28,14 +28,14 @@
   </div>
 </section>
 
-<section class="mt-8 grid gap-3 sm:grid-cols-2 lg:grid-cols-4" aria-label="Teaching highlights">
-  <div class="card landing-card p-5"><p class="font-display text-3xl text-gradient">2,765+</p><p class="mt-1 text-sm text-slate-500">lessons taught</p></div>
-  <div class="card landing-card p-5"><p class="font-display text-3xl text-gradient">5.0/5</p><p class="mt-1 text-sm text-slate-500">student rating</p></div>
-  <div class="card landing-card p-5"><p class="font-display text-3xl text-gradient">100+</p><p class="mt-1 text-sm text-slate-500">projects completed</p></div>
-  <div class="card landing-card p-5"><p class="font-display text-3xl text-gradient">7+ years</p><p class="mt-1 text-sm text-slate-500">working with Python</p></div>
+<section class="landing-scroll-reveal mt-8 grid gap-3 sm:grid-cols-2 lg:grid-cols-4" data-scroll-reveal aria-label="Teaching highlights">
+  <div class="card landing-card p-5"><p class="landing-stat font-display text-3xl text-gradient" data-counter data-target="5000" data-suffix="+">0+</p><p class="mt-1 text-sm text-slate-500">hours taught</p></div>
+  <div class="card landing-card p-5"><p class="landing-stat font-display text-3xl text-gradient" data-counter data-target="5" data-decimals="1" data-suffix="/5">0.0/5</p><p class="mt-1 text-sm text-slate-500">student rating</p></div>
+  <div class="card landing-card p-5"><p class="landing-stat font-display text-3xl text-gradient" data-counter data-target="200" data-suffix="+">0+</p><p class="mt-1 text-sm text-slate-500">projects completed</p></div>
+  <div class="card landing-card p-5"><p class="landing-stat font-display text-3xl text-gradient" data-counter data-target="7" data-suffix="+">0+</p><p class="mt-1 text-sm text-slate-500">years with Python</p></div>
 </section>
 
-<section class="mt-16">
+<section class="landing-scroll-reveal mt-16" data-scroll-reveal>
   <div class="landing-section-heading flex flex-col justify-between gap-3 sm:flex-row sm:items-end">
     <div><p class="eyebrow">Choose your path</p><h2 class="mt-2 font-display text-2xl sm:text-3xl">Learn what moves you forward</h2></div>
     <p class="max-w-md text-sm text-slate-500">Start with the fundamentals or bring a real project. Each path is practical, focused, and adapted to your goals.</p>
@@ -50,7 +50,7 @@
   </div>
 </section>
 
-<section id="domains" class="mt-6 scroll-mt-24">
+<section id="domains" class="landing-scroll-reveal mt-6 scroll-mt-24" data-scroll-reveal>
   <p class="eyebrow">Explore</p>
   <h2 class="mt-2 font-display text-2xl sm:text-3xl">Start learning Python and more</h2>
 
@@ -79,7 +79,7 @@
   {% endif %}
 </section>
 
-<section class="mt-16 grid gap-6 lg:grid-cols-[1.1fr_.9fr]">
+<section class="landing-scroll-reveal mt-16 grid gap-6 lg:grid-cols-[1.1fr_.9fr]" data-scroll-reveal>
   <div class="card overflow-hidden p-7 sm:p-9">
     <p class="eyebrow">A learning rhythm that works</p>
     <h2 class="mt-2 font-display text-2xl sm:text-3xl">Understand it. Build it. Explain it.</h2>
@@ -95,7 +95,7 @@
   </div>
 </section>
 
-<section class="mt-16">
+<section class="landing-scroll-reveal mt-16" data-scroll-reveal>
   <div class="text-center"><p class="eyebrow">From the learners</p><h2 class="mt-2 font-display text-2xl sm:text-3xl">Patient guidance. Practical progress.</h2><p class="mx-auto mt-3 max-w-2xl text-sm text-slate-500">Real feedback from learners, parents, and project clients who have worked with Umair.</p></div>
   <div class="review-carousel mt-8" data-review-carousel data-review-interval="3000" aria-label="Learner reviews">
   <div class="review-grid grid gap-4 md:grid-cols-2 lg:grid-cols-3" data-review-grid aria-live="polite">
@@ -133,7 +133,7 @@
   </div>
 </section>
 
-<section class="mt-16 rounded-3xl bg-card px-6 py-10 text-center sm:px-10">
+<section class="landing-scroll-reveal mt-16 rounded-3xl bg-card px-6 py-10 text-center sm:px-10" data-scroll-reveal>
   <p class="eyebrow">Ready when you are</p>
   <h2 class="mt-2 font-display text-2xl sm:text-3xl">Start with a tutorial or say hello</h2>
   <p class="mx-auto mt-3 max-w-xl text-sm text-slate-500">Browse the free lessons, sign in to your student space, or message Umair about a learning plan.</p>
@@ -146,6 +146,48 @@
 </div>
 <script>
   (function () {
+    const counterElements = Array.from(document.querySelectorAll('[data-counter]'));
+    const revealElements = Array.from(document.querySelectorAll('[data-scroll-reveal]'));
+    const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+    const updateCounter = (counterElement, progress) => {
+      const target = Number(counterElement.dataset.target);
+      const decimals = Number(counterElement.dataset.decimals || 0);
+      const suffix = counterElement.dataset.suffix || '';
+      const currentValue = (target * progress).toFixed(decimals);
+      counterElement.textContent = `${Number(currentValue).toLocaleString()}${suffix}`;
+    };
+
+    const animateCounters = () => {
+      const animationStart = performance.now();
+      const animationDuration = 1600;
+      const tick = (currentTime) => {
+        const progress = Math.min((currentTime - animationStart) / animationDuration, 1);
+        const easedProgress = 1 - Math.pow(1 - progress, 3);
+        counterElements.forEach((counterElement) => updateCounter(counterElement, easedProgress));
+        if (progress < 1) window.requestAnimationFrame(tick);
+      };
+      window.requestAnimationFrame(tick);
+    };
+
+    if (prefersReducedMotion) {
+      counterElements.forEach((counterElement) => updateCounter(counterElement, 1));
+      revealElements.forEach((revealElement) => revealElement.classList.add('is-visible'));
+    } else if ('IntersectionObserver' in window) {
+      const revealObserver = new IntersectionObserver((entries, observer) => {
+        entries.forEach((entry) => {
+          if (!entry.isIntersecting) return;
+          entry.target.classList.add('is-visible');
+          if (entry.target.querySelector('[data-counter]')) animateCounters();
+          observer.unobserve(entry.target);
+        });
+      }, { threshold: 0.15, rootMargin: '0px 0px -40px 0px' });
+      revealElements.forEach((revealElement) => revealObserver.observe(revealElement));
+    } else {
+      counterElements.forEach((counterElement) => updateCounter(counterElement, 1));
+      revealElements.forEach((revealElement) => revealElement.classList.add('is-visible'));
+    }
+
     const carousel = document.querySelector('[data-review-carousel]');
     if (!carousel) return;
 
