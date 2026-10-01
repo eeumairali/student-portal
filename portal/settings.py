@@ -91,10 +91,11 @@ if _database_url and _database_url.startswith(("postgres://", "postgresql://")):
     }
     _database_options["options"] = f"endpoint={_database_host.split('.')[0]}"
     try:
-        _database_host = socket.getaddrinfo(
+        _database_ipv4_hosts = socket.getaddrinfo(
             _database_host, _parsed_database_url.port or 5432,
             socket.AF_INET, socket.SOCK_STREAM,
-        )[0][4][0]
+        )
+        _database_host = ",".join(dict.fromkeys(address[4][0] for address in _database_ipv4_hosts))
     except socket.gaierror:
         pass
     DATABASES = {
