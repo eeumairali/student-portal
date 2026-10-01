@@ -2,6 +2,18 @@
 {% block title %}Umair Code Lab — Learn Python, Data Science and AI{% endblock %}
 {% block robots %}{% endblock %}
 {% block meta_description %}<meta name="description" content="Learn Python, data science, machine learning and web development with Umair Ali, a Python tutor and PhD scholar in computer vision.">{% endblock %}
+{% block extra_head %}
+<style>
+  .landing-reveal { animation: landing-rise .7s cubic-bezier(.2,.7,.2,1) both; }
+  .landing-delay-1 { animation-delay: .1s; }
+  .landing-delay-2 { animation-delay: .2s; }
+  .landing-delay-3 { animation-delay: .3s; }
+  .landing-card { transition: transform .25s ease, border-color .25s ease, box-shadow .25s ease; }
+  .landing-card:hover { transform: translateY(-5px); border-color: rgb(var(--c-accent-2)); box-shadow: 0 18px 36px -24px rgba(102,73,48,.45); }
+  @keyframes landing-rise { from { opacity: 0; transform: translateY(18px); } to { opacity: 1; transform: translateY(0); } }
+  @media (prefers-reduced-motion: reduce) { .landing-reveal { animation: none; } .landing-card { transition: none; } }
+</style>
+{% endblock %}
 {% block content %}
 <section class="relative overflow-hidden rounded-3xl px-6 py-16 sm:py-24">
   <div class="blob blob-1 animate-blob-pulse -left-24 -top-24 h-72 w-72" aria-hidden="true"></div>
@@ -9,18 +21,43 @@
   <div class="blob blob-3 animate-float-slow bottom-0 left-1/3 h-64 w-64" aria-hidden="true"></div>
 
   <div class="relative mx-auto max-w-3xl text-center">
-    <span class="chip"><span class="chip-dot"></span> Python tutor · researcher · builder</span>
-    <h1 class="mt-6 font-display text-4xl leading-tight sm:text-6xl">
+    <span class="chip landing-reveal"><span class="chip-dot"></span> Python tutor · researcher · builder</span>
+    <h1 class="mt-6 font-display text-4xl leading-tight landing-reveal landing-delay-1 sm:text-6xl">
       Learn <span class="text-gradient">Python by building</span> real projects
     </h1>
-    <p class="mx-auto mt-5 max-w-xl text-base text-slate-500 sm:text-lg">
+    <p class="mx-auto mt-5 max-w-xl text-base text-slate-500 landing-reveal landing-delay-2 sm:text-lg">
       Clear, practical lessons in Python, data science, machine learning, computer vision, and web development, shaped by an experienced teacher and researcher.
     </p>
-    <div class="mt-8 flex flex-wrap items-center justify-center gap-3">
+    <p class="mx-auto mt-4 max-w-2xl text-sm text-slate-500 landing-reveal landing-delay-2">
+      One-to-one guidance for kids, beginners, university students, professionals, and career switchers.
+    </p>
+    <div class="mt-8 flex flex-wrap items-center justify-center gap-3 landing-reveal landing-delay-3">
       <a href="#domains" class="btn-primary px-6 py-3 text-sm">Browse tutorials</a>
       <a href="{% url 'login' %}" class="btn-quiet px-6 py-3 text-sm">Student login</a>
       <a href="https://eeumairali.github.io/" target="_blank" rel="noopener noreferrer" class="btn-quiet px-6 py-3 text-sm">Personal website</a>
     </div>
+  </div>
+</section>
+
+<section class="mt-8 grid gap-3 sm:grid-cols-2 lg:grid-cols-4" aria-label="Teaching highlights">
+  <div class="card landing-card p-5"><p class="font-display text-3xl text-gradient">2,765+</p><p class="mt-1 text-sm text-slate-500">lessons taught</p></div>
+  <div class="card landing-card p-5"><p class="font-display text-3xl text-gradient">5.0/5</p><p class="mt-1 text-sm text-slate-500">student rating</p></div>
+  <div class="card landing-card p-5"><p class="font-display text-3xl text-gradient">100+</p><p class="mt-1 text-sm text-slate-500">projects completed</p></div>
+  <div class="card landing-card p-5"><p class="font-display text-3xl text-gradient">7+ years</p><p class="mt-1 text-sm text-slate-500">working with Python</p></div>
+</section>
+
+<section class="mt-16">
+  <div class="flex flex-col justify-between gap-3 sm:flex-row sm:items-end">
+    <div><p class="eyebrow">Choose your path</p><h2 class="mt-2 font-display text-2xl sm:text-3xl">Learn what moves you forward</h2></div>
+    <p class="max-w-md text-sm text-slate-500">Start with the fundamentals or bring a real project. Each path is practical, focused, and adapted to your goals.</p>
+  </div>
+  <div class="mt-7 grid gap-5 md:grid-cols-2 lg:grid-cols-3">
+    <div class="card landing-card p-6"><span class="avatar-mark inline-flex h-10 w-10 items-center justify-center rounded-xl font-display text-xl">Py</span><h3 class="mt-5 font-display text-xl">Python from scratch</h3><p class="mt-2 text-sm text-slate-500">Variables, functions, OOP, problem solving, and clean code for complete beginners and young learners.</p></div>
+    <div class="card landing-card p-6"><span class="avatar-mark inline-flex h-10 w-10 items-center justify-center rounded-xl font-display text-xl">DS</span><h3 class="mt-5 font-display text-xl">Data science</h3><p class="mt-2 text-sm text-slate-500">Use NumPy, Pandas, Matplotlib, and Seaborn to turn messy data into clear answers and useful stories.</p></div>
+    <div class="card landing-card p-6"><span class="avatar-mark inline-flex h-10 w-10 items-center justify-center rounded-xl font-display text-xl">AI</span><h3 class="mt-5 font-display text-xl">Machine learning</h3><p class="mt-2 text-sm text-slate-500">Build models with Scikit-learn, TensorFlow, and PyTorch, then understand why they work.</p></div>
+    <div class="card landing-card p-6"><span class="avatar-mark inline-flex h-10 w-10 items-center justify-center rounded-xl font-display text-xl">DJ</span><h3 class="mt-5 font-display text-xl">Django and Flask</h3><p class="mt-2 text-sm text-slate-500">Create useful web applications, APIs, authentication flows, and deployable projects with Python.</p></div>
+    <div class="card landing-card p-6"><span class="avatar-mark inline-flex h-10 w-10 items-center justify-center rounded-xl font-display text-xl">CV</span><h3 class="mt-5 font-display text-xl">Computer vision</h3><p class="mt-2 text-sm text-slate-500">Explore image processing, deep learning, and real-world AI applications through guided projects.</p></div>
+    <div class="card landing-card p-6"><span class="avatar-mark inline-flex h-10 w-10 items-center justify-center rounded-xl font-display text-xl">PR</span><h3 class="mt-5 font-display text-xl">Project and interview prep</h3><p class="mt-2 text-sm text-slate-500">Debug with confidence, explain your decisions, and build a portfolio you can talk about.</p></div>
   </div>
 </section>
 
@@ -51,5 +88,41 @@
     <p class="mt-2 text-sm text-slate-500">Check back shortly — new topics are being added.</p>
   </div>
   {% endif %}
+</section>
+
+<section class="mt-16 grid gap-6 lg:grid-cols-[1.1fr_.9fr]">
+  <div class="card overflow-hidden p-7 sm:p-9">
+    <p class="eyebrow">A learning rhythm that works</p>
+    <h2 class="mt-2 font-display text-2xl sm:text-3xl">Understand it. Build it. Explain it.</h2>
+    <div class="mt-7 space-y-5">
+      <div class="flex gap-4"><span class="avatar-mark flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-sm font-semibold">1</span><div><h3 class="font-medium">Find your starting point</h3><p class="mt-1 text-sm text-slate-500">We assess your current level and choose a target that feels ambitious but achievable.</p></div></div>
+      <div class="flex gap-4"><span class="avatar-mark flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-sm font-semibold">2</span><div><h3 class="font-medium">Practice with guidance</h3><p class="mt-1 text-sm text-slate-500">You code, test, and debug while the reasoning stays visible at every step.</p></div></div>
+      <div class="flex gap-4"><span class="avatar-mark flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-sm font-semibold">3</span><div><h3 class="font-medium">Ship something real</h3><p class="mt-1 text-sm text-slate-500">Finish with a project, a clearer portfolio, and skills you can reuse independently.</p></div></div>
+    </div>
+  </div>
+  <div class="card landing-card flex flex-col justify-between p-7 sm:p-9">
+    <div><p class="eyebrow">Tutoring package</p><h2 class="mt-2 font-display text-2xl sm:text-3xl">A focused 10-lesson package</h2><p class="mt-4 text-slate-500">Build momentum with a clear learning plan, regular practice, and a project you can be proud of. Contact me for package details and scheduling.</p></div>
+    <a href="https://wa.me/923223405479" target="_blank" rel="noopener noreferrer" class="btn-primary mt-8 justify-center px-5 py-3 text-sm">Ask on WhatsApp</a>
+  </div>
+</section>
+
+<section class="mt-16">
+  <div class="text-center"><p class="eyebrow">From the learners</p><h2 class="mt-2 font-display text-2xl sm:text-3xl">Patient guidance. Practical progress.</h2></div>
+  <div class="mt-8 grid gap-5 md:grid-cols-2 lg:grid-cols-3">
+    <figure class="card landing-card p-6"><div class="text-accent-1 text-lg" aria-label="Five stars">★★★★★</div><blockquote class="mt-4 text-sm leading-6 text-slate-600">“Umair is extremely knowledgeable, patient and great at explaining concepts in ways that are easily understandable.”</blockquote><figcaption class="mt-5 text-xs font-medium text-slate-500">Chris · Python learner</figcaption></figure>
+    <figure class="card landing-card p-6"><div class="text-accent-1 text-lg" aria-label="Five stars">★★★★★</div><blockquote class="mt-4 text-sm leading-6 text-slate-600">“He is very practical and adjusts his method and teaching according to the student’s needs and goals.”</blockquote><figcaption class="mt-5 text-xs font-medium text-slate-500">Nathan · Python learner</figcaption></figure>
+    <figure class="card landing-card p-6"><div class="text-accent-1 text-lg" aria-label="Five stars">★★★★★</div><blockquote class="mt-4 text-sm leading-6 text-slate-600">“The lessons are always interesting and informative, follow a clear plan, and cover many aspects.”</blockquote><figcaption class="mt-5 text-xs font-medium text-slate-500">Parent review · Computer science learner</figcaption></figure>
+  </div>
+</section>
+
+<section class="mt-16 rounded-3xl bg-card px-6 py-10 text-center sm:px-10">
+  <p class="eyebrow">Ready when you are</p>
+  <h2 class="mt-2 font-display text-2xl sm:text-3xl">Start with a tutorial or say hello</h2>
+  <p class="mx-auto mt-3 max-w-xl text-sm text-slate-500">Browse the free lessons, sign in to your student space, or message Umair about a learning plan.</p>
+  <div class="mt-6 flex flex-wrap justify-center gap-3">
+    <a href="#domains" class="btn-primary px-5 py-2.5 text-sm">Explore tutorials</a>
+    <a href="{% url 'login' %}" class="btn-quiet px-5 py-2.5 text-sm">Student login</a>
+    <a href="https://wa.me/923223405479" target="_blank" rel="noopener noreferrer" class="btn-quiet px-5 py-2.5 text-sm">WhatsApp +92 322 3405479</a>
+  </div>
 </section>
 {% endblock %}
