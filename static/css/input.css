@@ -170,6 +170,7 @@
   }
   .landing-kicker-dot { height: .5rem; width: .5rem; border-radius: 999px; background: #f3b562; box-shadow: 0 0 0 .25rem rgba(243,181,98,.13); }
   .landing-hero-accent { color: #f3b562; font-style: italic; }
+  .landing-hero .text-slate-500 { color: #b7c6ce; }
   .landing-hero-button { background: #f3b562; color: #102a43; box-shadow: 0 12px 28px -14px rgba(243,181,98,.85); }
   .landing-hero-button:hover { background: #fff0d2; color: #102a43; }
   .landing-hero .btn-quiet { border-color: rgba(255,255,255,.25); background: rgba(255,255,255,.08); color: #f7f3ed; }
