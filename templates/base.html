@@ -34,7 +34,7 @@
     </a>
 
     <div class="hidden items-center gap-2.5 text-sm md:flex">
-      <a class="chip transition hover:border-mint-400 hover:text-ink" href="{% url 'home' %}#about">About me</a>
+      <a class="chip transition hover:border-mint-400 hover:text-ink" href="https://eeumairali.github.io/" target="_blank" rel="noopener noreferrer">Personal site</a>
       {% if user.is_authenticated %}
         <span class="text-slate-500">{{ user.student_profile.display_name|default:user.username }}</span>
         <a class="chip relative transition hover:border-mint-400 hover:text-ink" href="{% url 'notification_list' %}" aria-label="Notifications">
@@ -73,7 +73,7 @@
   <div x-show="open" x-cloak x-transition.duration.150ms @click.outside="open = false"
        class="border-t border-line/70 bg-paper/95 backdrop-blur-xl md:hidden">
     <div class="mx-auto flex max-w-6xl flex-col gap-1 px-5 py-4 text-sm">
-      <a class="rounded-lg px-3 py-2 transition hover:bg-card" href="{% url 'home' %}#about">About me</a>
+      <a class="rounded-lg px-3 py-2 transition hover:bg-card" href="https://eeumairali.github.io/" target="_blank" rel="noopener noreferrer">Personal site</a>
       {% if user.is_authenticated %}
         <span class="px-1 pb-2 text-slate-500">{{ user.student_profile.display_name|default:user.username }}</span>
         <a class="rounded-lg px-3 py-2 transition hover:bg-card" href="{% url 'notification_list' %}">
