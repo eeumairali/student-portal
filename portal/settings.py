@@ -1,6 +1,7 @@
 """Django settings for the student learning portal."""
 import os
 from pathlib import Path
+from urllib.parse import parse_qs, unquote, urlparse
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -20,7 +21,10 @@ if _env_file.exists():
         if not _line or _line.startswith("#") or "=" not in _line:
             continue
         _k, _v = _line.split("=", 1)
-        os.environ.setdefault(_k.strip(), _v.strip().strip('"').strip("'"))
+        _k = _k.strip()
+        if _k.startswith("export "):
+            _k = _k[7:].strip()
+        os.environ.setdefault(_k, _v.strip().strip('"').strip("'"))
 
 DEBUG = env("DJANGO_DEBUG", "False").lower() in ("1", "true", "yes")
 
@@ -74,13 +78,35 @@ TEMPLATES = [
 
 WSGI_APPLICATION = "portal.wsgi.application"
 
-DATABASES = {
-    "default": {
-        "ENGINE": "django.db.backends.sqlite3",
-        "NAME": env("DJANGO_DB_PATH", str(BASE_DIR.parent/"portal_data" /  "db.sqlite3")),
+_database_url = env("DATABASE_URL")
+if _database_url and _database_url.startswith(("postgres://", "postgresql://")):
+    _parsed_database_url = urlparse(_database_url)
+    _database_query = parse_qs(_parsed_database_url.query)
+    DATABASES = {
+        "default": {
+            "ENGINE": "django.db.backends.postgresql",
+            "NAME": unquote(_parsed_database_url.path.lstrip("/")),
+            "USER": unquote(_parsed_database_url.username or ""),
+            "PASSWORD": unquote(_parsed_database_url.password or ""),
+            "HOST": _parsed_database_url.hostname or "",
+            "PORT": str(_parsed_database_url.port or ""),
+            "OPTIONS": {
+                key: values[0]
+                for key, values in _database_query.items()
+                if key in {"sslmode", "channel_binding"}
+            },
+        }
     }
-}       
-# Postgres later: set DATABASE_URL and swap this block. No model changes needed.
+else:
+    _database_path = Path(env("DJANGO_DB_PATH", str(BASE_DIR.parent / "portal_data" / "db.sqlite3")))
+    if not _database_path.is_absolute():
+        _database_path = BASE_DIR / _database_path
+    DATABASES = {
+        "default": {
+            "ENGINE": "django.db.backends.sqlite3",
+            "NAME": str(_database_path),
+        }
+    }
 
 # Deliberately off: students (often kids) need a password they can actually
 # remember, so tutors set simple ones on purpose (see learning.views.student_create).

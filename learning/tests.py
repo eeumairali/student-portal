@@ -711,6 +711,13 @@ class SecondChanceTests(TestCase):
         self._age_attempts(61)
         self.assertEqual(self._redo("q2", 1).status_code, 400)
 
+    def test_wrong_redo_identifies_the_correct_option(self):
+        self._age_attempts(61)
+        response = self._redo("q1", 1)
+        self.assertEqual(response.status_code, 200)
+        self.assertFalse(response.json()["is_correct"])
+        self.assertEqual(response.json()["correct_index"], 0)
+
     def test_correct_redo_clears_the_notebook_from_second_chance(self):
         self._age_attempts(61)
         response = self._redo("q1", 0)

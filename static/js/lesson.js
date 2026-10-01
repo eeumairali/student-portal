@@ -246,9 +246,11 @@
     function lockQuiz(quiz, selectedIndex, isCorrect) {
       quiz.querySelectorAll(".quiz-option").forEach(function (opt) {
         var picked = Number(opt.dataset.index) === selectedIndex;
+        var correct = opt.dataset.correct === "1";
         opt.classList.toggle("picked", picked);
         if (picked) opt.classList.toggle("correct", isCorrect);
         if (picked) opt.classList.toggle("incorrect", !isCorrect);
+        opt.classList.toggle("revealed-correct", !isCorrect && correct);
         opt.disabled = true;
         var wrap = opt.closest(".quiz-option-wrap");
         var feedback = wrap && wrap.querySelector(".quiz-feedback");

@@ -381,6 +381,7 @@ body.lesson-doc{margin:0}
 .lesson-doc .quiz-option:hover{border-color:var(--c4)}
 .lesson-doc .quiz-option.picked.correct{border-color:var(--green);background:var(--greenbg)}
 .lesson-doc .quiz-option.picked.incorrect{border-color:var(--redline);background:var(--redbg)}
+.lesson-doc .quiz-option.revealed-correct{border-color:var(--green);background:var(--greenbg)}
 .lesson-doc .quiz-option:disabled{cursor:not-allowed;opacity:.7}
 .lesson-doc .quiz-option:disabled:not(.picked):hover{border-color:var(--line)}
 .lesson-doc .quiz-feedback{max-height:0;overflow:hidden;opacity:0;font-size:13.5px;
