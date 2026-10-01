@@ -1,16 +1,16 @@
-"""Paste into the WSGI configuration file on PythonAnywhere's Web tab,
-replacing everything already there. Change USERNAME to your account name."""
+"""Paste into the WSGI configuration file on PythonAnywhere's Web tab."""
 import os
 import sys
 from pathlib import Path
 
-USERNAME = "yourname"
-PROJECT = Path(f"/home/{USERNAME}/student-portal")
+PROJECT = Path("/home/eeumairali/student-portal")
 
 sys.path.insert(0, str(PROJECT))
 
 # Secrets live in the .env file, which is never committed.
 env_file = PROJECT / ".env"
+if not env_file.exists():
+    raise RuntimeError(f"Missing deployment environment file: {env_file}")
 for line in env_file.read_text().splitlines():
     line = line.strip()
     if line and not line.startswith("#") and "=" in line:
