@@ -79,46 +79,38 @@ TEMPLATES = [
 
 WSGI_APPLICATION = "portal.wsgi.application"
 
-_database_url = env("DATABASE_URL")
-if _database_url and _database_url.startswith(("postgres://", "postgresql://")):
-    _parsed_database_url = urlparse(_database_url)
-    _database_query = parse_qs(_parsed_database_url.query)
-    _database_host = _parsed_database_url.hostname or ""
-    _database_options = {
-        key: values[0]
-        for key, values in _database_query.items()
-        if key == "sslmode"
+_database_url = env("DATABASE_URL", required=True)
+if not _database_url.startswith(("postgres://", "postgresql://")):
+    raise RuntimeError("DATABASE_URL must be a PostgreSQL connection string")
+
+_parsed_database_url = urlparse(_database_url)
+_database_query = parse_qs(_parsed_database_url.query)
+_database_host = _parsed_database_url.hostname or ""
+_database_options = {
+    key: values[0]
+    for key, values in _database_query.items()
+    if key == "sslmode"
+}
+_database_options["options"] = f"endpoint={_database_host.split('.')[0]}"
+try:
+    _database_ipv4_hosts = socket.getaddrinfo(
+        _database_host, _parsed_database_url.port or 5432,
+        socket.AF_INET, socket.SOCK_STREAM,
+    )
+    _database_host = ",".join(dict.fromkeys(address[4][0] for address in _database_ipv4_hosts))
+except socket.gaierror:
+    pass
+DATABASES = {
+    "default": {
+        "ENGINE": "django.db.backends.postgresql",
+        "NAME": unquote(_parsed_database_url.path.lstrip("/")),
+        "USER": unquote(_parsed_database_url.username or ""),
+        "PASSWORD": unquote(_parsed_database_url.password or ""),
+        "HOST": _database_host,
+        "PORT": str(_parsed_database_url.port or ""),
+        "OPTIONS": _database_options,
     }
-    _database_options["options"] = f"endpoint={_database_host.split('.')[0]}"
-    try:
-        _database_ipv4_hosts = socket.getaddrinfo(
-            _database_host, _parsed_database_url.port or 5432,
-            socket.AF_INET, socket.SOCK_STREAM,
-        )
-        _database_host = ",".join(dict.fromkeys(address[4][0] for address in _database_ipv4_hosts))
-    except socket.gaierror:
-        pass
-    DATABASES = {
-        "default": {
-            "ENGINE": "django.db.backends.postgresql",
-            "NAME": unquote(_parsed_database_url.path.lstrip("/")),
-            "USER": unquote(_parsed_database_url.username or ""),
-            "PASSWORD": unquote(_parsed_database_url.password or ""),
-            "HOST": _database_host,
-            "PORT": str(_parsed_database_url.port or ""),
-            "OPTIONS": _database_options,
-        }
-    }
-else:
-    _database_path = Path(env("DJANGO_DB_PATH", str(BASE_DIR.parent / "portal_data" / "db.sqlite3")))
-    if not _database_path.is_absolute():
-        _database_path = BASE_DIR / _database_path
-    DATABASES = {
-        "default": {
-            "ENGINE": "django.db.backends.sqlite3",
-            "NAME": str(_database_path),
-        }
-    }
+}
 
 # Deliberately off: students (often kids) need a password they can actually
 # remember, so tutors set simple ones on purpose (see learning.views.student_create).

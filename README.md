@@ -78,12 +78,12 @@ mkdir -p /home/yourname/private_media
    HTTPS", and reload.
 
 Free-tier accounts expire after three months of inactivity; log in
-occasionally. To upgrade later, move `DJANGO_DB_PATH` to Postgres — no model
-changes are needed.
+occasionally. This project requires PostgreSQL through `DATABASE_URL`; no
+SQLite fallback is configured.
 
 ## How student data is protected
 
-- Secrets come from environment variables. `.env`, `db.sqlite3` and the media
+- Secrets come from environment variables. `.env`, SQLite files and the media
   directory are all in `.gitignore`.
 - **Uploads are stored outside anything the web server serves.** Filenames on
   disk are random UUIDs; the original name is kept in a database column. The
