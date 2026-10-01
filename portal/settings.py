@@ -1,5 +1,6 @@
 """Django settings for the student learning portal."""
 import os
+import socket
 from pathlib import Path
 from urllib.parse import parse_qs, unquote, urlparse
 
@@ -82,19 +83,29 @@ _database_url = env("DATABASE_URL")
 if _database_url and _database_url.startswith(("postgres://", "postgresql://")):
     _parsed_database_url = urlparse(_database_url)
     _database_query = parse_qs(_parsed_database_url.query)
+    _database_host = _parsed_database_url.hostname or ""
+    _database_options = {
+        key: values[0]
+        for key, values in _database_query.items()
+        if key == "sslmode"
+    }
+    _database_options["options"] = f"endpoint={_database_host.split('.')[0]}"
+    try:
+        _database_host = socket.getaddrinfo(
+            _database_host, _parsed_database_url.port or 5432,
+            socket.AF_INET, socket.SOCK_STREAM,
+        )[0][4][0]
+    except socket.gaierror:
+        pass
     DATABASES = {
         "default": {
             "ENGINE": "django.db.backends.postgresql",
             "NAME": unquote(_parsed_database_url.path.lstrip("/")),
             "USER": unquote(_parsed_database_url.username or ""),
             "PASSWORD": unquote(_parsed_database_url.password or ""),
-            "HOST": _parsed_database_url.hostname or "",
+            "HOST": _database_host,
             "PORT": str(_parsed_database_url.port or ""),
-            "OPTIONS": {
-                key: values[0]
-                for key, values in _database_query.items()
-                if key in {"sslmode", "channel_binding"}
-            },
+            "OPTIONS": _database_options,
         }
     }
 else:
