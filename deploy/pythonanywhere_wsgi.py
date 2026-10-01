@@ -15,7 +15,10 @@ for line in env_file.read_text().splitlines():
     line = line.strip()
     if line and not line.startswith("#") and "=" in line:
         key, value = line.split("=", 1)
-        os.environ[key.strip()] = value.strip().strip('"').strip("'")
+        key = key.strip()
+        if key.startswith("export "):
+            key = key[7:].strip()
+        os.environ[key] = value.strip().strip('"').strip("'")
 
 os.environ["DJANGO_SETTINGS_MODULE"] = "portal.settings"
 
