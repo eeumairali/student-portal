@@ -4,26 +4,43 @@
 {% block meta_description %}<meta name="description" content="Learn Python, data science, machine learning and web development with Umair Ali, a Python tutor and PhD scholar in computer vision.">{% endblock %}
 {% block content %}
 <div class="landing-page">
-<section class="relative overflow-hidden rounded-3xl px-6 py-16 sm:py-24">
-  <div class="blob blob-1 animate-blob-pulse -left-24 -top-24 h-72 w-72" aria-hidden="true"></div>
-  <div class="blob blob-2 animate-blob-pulse right-0 top-10 h-80 w-80" aria-hidden="true"></div>
-  <div class="blob blob-3 animate-float-slow bottom-0 left-1/3 h-64 w-64" aria-hidden="true"></div>
+<section class="landing-hero relative overflow-hidden rounded-3xl px-6 py-12 sm:px-10 sm:py-16 lg:px-14 lg:py-20">
+  <div class="landing-hero-grid" aria-hidden="true"></div>
+  <div class="landing-hero-orbit landing-hero-orbit-one" aria-hidden="true"></div>
+  <div class="landing-hero-orbit landing-hero-orbit-two" aria-hidden="true"></div>
 
-  <div class="relative mx-auto max-w-3xl text-center">
-    <span class="chip landing-reveal"><span class="chip-dot"></span> Python tutor · researcher · builder</span>
-    <h1 class="mt-6 font-display text-4xl leading-tight landing-reveal landing-delay-1 sm:text-6xl">
-      Learn <span class="text-gradient">Python by building</span> real projects
-    </h1>
-    <p class="mx-auto mt-5 max-w-xl text-base text-slate-500 landing-reveal landing-delay-2 sm:text-lg">
-      Clear, practical lessons in Python, data science, machine learning, computer vision, and web development, shaped by an experienced teacher and researcher.
-    </p>
-    <p class="mx-auto mt-4 max-w-2xl text-sm text-slate-500 landing-reveal landing-delay-2">
-      One-to-one guidance for kids, beginners, university students, professionals, and career switchers.
-    </p>
-    <div class="mt-8 flex flex-wrap items-center justify-center gap-3 landing-reveal landing-delay-3">
-      <a href="#domains" class="btn-primary px-6 py-3 text-sm">Browse tutorials</a>
-      <a href="{% url 'login' %}" class="btn-quiet px-6 py-3 text-sm">Student login</a>
-      <a href="https://eeumairali.github.io/" target="_blank" rel="noopener noreferrer" class="btn-quiet px-6 py-3 text-sm">Personal website</a>
+  <div class="relative grid items-center gap-12 lg:grid-cols-[minmax(0,1.08fr)_minmax(22rem,.92fr)] lg:gap-16">
+    <div class="relative z-10 max-w-2xl">
+      <span class="landing-kicker landing-reveal"><span class="landing-kicker-dot"></span> Umair Code Lab / field notes for curious minds</span>
+      <h1 class="mt-7 font-display text-5xl leading-[.98] landing-reveal landing-delay-1 sm:text-7xl">
+        Turn <span class="landing-hero-accent">curiosity</span><br class="hidden sm:block"> into working code.
+      </h1>
+      <p class="mt-7 max-w-xl text-base leading-7 text-slate-500 landing-reveal landing-delay-2 sm:text-lg">
+        Practical Python lessons for people who want to understand the idea, build the thing, and leave with a project that works.
+      </p>
+      <div class="mt-8 flex flex-wrap items-center gap-3 landing-reveal landing-delay-3">
+        <a href="#domains" class="btn-primary landing-hero-button px-6 py-3 text-sm">Find your starting point <span aria-hidden="true">&rarr;</span></a>
+        <a href="{% url 'login' %}" class="btn-quiet px-6 py-3 text-sm">Student login</a>
+      </div>
+      <div class="landing-hero-signature mt-10 flex flex-wrap items-center gap-x-5 gap-y-2 text-xs text-slate-500 landing-reveal landing-delay-3">
+        <span><strong class="text-ink">1:1</strong> guidance</span>
+        <span><strong class="text-ink">5k+</strong> hours taught</span>
+        <span><strong class="text-ink">7+</strong> years building</span>
+      </div>
+    </div>
+
+    <div class="landing-code-window relative z-10 landing-reveal landing-delay-2" aria-label="A sample learning project">
+      <div class="landing-code-topbar"><span></span><span></span><span></span><code>lesson_01.py</code></div>
+      <div class="landing-code-body font-mono text-xs leading-7 sm:text-sm">
+        <p><span class="code-muted">01</span> <span class="code-purple">def</span> <span class="code-blue">make_progress</span>(question):</p>
+        <p><span class="code-muted">02</span> &nbsp;&nbsp;idea = <span class="code-green">"start small"</span></p>
+        <p><span class="code-muted">03</span> &nbsp;&nbsp;while <span class="code-blue">not</span> understood:</p>
+        <p><span class="code-muted">04</span> &nbsp;&nbsp;&nbsp;&nbsp;experiment()</p>
+        <p><span class="code-muted">05</span> &nbsp;&nbsp;&nbsp;&nbsp;ask_for_help()</p>
+        <p><span class="code-muted">06</span> &nbsp;&nbsp;<span class="code-blue">return</span> <span class="code-green">"I can explain it now."</span></p>
+        <div class="landing-code-result mt-5"><span class="code-prompt">&gt;&gt;&gt;</span> progress.ready <span class="code-check">&#10003;</span></div>
+      </div>
+      <div class="landing-code-caption"><span>guided practice</span><span>build / test / explain</span></div>
     </div>
   </div>
 </section>
