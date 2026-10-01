@@ -8,13 +8,21 @@
   .landing-delay-1 { animation-delay: .1s; }
   .landing-delay-2 { animation-delay: .2s; }
   .landing-delay-3 { animation-delay: .3s; }
-  .landing-card { transition: transform .25s ease, border-color .25s ease, box-shadow .25s ease; }
-  .landing-card:hover { transform: translateY(-5px); border-color: rgb(var(--c-accent-2)); box-shadow: 0 18px 36px -24px rgba(102,73,48,.45); }
+  .landing-page { min-width: 0; overflow: hidden; }
+  .landing-page .card, .landing-page figure { min-width: 0; overflow: hidden; }
+  .landing-page h1, .landing-page h2, .landing-page h3, .landing-page p, .landing-page blockquote { overflow-wrap: anywhere; }
+  .landing-card { transition: transform .2s ease, border-color .2s ease, box-shadow .2s ease; }
+  .landing-card:hover { transform: translateY(-2px); border-color: rgb(var(--c-accent-2)); box-shadow: 0 14px 30px -24px rgba(102,73,48,.45); }
+  .landing-path-card { display: flex; min-height: 215px; flex-direction: column; }
+  .landing-review-card { min-height: 190px; }
+  .landing-section-heading { min-width: 0; }
   @keyframes landing-rise { from { opacity: 0; transform: translateY(18px); } to { opacity: 1; transform: translateY(0); } }
   @media (prefers-reduced-motion: reduce) { .landing-reveal { animation: none; } .landing-card { transition: none; } }
+  @media (max-width: 640px) { .landing-path-card { min-height: 0; } }
 </style>
 {% endblock %}
 {% block content %}
+<div class="landing-page">
 <section class="relative overflow-hidden rounded-3xl px-6 py-16 sm:py-24">
   <div class="blob blob-1 animate-blob-pulse -left-24 -top-24 h-72 w-72" aria-hidden="true"></div>
   <div class="blob blob-2 animate-blob-pulse right-0 top-10 h-80 w-80" aria-hidden="true"></div>
@@ -47,17 +55,17 @@
 </section>
 
 <section class="mt-16">
-  <div class="flex flex-col justify-between gap-3 sm:flex-row sm:items-end">
+  <div class="landing-section-heading flex flex-col justify-between gap-3 sm:flex-row sm:items-end">
     <div><p class="eyebrow">Choose your path</p><h2 class="mt-2 font-display text-2xl sm:text-3xl">Learn what moves you forward</h2></div>
     <p class="max-w-md text-sm text-slate-500">Start with the fundamentals or bring a real project. Each path is practical, focused, and adapted to your goals.</p>
   </div>
   <div class="mt-7 grid gap-5 md:grid-cols-2 lg:grid-cols-3">
-    <div class="card landing-card p-6"><span class="avatar-mark inline-flex h-10 w-10 items-center justify-center rounded-xl font-display text-xl">Py</span><h3 class="mt-5 font-display text-xl">Python from scratch</h3><p class="mt-2 text-sm text-slate-500">Variables, functions, OOP, problem solving, and clean code for complete beginners and young learners.</p></div>
-    <div class="card landing-card p-6"><span class="avatar-mark inline-flex h-10 w-10 items-center justify-center rounded-xl font-display text-xl">DS</span><h3 class="mt-5 font-display text-xl">Data science</h3><p class="mt-2 text-sm text-slate-500">Use NumPy, Pandas, Matplotlib, and Seaborn to turn messy data into clear answers and useful stories.</p></div>
-    <div class="card landing-card p-6"><span class="avatar-mark inline-flex h-10 w-10 items-center justify-center rounded-xl font-display text-xl">AI</span><h3 class="mt-5 font-display text-xl">Machine learning</h3><p class="mt-2 text-sm text-slate-500">Build models with Scikit-learn, TensorFlow, and PyTorch, then understand why they work.</p></div>
-    <div class="card landing-card p-6"><span class="avatar-mark inline-flex h-10 w-10 items-center justify-center rounded-xl font-display text-xl">DJ</span><h3 class="mt-5 font-display text-xl">Django and Flask</h3><p class="mt-2 text-sm text-slate-500">Create useful web applications, APIs, authentication flows, and deployable projects with Python.</p></div>
-    <div class="card landing-card p-6"><span class="avatar-mark inline-flex h-10 w-10 items-center justify-center rounded-xl font-display text-xl">CV</span><h3 class="mt-5 font-display text-xl">Computer vision</h3><p class="mt-2 text-sm text-slate-500">Explore image processing, deep learning, and real-world AI applications through guided projects.</p></div>
-    <div class="card landing-card p-6"><span class="avatar-mark inline-flex h-10 w-10 items-center justify-center rounded-xl font-display text-xl">PR</span><h3 class="mt-5 font-display text-xl">Project and interview prep</h3><p class="mt-2 text-sm text-slate-500">Debug with confidence, explain your decisions, and build a portfolio you can talk about.</p></div>
+    <div class="card landing-card landing-path-card p-6"><span class="avatar-mark inline-flex h-10 w-10 items-center justify-center rounded-xl font-display text-xl">Py</span><h3 class="mt-5 font-display text-xl">Python from scratch</h3><p class="mt-2 text-sm text-slate-500">Variables, functions, OOP, problem solving, and clean code for complete beginners and young learners.</p></div>
+    <div class="card landing-card landing-path-card p-6"><span class="avatar-mark inline-flex h-10 w-10 items-center justify-center rounded-xl font-display text-xl">DS</span><h3 class="mt-5 font-display text-xl">Data science</h3><p class="mt-2 text-sm text-slate-500">Use NumPy, Pandas, Matplotlib, and Seaborn to turn messy data into clear answers and useful stories.</p></div>
+    <div class="card landing-card landing-path-card p-6"><span class="avatar-mark inline-flex h-10 w-10 items-center justify-center rounded-xl font-display text-xl">AI</span><h3 class="mt-5 font-display text-xl">Machine learning</h3><p class="mt-2 text-sm text-slate-500">Build models with Scikit-learn, TensorFlow, and PyTorch, then understand why they work.</p></div>
+    <div class="card landing-card landing-path-card p-6"><span class="avatar-mark inline-flex h-10 w-10 items-center justify-center rounded-xl font-display text-xl">DJ</span><h3 class="mt-5 font-display text-xl">Django and Flask</h3><p class="mt-2 text-sm text-slate-500">Create useful web applications, APIs, authentication flows, and deployable projects with Python.</p></div>
+    <div class="card landing-card landing-path-card p-6"><span class="avatar-mark inline-flex h-10 w-10 items-center justify-center rounded-xl font-display text-xl">CV</span><h3 class="mt-5 font-display text-xl">Computer vision</h3><p class="mt-2 text-sm text-slate-500">Explore image processing, deep learning, and real-world AI applications through guided projects.</p></div>
+    <div class="card landing-card landing-path-card p-6"><span class="avatar-mark inline-flex h-10 w-10 items-center justify-center rounded-xl font-display text-xl">PR</span><h3 class="mt-5 font-display text-xl">Project and interview prep</h3><p class="mt-2 text-sm text-slate-500">Debug with confidence, explain your decisions, and build a portfolio you can talk about.</p></div>
   </div>
 </section>
 
@@ -109,9 +117,9 @@
 <section class="mt-16">
   <div class="text-center"><p class="eyebrow">From the learners</p><h2 class="mt-2 font-display text-2xl sm:text-3xl">Patient guidance. Practical progress.</h2></div>
   <div class="mt-8 grid gap-5 md:grid-cols-2 lg:grid-cols-3">
-    <figure class="card landing-card p-6"><div class="text-accent-1 text-lg" aria-label="Five stars">★★★★★</div><blockquote class="mt-4 text-sm leading-6 text-slate-600">“Umair is extremely knowledgeable, patient and great at explaining concepts in ways that are easily understandable.”</blockquote><figcaption class="mt-5 text-xs font-medium text-slate-500">Chris · Python learner</figcaption></figure>
-    <figure class="card landing-card p-6"><div class="text-accent-1 text-lg" aria-label="Five stars">★★★★★</div><blockquote class="mt-4 text-sm leading-6 text-slate-600">“He is very practical and adjusts his method and teaching according to the student’s needs and goals.”</blockquote><figcaption class="mt-5 text-xs font-medium text-slate-500">Nathan · Python learner</figcaption></figure>
-    <figure class="card landing-card p-6"><div class="text-accent-1 text-lg" aria-label="Five stars">★★★★★</div><blockquote class="mt-4 text-sm leading-6 text-slate-600">“The lessons are always interesting and informative, follow a clear plan, and cover many aspects.”</blockquote><figcaption class="mt-5 text-xs font-medium text-slate-500">Parent review · Computer science learner</figcaption></figure>
+    <figure class="card landing-card landing-review-card p-6"><div class="text-accent-1 text-lg" aria-label="Five stars">★★★★★</div><blockquote class="mt-4 text-sm leading-6 text-slate-600">“Umair is extremely knowledgeable, patient and great at explaining concepts in ways that are easily understandable.”</blockquote><figcaption class="mt-5 text-xs font-medium text-slate-500">Chris · Python learner</figcaption></figure>
+    <figure class="card landing-card landing-review-card p-6"><div class="text-accent-1 text-lg" aria-label="Five stars">★★★★★</div><blockquote class="mt-4 text-sm leading-6 text-slate-600">“He is very practical and adjusts his method and teaching according to the student’s needs and goals.”</blockquote><figcaption class="mt-5 text-xs font-medium text-slate-500">Nathan · Python learner</figcaption></figure>
+    <figure class="card landing-card landing-review-card p-6"><div class="text-accent-1 text-lg" aria-label="Five stars">★★★★★</div><blockquote class="mt-4 text-sm leading-6 text-slate-600">“The lessons are always interesting and informative, follow a clear plan, and cover many aspects.”</blockquote><figcaption class="mt-5 text-xs font-medium text-slate-500">Parent review · Computer science learner</figcaption></figure>
   </div>
 </section>
 
@@ -125,4 +133,5 @@
     <a href="https://wa.me/923223405479" target="_blank" rel="noopener noreferrer" class="btn-quiet px-5 py-2.5 text-sm">WhatsApp +92 322 3405479</a>
   </div>
 </section>
+</div>
 {% endblock %}
