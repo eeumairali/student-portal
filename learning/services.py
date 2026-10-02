@@ -4,6 +4,7 @@ view can accidentally leak another student's data."""
 from datetime import timedelta
 
 from django.db.models import Q
+from django.utils import timezone
 from django.http import Http404
 from django.shortcuts import get_object_or_404
 
@@ -240,4 +241,91 @@ def student_progress_report(student):
         "completed_tasks": completed_tasks, "total_tasks": total_tasks, "task_percent": task_percent,
         "correct_quizzes": correct_quizzes, "total_quizzes": total_quizzes, "quiz_percent": quiz_percent,
         "hint_count": hints, "strengths": strengths, "next_steps": next_steps,
+    }
+
+
+def tutor_dashboard_data():
+    """Return the staff overview using the same saved activity as reports."""
+    from accounts.models import StudentProfile
+
+    profiles = list(
+        StudentProfile.objects.filter(is_archived=False)
+        .select_related("user")
+        .prefetch_related("user__enrollments__course")
+    )
+    month_start = timezone.localdate().replace(day=1)
+    students = []
+    recent_sessions = []
+    total_quiz_correct = total_quiz_answered = lessons_this_month = completed_tasks = 0
+    needs_attention = 0
+
+    for profile in profiles:
+        report = student_progress_report(profile.user)
+        lessons = list(Lesson.objects.filter(student=profile.user).order_by("-date", "-id"))
+        last_lesson = lessons[0] if lessons else None
+        quiz_attempts = QuizAttempt.objects.filter(lesson__student=profile.user)
+        latest_answer = quiz_attempts.order_by("-answered_at").first()
+        latest_task = Task.objects.filter(
+            lesson__student=profile.user, is_complete=True, completed_at__isnull=False
+        ).order_by("-completed_at").first()
+        last_activity = max(
+            (value for value in (
+                latest_answer.answered_at if latest_answer else None,
+                latest_task.completed_at if latest_task else None,
+            ) if value),
+            default=None,
+        )
+        if last_lesson and (last_lesson.date or timezone.localdate()) >= month_start:
+            lessons_this_month += 1
+        total_quiz_correct += report["correct_quizzes"]
+        total_quiz_answered += report["total_quizzes"]
+        completed_tasks += report["completed_tasks"]
+        enrolled_courses = [enrollment.course for enrollment in profile.user.enrollments.all()
+                            if enrollment.is_active and enrollment.course.is_published]
+        stale = not last_activity and not last_lesson
+        if last_activity and (timezone.now() - last_activity).days >= 14:
+            stale = True
+        low_results = report["total_quizzes"] and report["quiz_percent"] < 60
+        if stale or low_results or (report["total_tasks"] and report["task_percent"] < 50):
+            needs_attention += 1
+        students.append({
+            "profile": profile,
+            "report": report,
+            "last_lesson": last_lesson,
+            "last_activity": last_activity,
+            "course_count": len(enrolled_courses),
+            "needs_attention": bool(stale or low_results or (
+                report["total_tasks"] and report["task_percent"] < 50
+            )),
+        })
+        for session in report["sessions"][-3:]:
+            recent_sessions.append({
+                "student": profile,
+                "session": session,
+            })
+
+    recent_sessions.sort(
+        key=lambda row: (row["session"]["lesson"].date or timezone.localdate(), row["session"]["lesson"].id),
+        reverse=True,
+    )
+    students.sort(
+        key=lambda row: (
+            not row["needs_attention"],
+            row["last_activity"] or timezone.make_aware(
+                timezone.datetime.min.replace(tzinfo=None)
+            ),
+        )
+    )
+    return {
+        "students": students,
+        "recent_sessions": recent_sessions[:6],
+        "stats": {
+            "student_count": len(students),
+            "active_student_count": sum(1 for row in students if row["last_activity"]),
+            "lessons_this_month": lessons_this_month,
+            "completed_tasks": completed_tasks,
+            "quiz_percent": round(total_quiz_correct / total_quiz_answered * 100)
+            if total_quiz_answered else 0,
+            "needs_attention": needs_attention,
+        },
     }

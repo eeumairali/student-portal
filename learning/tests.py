@@ -11,7 +11,7 @@ from django.urls import reverse
 from accounts.models import StudentProfile
 from learning.lesson_markdown import parse_lesson
 from learning.models import Course, Enrollment, HintReveal, Lesson, LessonFile, LessonProgress, Task
-from learning.services import student_progress_report
+from learning.services import student_progress_report, tutor_dashboard_data
 
 LESSON_TEMPLATE_PATH = settings.BASE_DIR / "skills" / "LESSON_TEMPLATE.md"
 W5D1_KMEANS_PATH = settings.BASE_DIR / "skills" / "W5D1_KMEANS.md"
@@ -266,6 +266,20 @@ class TutorUploadFlowTests(TestCase):
         response = self.client.get(reverse("student_list"))
         self.assertContains(response, "Andy")
         self.assertContains(response, "Priya")
+
+    def test_staff_dashboard_shows_performance_overview(self):
+        self.client.force_login(self.staff)
+        response = self.client.get(reverse("dashboard"))
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "Student performance")
+        self.assertContains(response, "Andy")
+        self.assertContains(response, "No session note yet")
+
+    def test_students_keep_learning_dashboard(self):
+        self.client.force_login(self.andy)
+        response = self.client.get(reverse("dashboard"))
+        self.assertContains(response, "No course yet")
+        self.assertNotContains(response, "Student performance")
 
     def test_upload_preview_does_not_save(self):
         self.client.force_login(self.staff)

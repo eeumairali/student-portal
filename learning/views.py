@@ -24,7 +24,7 @@ from .models import (
 from .services import (
     SECOND_CHANCE_SECONDS, course_progress, enrolled_courses, get_accessible_lesson, get_enrolled_course,
     leaderboard_rows, second_chance_rows, second_chance_sections, student_lessons, student_progress_report,
-    wrong_quiz_attempts,
+    tutor_dashboard_data, wrong_quiz_attempts,
 )
 
 SAMPLE_LESSON_PATH = settings.BASE_DIR / "skills" / "LESSON_TEMPLATE.md"
@@ -73,6 +73,8 @@ def _document_context(parsed, *, lesson=None, can_edit=False, preview_warnings=N
 
 @login_required
 def dashboard(request):
+    if request.user.is_staff:
+        return render(request, "learning/tutor/dashboard.html", tutor_dashboard_data())
     courses = enrolled_courses(request.user)
     cards = [{"course": c, **course_progress(request.user, c)} for c in courses]
     notes = student_lessons(request.user)
