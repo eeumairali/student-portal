@@ -41,12 +41,15 @@
           class="h-4 w-4 shrink-0 rounded border-line text-teal-600 focus:ring-teal-500"
         >
         <a href="{% url 'student_detail' row.profile.user.id %}" class="flex min-w-0 flex-1 items-center justify-between gap-4">
+          <div class="flex min-w-0 items-center gap-3">
+          <span class="avatar-initial" data-avatar="{{ row.profile.user.username }}">{{ row.profile.display_name|default:row.profile.user.username|first|upper }}</span>
           <div class="min-w-0">
             <p class="font-medium">{{ row.profile.display_name }} <span class="font-mono text-xs text-slate-500">@{{ row.profile.user.username }}</span></p>
             <p class="mt-0.5 text-xs text-slate-500">
               {{ row.profile.get_platform_display }}{% if row.profile.is_minor %} · minor — guardian on file{% endif %}
               {% if row.last_date %} · last note {{ row.last_date }}{% endif %}
             </p>
+          </div>
           </div>
           <span class="shrink-0 rounded-full bg-paper px-2.5 py-1 text-[11px] font-medium text-slate-500">{{ row.lesson_count }} note{{ row.lesson_count|pluralize }}</span>
         </a>

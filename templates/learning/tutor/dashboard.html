@@ -29,12 +29,15 @@
     <div class="mt-4 divide-y divide-line overflow-hidden rounded-xl border border-line bg-card shadow-card">
       {% for row in students %}
         <div class="flex flex-wrap items-center justify-between gap-3 p-4 transition hover:bg-paper">
-          <a href="{% url 'student_detail' row.profile.user.id %}" class="min-w-0 flex-1">
-            <p class="font-medium">{{ row.profile.display_name }} <span class="font-mono text-xs text-slate-500">@{{ row.profile.user.username }}</span></p>
+          <a href="{% url 'student_detail' row.profile.user.id %}" class="flex min-w-0 flex-1 items-center gap-3">
+            <span class="avatar-initial" data-avatar="{{ row.profile.user.username }}">{{ row.profile.display_name|default:row.profile.user.username|first|upper }}</span>
+            <span class="min-w-0">
+            <p class="truncate font-medium">{{ row.profile.display_name }} <span class="font-mono text-xs text-slate-500">@{{ row.profile.user.username }}</span></p>
             <p class="mt-1 text-xs text-slate-500">{{ row.course_count }} course{{ row.course_count|pluralize }} · {{ row.report.lesson_count }} session{{ row.report.lesson_count|pluralize }} · {% if row.last_lesson %}last note {{ row.last_lesson.date|default:"undated" }}{% else %}No session note yet{% endif %}</p>
+            </span>
           </a>
           <div class="flex shrink-0 items-center gap-2">
-            {% if row.needs_attention %}<span class="rounded-full bg-amber-100 px-2.5 py-1 text-[11px] font-medium text-amber-800">Needs attention</span>{% else %}<span class="rounded-full bg-mint-100 px-2.5 py-1 text-[11px] font-medium text-teal-700">On track</span>{% endif %}
+            {% if row.needs_attention %}<span class="status-dot rounded-full bg-amber-100 px-2.5 py-1 text-[11px] font-medium text-amber-800">Needs attention</span>{% else %}<span class="status-dot rounded-full bg-mint-100 px-2.5 py-1 text-[11px] font-medium text-teal-700">On track</span>{% endif %}
             <a href="{% url 'student_detail' row.profile.user.id %}" class="btn-quiet text-xs">Details</a>
             <a href="{% url 'student_progress_report' row.profile.user.id %}" class="btn-quiet text-xs">Report</a>
           </div>

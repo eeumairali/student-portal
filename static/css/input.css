@@ -221,6 +221,58 @@
   .btn-outline-light { display: inline-flex; align-items: center; gap: .5rem; border-radius: .9rem; border: 1px solid rgba(255,255,255,.35); color: #fff; font-weight: 600; transition: background .2s ease; }
   .btn-outline-light:hover { background: rgba(255,255,255,.12); }
 
+  /* ---- inner pages: motion + polish ---- */
+  .motion-in { animation: motion-in .5s cubic-bezier(.22,1,.36,1) both; }
+  @keyframes motion-in { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: none; } }
+
+  /* list rows: hover tint with an accent bar */
+  #main .divide-y > a, #main .divide-y > li, #main .divide-y > label, #main .divide-y > div:not(.motion-static) {
+    position: relative; transition: background-color .18s ease, transform .18s ease;
+  }
+  #main .divide-y > a:hover, #main .divide-y > li:hover, #main .divide-y > label:hover, #main .divide-y > div:hover {
+    background-color: rgb(var(--c-accent-1-tint));
+  }
+  #main .divide-y > a::before, #main .divide-y > li::before, #main .divide-y > label::before, #main .divide-y > div::before {
+    content: ""; position: absolute; left: 0; top: 18%; bottom: 18%; width: 3px; border-radius: 0 3px 3px 0;
+    background: rgb(var(--c-accent-1)); transform: scaleY(0); transition: transform .2s ease;
+  }
+  #main .divide-y > a:hover::before, #main .divide-y > li:hover::before, #main .divide-y > label:hover::before, #main .divide-y > div:hover::before { transform: scaleY(1); }
+
+  /* cards lift on hover */
+  #main .card { transition: transform .22s ease, box-shadow .22s ease, border-color .22s ease; }
+  #main a.card:hover, #main .grid > .card:hover { transform: translateY(-3px); box-shadow: 0 18px 40px -22px rgb(var(--c-glow) / .45); border-color: rgb(var(--c-accent-1) / .35); }
+
+  /* buttons get a tiny press */
+  .btn-primary, .btn-quiet { transition: transform .15s ease, background-color .2s ease, border-color .2s ease, box-shadow .2s ease; }
+  .btn-primary:hover, .btn-quiet:hover { transform: translateY(-1px); }
+  .btn-primary:active, .btn-quiet:active { transform: translateY(0) scale(.98); }
+
+  /* tables anywhere in the app */
+  #main table { width: 100%; border-collapse: separate; border-spacing: 0; font-size: .875rem; }
+  #main thead th { position: sticky; top: 4rem; background: rgb(var(--c-card)); text-align: left; font-weight: 600; font-size: .7rem; letter-spacing: .06em; text-transform: uppercase; color: rgb(var(--c-slate-500)); padding: .7rem .9rem; border-bottom: 1px solid rgb(var(--c-line)); }
+  #main tbody td { padding: .7rem .9rem; border-bottom: 1px solid rgb(var(--c-line) / .7); }
+  #main tbody tr { transition: background-color .15s ease; }
+  #main tbody tr:nth-child(even) { background: rgb(var(--c-card) / .6); }
+  #main tbody tr:hover { background: rgb(var(--c-accent-1-tint)); }
+
+  /* initial avatars */
+  .avatar-initial { display: inline-flex; height: 2.25rem; width: 2.25rem; flex: none; align-items: center; justify-content: center; border-radius: 999px; background: rgb(var(--c-accent-1)); color: #fff; font-weight: 600; font-size: .85rem; box-shadow: 0 0 0 3px rgb(var(--c-paper)), 0 0 0 4px rgb(var(--c-line)); }
+
+  /* status chips get a live dot */
+  .status-dot::before { content: ""; display: inline-block; height: .4rem; width: .4rem; margin-right: .35rem; border-radius: 999px; background: currentColor; vertical-align: middle; animation: hero-pulse 1.8s ease-in-out infinite; }
+
+  /* leaderboard medals */
+  .rank-badge { display: inline-flex; height: 1.9rem; width: 1.9rem; flex: none; align-items: center; justify-content: center; border-radius: 999px; font-family: "JetBrains Mono", ui-monospace, monospace; font-size: .8rem; color: rgb(var(--c-slate-500)); background: rgb(var(--c-paper)); border: 1px solid rgb(var(--c-line)); }
+  .rank-1 .rank-badge { background: linear-gradient(135deg, #fde68a, #f59e0b); color: #78350f; border: 0; box-shadow: 0 6px 16px -6px rgba(245,158,11,.8); }
+  .rank-2 .rank-badge { background: linear-gradient(135deg, #f1f5f9, #94a3b8); color: #1e293b; border: 0; }
+  .rank-3 .rank-badge { background: linear-gradient(135deg, #fed7aa, #c2410c); color: #fff; border: 0; }
+  .rank-1 { background: linear-gradient(90deg, rgba(245,158,11,.10), transparent 70%); }
+
+  @media (prefers-reduced-motion: reduce) {
+    .motion-in, .status-dot::before { animation: none; }
+    #main .card, #main .divide-y > * { transition: none; }
+  }
+
   /* learning plans */
   .plan-tab { @apply rounded-full border border-line bg-card px-4 py-2 text-sm text-slate-500 transition hover:border-teal-500 hover:text-ink; }
   .plan-tab.is-active { @apply border-teal-600 bg-teal-600 text-white; }

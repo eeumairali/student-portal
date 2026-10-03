@@ -13,9 +13,10 @@
     {% if by_score %}
     <ol class="divide-y divide-line">
       {% for row in by_score %}
-        <li class="flex items-center justify-between gap-4 p-4 {% if row.student.id == me.id %}bg-paper{% endif %}">
+        <li class="flex items-center justify-between gap-4 p-4 {% if forloop.counter <= 3 %}rank-{{ forloop.counter }}{% endif %} {% if row.student.id == me.id %}bg-paper{% endif %}">
           <div class="flex items-center gap-3 min-w-0">
-            <span class="font-mono text-sm text-slate-500 w-6 shrink-0 text-right">{{ forloop.counter }}</span>
+            <span class="rank-badge">{{ forloop.counter }}</span>
+            <span class="avatar-initial" data-avatar="{{ row.display_name }}">{{ row.display_name|first|upper }}</span>
             <p class="font-medium truncate">{{ row.display_name }}{% if row.student.id == me.id %} <span class="text-xs text-slate-500">(you)</span>{% endif %}</p>
           </div>
           <p class="font-mono text-sm shrink-0">{{ row.correct }} / {{ row.total }}</p>
@@ -35,9 +36,10 @@
     {% if by_percent %}
     <ol class="divide-y divide-line">
       {% for row in by_percent %}
-        <li class="flex items-center justify-between gap-4 p-4 {% if row.student.id == me.id %}bg-paper{% endif %}">
+        <li class="flex items-center justify-between gap-4 p-4 {% if forloop.counter <= 3 %}rank-{{ forloop.counter }}{% endif %} {% if row.student.id == me.id %}bg-paper{% endif %}">
           <div class="flex items-center gap-3 min-w-0">
-            <span class="font-mono text-sm text-slate-500 w-6 shrink-0 text-right">{{ forloop.counter }}</span>
+            <span class="rank-badge">{{ forloop.counter }}</span>
+            <span class="avatar-initial" data-avatar="{{ row.display_name }}">{{ row.display_name|first|upper }}</span>
             <p class="font-medium truncate">{{ row.display_name }}{% if row.student.id == me.id %} <span class="text-xs text-slate-500">(you)</span>{% endif %}</p>
           </div>
           <p class="font-mono text-sm shrink-0">{{ row.percent }}%</p>
