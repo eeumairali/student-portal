@@ -84,6 +84,40 @@
   </div>
 </section>
 
+<section id="plans" class="landing-scroll-reveal mt-16 scroll-mt-24" data-scroll-reveal x-data="{ tab: '{{ learning_plans.0.slug }}' }">
+  <div class="flex flex-wrap items-end justify-between gap-4">
+    <div><p class="eyebrow">Learning plans</p><h2 class="mt-2 font-display text-2xl sm:text-3xl">Python learning plans for every student</h2>
+      <p class="mt-2 max-w-2xl text-sm text-slate-500">Pick a track and see how many one-to-one sessions each topic usually takes. Every plan is adjusted to the student's pace and goals.</p></div>
+  </div>
+
+  <div class="mt-6 flex flex-wrap gap-2" role="tablist" aria-label="Learning tracks">
+    {% for track in learning_plans %}
+      <button type="button" role="tab" class="plan-tab" :class="tab === '{{ track.slug }}' && 'is-active'"
+              :aria-selected="tab === '{{ track.slug }}'" @click="tab = '{{ track.slug }}'">{{ track.track }}</button>
+    {% endfor %}
+  </div>
+
+  {% for track in learning_plans %}
+    <div role="tabpanel" x-show="tab === '{{ track.slug }}'" {% if not forloop.first %}x-cloak{% endif %} x-transition.opacity.duration.200ms class="mt-5">
+      <p class="text-sm text-slate-500">{{ track.intro }}</p>
+      <div class="mt-4 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+        {% for plan in track.plans %}
+          <article class="card landing-card plan-card flex flex-col p-5">
+            <div class="flex items-start justify-between gap-3">
+              <h3 class="font-display text-xl">{{ plan.name }}</h3>
+              <span class="plan-sessions shrink-0">{{ plan.sessions }}<small>sessions</small></span>
+            </div>
+            <p class="mt-1 font-mono text-[11px] uppercase tracking-wide text-teal-700">{{ plan.level }}</p>
+            <p class="mt-3 flex-1 text-sm text-slate-500">{{ plan.covers }}</p>
+          </article>
+        {% endfor %}
+      </div>
+    </div>
+  {% endfor %}
+
+  <p class="mt-6 text-sm text-slate-500">Not sure where to start? <a href="https://wa.me/923223405479" target="_blank" rel="noopener" class="font-medium text-teal-700 hover:underline">Message me on WhatsApp</a> and we will choose the right plan together.</p>
+</section>
+
 <section id="domains" class="landing-scroll-reveal mt-6 scroll-mt-24" data-scroll-reveal>
   <p class="eyebrow">Explore</p>
   <h2 class="mt-2 font-display text-2xl sm:text-3xl">Start learning Python and more</h2>

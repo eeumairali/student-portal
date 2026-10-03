@@ -202,6 +202,13 @@
   .code-prompt { color: #f3b562; }
   .code-check { color: #8ec5a3; }
   .landing-code-caption { display: flex; justify-content: space-between; border-top: 1px solid rgba(255,255,255,.1); padding: .7rem 1rem; color: #7891a5; font-family: "JetBrains Mono", ui-monospace, monospace; font-size: .62rem; letter-spacing: .04em; text-transform: uppercase; }
+  /* learning plans */
+  .plan-tab { @apply rounded-full border border-line bg-card px-4 py-2 text-sm text-slate-500 transition hover:border-teal-500 hover:text-ink; }
+  .plan-tab.is-active { @apply border-teal-600 bg-teal-600 text-white; }
+  .plan-card { transition: transform .25s ease, border-color .25s ease; }
+  .plan-card:hover { transform: translateY(-4px); }
+  .plan-sessions { @apply flex flex-col items-center rounded-xl bg-paper px-3 py-1.5 font-display text-lg font-semibold leading-tight text-ink; }
+  .plan-sessions small { @apply font-sans text-[10px] font-normal uppercase tracking-wide text-slate-500; }
   /* hero art: orbit rings, floating code window, labels, ticker */
   .landing-hero-art { position: relative; display: grid; place-items: center; min-height: 23rem; }
   .hero-float { position: relative; z-index: 1; width: 100%; animation: hero-float 6s ease-in-out infinite; }

@@ -6,6 +6,7 @@ from django.views.decorators.http import require_POST
 
 from .article_editor import parse_article
 from .article_save import ArticleSaveError, resolve_article_save_plan, save_article
+from .plans import LEARNING_PLANS
 from .models import Domain, Tutorial, render_markdown
 
 SAMPLE_ARTICLE = """---
@@ -30,7 +31,7 @@ print("hello world")
 
 def home(request):
     domains = [d for d in Domain.objects.all() if d.published_tutorial_count() > 0]
-    return render(request, "tutorials/home.html", {"domains": domains})
+    return render(request, "tutorials/home.html", {"domains": domains, "learning_plans": LEARNING_PLANS})
 
 
 def domain_detail(request, slug):
