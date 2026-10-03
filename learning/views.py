@@ -74,19 +74,13 @@ def _document_context(parsed, *, lesson=None, can_edit=False, preview_warnings=N
 @login_required
 def dashboard(request):
     if request.user.is_staff:
-        return render(request, "learning/tutor/dashboard.html")
+        return render(request, "learning/tutor/dashboard.html", tutor_dashboard_data())
     courses = enrolled_courses(request.user)
     cards = [{"course": c, **course_progress(request.user, c)} for c in courses]
     notes = student_lessons(request.user)
     return render(request, "learning/dashboard.html", {
         "cards": cards, "notes": notes, "second_chance": second_chance_rows(request.user),
     })
-
-
-@staff_member_required
-def tutor_overview(request):
-    """Student stats for the tutor dashboard, fetched only on request (htmx)."""
-    return render(request, "learning/tutor/_overview.html", tutor_dashboard_data())
 
 
 @login_required

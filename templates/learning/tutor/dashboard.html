@@ -13,18 +13,55 @@
   </div>
 </div>
 
-<div id="tutor-overview" class="mt-8">
-  <button type="button" class="btn-primary"
-          hx-get="{% url 'tutor_overview' %}" hx-target="#tutor-overview" hx-swap="innerHTML"
-          hx-indicator="#overview-loading">Show student overview</button>
-  <span id="overview-loading" class="htmx-indicator ml-2 text-sm text-slate-500">Loading&hellip;</span>
-  <p class="mt-2 text-xs text-slate-500">Stats, learners and latest work load only when you ask for them.</p>
+<div class="mt-8 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+  <div class="card p-5"><p class="eyebrow">Active students</p><p class="mt-2 font-display text-3xl">{{ stats.student_count }}</p><p class="mt-1 text-xs text-slate-500">{{ stats.active_student_count }} with recorded activity</p></div>
+  <div class="card p-5"><p class="eyebrow">Sessions this month</p><p class="mt-2 font-display text-3xl">{{ stats.lessons_this_month }}</p><p class="mt-1 text-xs text-slate-500">Personal lesson notes added</p></div>
+  <div class="card p-5"><p class="eyebrow">Practice completed</p><p class="mt-2 font-display text-3xl">{{ stats.completed_tasks }}</p><p class="mt-1 text-xs text-slate-500">Activities completed across students</p></div>
+  <div class="card p-5 {% if stats.needs_attention %}border-amber-300{% endif %}"><p class="eyebrow">Needs attention</p><p class="mt-2 font-display text-3xl {% if stats.needs_attention %}text-amber-600{% endif %}">{{ stats.needs_attention }}</p><p class="mt-1 text-xs text-slate-500">No activity, low results, or unfinished work</p></div>
 </div>
 
-<div class="mt-8 max-w-md">
-  <div class="card p-5">
+<div class="mt-10 grid gap-8 lg:grid-cols-[1.4fr_1fr]">
+  <section>
+    <div class="flex items-end justify-between gap-4">
+      <div><p class="eyebrow">Student performance</p><h2 class="mt-1 font-display text-2xl">Your learners</h2></div>
+      <a href="{% url 'student_list' %}" class="text-sm text-teal-700 hover:underline">Manage roster &rarr;</a>
+    </div>
+    <div class="mt-4 divide-y divide-line overflow-hidden rounded-xl border border-line bg-card shadow-card">
+      {% for row in students %}
+        <div class="flex flex-wrap items-center justify-between gap-3 p-4 transition hover:bg-paper">
+          <a href="{% url 'student_detail' row.profile.user.id %}" class="min-w-0 flex-1">
+            <p class="font-medium">{{ row.profile.display_name }} <span class="font-mono text-xs text-slate-500">@{{ row.profile.user.username }}</span></p>
+            <p class="mt-1 text-xs text-slate-500">{{ row.course_count }} course{{ row.course_count|pluralize }} · {{ row.report.lesson_count }} session{{ row.report.lesson_count|pluralize }} · {% if row.last_lesson %}last note {{ row.last_lesson.date|default:"undated" }}{% else %}No session note yet{% endif %}</p>
+          </a>
+          <div class="flex shrink-0 items-center gap-2">
+            {% if row.needs_attention %}<span class="rounded-full bg-amber-100 px-2.5 py-1 text-[11px] font-medium text-amber-800">Needs attention</span>{% else %}<span class="rounded-full bg-mint-100 px-2.5 py-1 text-[11px] font-medium text-teal-700">On track</span>{% endif %}
+            <a href="{% url 'student_detail' row.profile.user.id %}" class="btn-quiet text-xs">Details</a>
+            <a href="{% url 'student_progress_report' row.profile.user.id %}" class="btn-quiet text-xs">Report</a>
+          </div>
+        </div>
+      {% empty %}
+        <div class="p-8 text-center"><p class="font-display text-xl">No active students yet</p><p class="mt-2 text-sm text-slate-500">Add a student to start building your teaching dashboard.</p><a href="{% url 'student_create' %}" class="btn-primary mt-4 inline-flex">Add your first student</a></div>
+      {% endfor %}
+    </div>
+  </section>
+
+  <section>
+    <p class="eyebrow">Recent sessions</p>
+    <h2 class="mt-1 font-display text-2xl">Latest work</h2>
+    <div class="mt-4 divide-y divide-line overflow-hidden rounded-xl border border-line bg-card shadow-card">
+      {% for row in recent_sessions %}
+        <a href="{% url 'student_detail' row.student.user.id %}" class="block p-4 transition hover:bg-paper">
+          <div class="flex items-start justify-between gap-3"><div class="min-w-0"><p class="font-medium">{{ row.session.lesson.title }}</p><p class="mt-1 text-xs text-slate-500">{{ row.student.display_name }} · {{ row.session.lesson.date|default:"No date" }}</p></div><span class="shrink-0 text-xs {% if row.session.complete %}text-teal-700{% else %}text-slate-500{% endif %}">{% if row.session.complete %}Complete{% else %}In progress{% endif %}</span></div>
+          <p class="mt-2 text-xs text-slate-500">{{ row.session.completed_tasks }}/{{ row.session.task_count }} practice steps · {{ row.session.quiz_correct }}/{{ row.session.quiz_answered }} quiz correct{% if row.session.hints %} · {{ row.session.hints }} hint{{ row.session.hints|pluralize }}{% endif %}</p>
+        </a>
+      {% empty %}
+        <p class="p-6 text-sm text-slate-500">Session activity will appear here after you add a note for a student.</p>
+      {% endfor %}
+    </div>
+    <div class="card mt-6 p-5">
       <p class="eyebrow">Useful next actions</p>
       <div class="mt-3 grid gap-2 text-sm"><a href="{% url 'lesson_preview' %}" class="rounded-lg border border-line bg-paper px-3 py-2 transition hover:border-teal-500">Preview a lesson document &rarr;</a><a href="{% url 'student_list' %}?tab=archive" class="rounded-lg border border-line bg-paper px-3 py-2 transition hover:border-teal-500">Review archived students &rarr;</a><a href="{% url 'leaderboard' %}" class="rounded-lg border border-line bg-paper px-3 py-2 transition hover:border-teal-500">Open quiz leaderboard &rarr;</a></div>
     </div>
+  </section>
 </div>
 {% endblock %}

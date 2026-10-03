@@ -1,6 +1,6 @@
 {% extends "base.html" %}
 {% load static %}
-{% block title %}{{ tutorial.title }} — Study desk{% endblock %}
+{% block title %}{{ tutorial.title }} | {{ tutorial.domain.name }} Tutorial — Umair Code Lab{% endblock %}
 {% block robots %}{% endblock %}
 {% block meta_description %}<meta name="description" content="{{ tutorial.summary|default:tutorial.title }}">{% endblock %}
 {% block content %}

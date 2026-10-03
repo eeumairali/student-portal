@@ -1,7 +1,15 @@
 {% extends "base.html" %}
-{% block title %}Umair Code Lab — Learn Python, Data Science and AI{% endblock %}
+{% block title %}Online Python Tutor for Kids, Teens &amp; Adults | Umair Code Lab{% endblock %}
 {% block robots %}{% endblock %}
-{% block meta_description %}<meta name="description" content="Learn Python, data science, machine learning and web development with Umair Ali, a Python tutor and PhD scholar in computer vision.">{% endblock %}
+{% block meta_description %}<meta name="description" content="Online Python tutor and Python teacher for kids, teens and beginners. One-to-one Python lessons with Umair Ali, a PhD scholar in computer vision, plus data science, machine learning and web development.">{% endblock %}
+{% block head_extra %}
+<meta property="og:type" content="website">
+<meta property="og:title" content="Online Python Tutor for Kids, Teens &amp; Adults | Umair Code Lab">
+<meta property="og:description" content="One-to-one online Python lessons for kids and beginners, plus data science, machine learning and web development.">
+<meta name="keywords" content="python tutor, python teacher, python teacher for kids, online python tutor, python lessons for kids, learn python online, python coding classes, python tutor for beginners">
+<script type="application/ld+json">{"@context": "https://schema.org", "@type": "EducationalOrganization", "name": "Umair Code Lab", "description": "One-to-one online Python tutoring for kids, teens and adults: Python from scratch, data science, machine learning and web development.", "founder": {"@type": "Person", "name": "Umair Ali", "jobTitle": "Python tutor", "sameAs": ["https://eeumairali.github.io/"]}, "email": "eeumairali@gmail.com", "knowsAbout": ["Python programming", "Python for kids", "Data science", "Machine learning", "Computer vision", "Django", "Flask"], "areaServed": "Worldwide"}</script>
+<script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "Do you teach Python to kids?", "acceptedAnswer": {"@type": "Answer", "text": "Yes. I teach Python to kids and teenagers online, usually from around age 10, using small games, puzzles and projects so every idea is something they build and can explain."}}, {"@type": "Question", "name": "How do online Python lessons work?", "acceptedAnswer": {"@type": "Answer", "text": "Lessons are one-to-one over Zoom. Each student gets a private portal with their lesson notes, practice tasks, quizzes and a progress report that parents can read."}}, {"@type": "Question", "name": "I am a complete beginner. Can I still learn Python?", "acceptedAnswer": {"@type": "Answer", "text": "Absolutely. We start from your current level with variables, loops and functions, then move to real projects at a pace that suits you."}}, {"@type": "Question", "name": "What can I learn after the basics?", "acceptedAnswer": {"@type": "Answer", "text": "Data science with Pandas and NumPy, machine learning, computer vision, Django and Flask web development, and interview or university project preparation."}}, {"@type": "Question", "name": "How do I book a Python tutor session?", "acceptedAnswer": {"@type": "Answer", "text": "Message me by email or WhatsApp with your goals and your time zone, and we will plan a first lesson together."}}]}</script>
+{% endblock %}
 {% block content %}
 <div class="landing-page">
 <section class="landing-hero relative overflow-hidden rounded-3xl px-6 py-12 sm:px-10 sm:py-16 lg:px-14 lg:py-20">
@@ -11,7 +19,7 @@
 
   <div class="relative grid items-center gap-12 lg:grid-cols-[minmax(0,1.08fr)_minmax(22rem,.92fr)] lg:gap-16">
     <div class="relative z-10 max-w-2xl">
-      <span class="landing-kicker landing-reveal"><span class="landing-kicker-dot"></span> Umair Code Lab / field notes for curious minds</span>
+      <span class="landing-kicker landing-reveal"><span class="landing-kicker-dot"></span> Online Python tutor for kids, teens &amp; adults</span>
       <h1 class="mt-7 font-display text-5xl leading-[.98] landing-reveal landing-delay-1 sm:text-7xl">
         Turn <span class="landing-hero-accent">curiosity</span><br class="hidden sm:block"> into working code.
       </h1>
@@ -46,10 +54,10 @@
 </section>
 
 <section class="landing-scroll-reveal mt-8 grid gap-3 sm:grid-cols-2 lg:grid-cols-4" data-scroll-reveal aria-label="Teaching highlights">
-  <div class="card landing-card p-5"><p class="landing-stat font-display text-3xl text-gradient" data-counter data-target="5000" data-suffix="+">0+</p><p class="mt-1 text-sm text-slate-500">hours taught</p></div>
-  <div class="card landing-card p-5"><p class="landing-stat font-display text-3xl text-gradient" data-counter data-target="5" data-decimals="1" data-suffix="/5">0.0/5</p><p class="mt-1 text-sm text-slate-500">student rating</p></div>
-  <div class="card landing-card p-5"><p class="landing-stat font-display text-3xl text-gradient" data-counter data-target="200" data-suffix="+">0+</p><p class="mt-1 text-sm text-slate-500">projects completed</p></div>
-  <div class="card landing-card p-5"><p class="landing-stat font-display text-3xl text-gradient" data-counter data-target="7" data-suffix="+">0+</p><p class="mt-1 text-sm text-slate-500">years with Python</p></div>
+  <div class="card landing-card p-5"><p class="landing-stat font-display text-3xl text-gradient" data-counter data-target="5000" data-suffix="+">5000+</p><p class="mt-1 text-sm text-slate-500">hours taught</p></div>
+  <div class="card landing-card p-5"><p class="landing-stat font-display text-3xl text-gradient" data-counter data-target="5" data-decimals="1" data-suffix="/5">5.0/5</p><p class="mt-1 text-sm text-slate-500">student rating</p></div>
+  <div class="card landing-card p-5"><p class="landing-stat font-display text-3xl text-gradient" data-counter data-target="200" data-suffix="+">200+</p><p class="mt-1 text-sm text-slate-500">projects completed</p></div>
+  <div class="card landing-card p-5"><p class="landing-stat font-display text-3xl text-gradient" data-counter data-target="7" data-suffix="+">7+</p><p class="mt-1 text-sm text-slate-500">years with Python</p></div>
 </section>
 
 <section class="landing-scroll-reveal mt-16" data-scroll-reveal>
@@ -147,6 +155,17 @@
     <figure class="card landing-card landing-review-card p-5"><div class="text-accent-1 text-lg" aria-label="Five stars">★★★★★</div><blockquote class="mt-3 text-sm leading-6 text-slate-600">“Thank you so much, you made it easier for me.”</blockquote><figcaption class="mt-4 text-xs font-medium text-slate-500">Aali_mohamed06 · Coding learner</figcaption></figure>
   </div>
   <div class="review-controls mt-6" data-review-controls></div>
+  </div>
+</section>
+
+<section class="landing-scroll-reveal mt-16" data-scroll-reveal aria-labelledby="faq-heading">
+  <div class="text-center"><p class="eyebrow">Questions from parents and learners</p><h2 id="faq-heading" class="mt-2 font-display text-2xl sm:text-3xl">Online Python tutor: frequently asked questions</h2></div>
+  <div class="mx-auto mt-8 max-w-3xl divide-y divide-line overflow-hidden rounded-xl border border-line bg-card shadow-card">
+    <details class="group p-5"><summary class="flex cursor-pointer list-none items-center justify-between gap-4 font-medium">Do you teach Python to kids?<span class="text-slate-500 transition group-open:rotate-45" aria-hidden="true">+</span></summary><p class="mt-3 text-sm text-slate-500">Yes. I teach Python to kids and teenagers online, usually from around age 10, using small games, puzzles and projects so every idea is something they build and can explain.</p></details>
+    <details class="group p-5"><summary class="flex cursor-pointer list-none items-center justify-between gap-4 font-medium">How do online Python lessons work?<span class="text-slate-500 transition group-open:rotate-45" aria-hidden="true">+</span></summary><p class="mt-3 text-sm text-slate-500">Lessons are one-to-one over Zoom. Each student gets a private portal with their lesson notes, practice tasks, quizzes and a progress report that parents can read.</p></details>
+    <details class="group p-5"><summary class="flex cursor-pointer list-none items-center justify-between gap-4 font-medium">I am a complete beginner. Can I still learn Python?<span class="text-slate-500 transition group-open:rotate-45" aria-hidden="true">+</span></summary><p class="mt-3 text-sm text-slate-500">Absolutely. We start from your current level with variables, loops and functions, then move to real projects at a pace that suits you.</p></details>
+    <details class="group p-5"><summary class="flex cursor-pointer list-none items-center justify-between gap-4 font-medium">What can I learn after the basics?<span class="text-slate-500 transition group-open:rotate-45" aria-hidden="true">+</span></summary><p class="mt-3 text-sm text-slate-500">Data science with Pandas and NumPy, machine learning, computer vision, Django and Flask web development, and interview or university project preparation.</p></details>
+    <details class="group p-5"><summary class="flex cursor-pointer list-none items-center justify-between gap-4 font-medium">How do I book a Python tutor session?<span class="text-slate-500 transition group-open:rotate-45" aria-hidden="true">+</span></summary><p class="mt-3 text-sm text-slate-500">Message me by email or WhatsApp with your goals and your time zone, and we will plan a first lesson together.</p></details>
   </div>
 </section>
 

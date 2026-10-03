@@ -46,6 +46,7 @@ INSTALLED_APPS = [
     "accounts",
     "learning",
     "tutorials",
+    "django.contrib.sitemaps",
 ]
 
 MIDDLEWARE = [
