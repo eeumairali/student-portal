@@ -19,7 +19,7 @@
 
   <div class="relative grid items-center gap-12 lg:grid-cols-[minmax(0,1.08fr)_minmax(22rem,.92fr)] lg:gap-16">
     <div class="relative z-10 max-w-2xl">
-      <span class="landing-kicker landing-reveal"><span class="landing-kicker-dot"></span> Online Python tutor for kids, teens &amp; adults</span>
+      <span class="landing-kicker landing-reveal"><span class="landing-kicker-dot hero-blink"></span> Online Python tutor for kids, teens &amp; adults</span>
       <h1 class="mt-7 font-display text-5xl leading-[.98] landing-reveal landing-delay-1 sm:text-7xl">
         Turn <span class="landing-hero-accent">curiosity</span><br class="hidden sm:block"> into working code.
       </h1>
@@ -37,7 +37,13 @@
       </div>
     </div>
 
-    <div class="landing-code-window relative z-10 landing-reveal landing-delay-2" aria-label="A sample learning project">
+    <div class="landing-hero-art landing-reveal landing-delay-2">
+      <div class="hero-ring hero-ring-one" aria-hidden="true"></div>
+      <div class="hero-ring hero-ring-two" aria-hidden="true"></div>
+      <span class="hero-float-label hero-label-a" aria-hidden="true">// idea loading...</span>
+      <span class="hero-float-label hero-label-b" aria-hidden="true">python &times; curiosity</span>
+      <div class="hero-float">
+    <div class="landing-code-window relative z-10" aria-label="A sample learning project" data-typewriter>
       <div class="landing-code-topbar"><span></span><span></span><span></span><code>lesson_01.py</code></div>
       <div class="landing-code-body font-mono text-xs leading-7 sm:text-sm">
         <p><span class="code-muted">01</span> <span class="code-purple">def</span> <span class="code-blue">make_progress</span>(question):</p>
@@ -48,10 +54,13 @@
         <p><span class="code-muted">06</span> &nbsp;&nbsp;<span class="code-blue">return</span> <span class="code-green">"I can explain it now."</span></p>
         <div class="landing-code-result mt-5"><span class="code-prompt">&gt;&gt;&gt;</span> progress.ready <span class="code-check">&#10003;</span></div>
       </div>
-      <div class="landing-code-caption"><span>guided practice</span><span>build / test / explain</span></div>
+      <div class="landing-code-caption"><span>guided practice</span><span class="hero-live"><i></i>live lesson</span></div>
+    </div>
+      </div>
     </div>
   </div>
 </section>
+<div class="landing-ticker mt-6" aria-hidden="true"><div class="landing-ticker-track"><span>Python for kids <b>&#10035;</b> build, break, learn <b>&#10035;</b> 1:1 online lessons <b>&#10035;</b> data science <b>&#10035;</b> machine learning <b>&#10035;</b> games &amp; projects <b>&#10035;</b> curiosity first <b>&#10035;</b> Django &amp; Flask <b>&#10035;</b> </span><span>Python for kids <b>&#10035;</b> build, break, learn <b>&#10035;</b> 1:1 online lessons <b>&#10035;</b> data science <b>&#10035;</b> machine learning <b>&#10035;</b> games &amp; projects <b>&#10035;</b> curiosity first <b>&#10035;</b> Django &amp; Flask <b>&#10035;</b> </span></div></div>
 
 <section class="landing-scroll-reveal mt-8 grid gap-3 sm:grid-cols-2 lg:grid-cols-4" data-scroll-reveal aria-label="Teaching highlights">
   <div class="card landing-card p-5"><p class="landing-stat font-display text-3xl text-gradient" data-counter data-target="5000" data-suffix="+">5000+</p><p class="mt-1 text-sm text-slate-500">hours taught</p></div>
@@ -181,6 +190,66 @@
 </section>
 </div>
 <script>
+  (function () {
+    const win = document.querySelector('[data-typewriter]');
+    if (!win || window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    const lines = Array.from(win.querySelectorAll('.landing-code-body p'));
+    const result = win.querySelector('.landing-code-result');
+    // Remember each line's HTML, then rebuild it character by character so
+    // syntax colours survive the typing effect.
+    const sources = lines.map((line) => line.innerHTML);
+    const cursor = document.createElement('span');
+    cursor.className = 'hero-cursor';
+
+    const typeLine = (line, html, done) => {
+      const box = document.createElement('div');
+      box.innerHTML = html;
+      line.innerHTML = '';
+      line.style.visibility = 'visible';
+      const queue = [];
+      const walk = (node, parent) => {
+        node.childNodes.forEach((child) => {
+          if (child.nodeType === 3) {
+            for (const ch of child.textContent) queue.push([parent, ch]);
+          } else {
+            const copy = child.cloneNode(false);
+            queue.push([parent, copy]);
+            walk(child, copy);
+          }
+        });
+      };
+      walk(box, line);
+      const step = () => {
+        const item = queue.shift();
+        if (!item) { done(); return; }
+        const [parent, piece] = item;
+        if (typeof piece === 'string') {
+          const last = parent.lastChild;
+          if (last && last.nodeType === 3) last.textContent += piece; else parent.appendChild(document.createTextNode(piece));
+        } else parent.appendChild(piece);
+        line.appendChild(cursor);
+        setTimeout(step, typeof piece === 'string' && piece.trim() ? 28 + Math.random() * 40 : 0);
+      };
+      step();
+    };
+
+    const run = () => {
+      lines.forEach((line) => { line.style.visibility = 'hidden'; });
+      result.classList.remove('is-shown');
+      let index = 0;
+      const next = () => {
+        if (index === lines.length) {
+          setTimeout(() => { cursor.remove(); result.classList.add('is-shown'); }, 350);
+          setTimeout(run, 6500);
+          return;
+        }
+        typeLine(lines[index], sources[index], () => { index += 1; setTimeout(next, 180); });
+      };
+      next();
+    };
+    win.classList.add('is-typing');
+    setTimeout(run, 900);
+  }());
   (function () {
     const counterElements = Array.from(document.querySelectorAll('[data-counter]'));
     const revealElements = Array.from(document.querySelectorAll('[data-scroll-reveal]'));
