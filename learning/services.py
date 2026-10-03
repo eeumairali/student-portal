@@ -1,9 +1,10 @@
 """Shared query helpers. Everything a student can reach is filtered by
 enrolment (or, for a personal dated lesson, by student match) here, so no
 view can accidentally leak another student's data."""
+from collections import defaultdict
 from datetime import timedelta
 
-from django.db.models import Q
+from django.db.models import Count, Max, Q
 from django.utils import timezone
 from django.http import Http404
 from django.shortcuts import get_object_or_404
@@ -245,7 +246,12 @@ def student_progress_report(student):
 
 
 def tutor_dashboard_data():
-    """Return the staff overview using the same saved activity as reports."""
+    """Return the staff overview as light per-student summaries.
+
+    Totals come from a few grouped queries across all students rather than a
+    full student_progress_report each; the detailed report stays on the
+    student's own page.
+    """
     from accounts.models import StudentProfile
 
     profiles = list(
@@ -253,56 +259,98 @@ def tutor_dashboard_data():
         .select_related("user")
         .prefetch_related("user__enrollments__course")
     )
+    student_ids = [profile.user_id for profile in profiles]
     month_start = timezone.localdate().replace(day=1)
+
+    lessons_by_student = defaultdict(list)
+    for lesson in (Lesson.objects.filter(student_id__in=student_ids)
+                   .only("id", "student_id", "title", "date").order_by("-date", "-id")):
+        lessons_by_student[lesson.student_id].append(lesson)
+
+    task_stats = {
+        row["lesson_id"]: row for row in
+        Task.objects.filter(lesson__student_id__in=student_ids, is_orphaned=False)
+        .values("lesson_id").annotate(total=Count("id"), done=Count("id", filter=Q(is_complete=True)))
+    }
+    quiz_stats = {
+        row["lesson_id"]: row for row in
+        QuizAttempt.objects.filter(lesson__student_id__in=student_ids)
+        .values("lesson_id").annotate(total=Count("id"), correct=Count("id", filter=Q(is_correct=True)))
+    }
+    hint_counts = dict(
+        HintReveal.objects.filter(lesson__student_id__in=student_ids)
+        .values("lesson_id").annotate(n=Count("id")).values_list("lesson_id", "n")
+    )
+    last_answer = dict(
+        QuizAttempt.objects.filter(lesson__student_id__in=student_ids)
+        .values("lesson__student_id").annotate(last=Max("answered_at"))
+        .values_list("lesson__student_id", "last")
+    )
+    last_task = dict(
+        Task.objects.filter(lesson__student_id__in=student_ids, is_complete=True, completed_at__isnull=False)
+        .values("lesson__student_id").annotate(last=Max("completed_at"))
+        .values_list("lesson__student_id", "last")
+    )
+
     students = []
     recent_sessions = []
     total_quiz_correct = total_quiz_answered = lessons_this_month = completed_tasks = 0
     needs_attention = 0
 
     for profile in profiles:
-        report = student_progress_report(profile.user)
-        lessons = list(Lesson.objects.filter(student=profile.user).order_by("-date", "-id"))
+        uid = profile.user_id
+        lessons = lessons_by_student[uid]
+        sessions = []
+        for lesson in lessons:
+            tasks = task_stats.get(lesson.id, {"total": 0, "done": 0})
+            quizzes = quiz_stats.get(lesson.id, {"total": 0, "correct": 0})
+            sessions.append({
+                "lesson": lesson,
+                "completed_tasks": tasks["done"], "task_count": tasks["total"],
+                "quiz_answered": quizzes["total"], "quiz_correct": quizzes["correct"],
+                "hints": hint_counts.get(lesson.id, 0),
+                "complete": bool(tasks["total"]) and tasks["done"] == tasks["total"],
+            })
+        total_tasks = sum(row["task_count"] for row in sessions)
+        done_tasks = sum(row["completed_tasks"] for row in sessions)
+        answered = sum(row["quiz_answered"] for row in sessions)
+        correct = sum(row["quiz_correct"] for row in sessions)
+        report = {
+            "lesson_count": len(lessons),
+            "total_tasks": total_tasks, "completed_tasks": done_tasks,
+            "task_percent": round(done_tasks / total_tasks * 100) if total_tasks else 0,
+            "total_quizzes": answered, "correct_quizzes": correct,
+            "quiz_percent": round(correct / answered * 100) if answered else 0,
+        }
+
         last_lesson = lessons[0] if lessons else None
-        quiz_attempts = QuizAttempt.objects.filter(lesson__student=profile.user)
-        latest_answer = quiz_attempts.order_by("-answered_at").first()
-        latest_task = Task.objects.filter(
-            lesson__student=profile.user, is_complete=True, completed_at__isnull=False
-        ).order_by("-completed_at").first()
         last_activity = max(
-            (value for value in (
-                latest_answer.answered_at if latest_answer else None,
-                latest_task.completed_at if latest_task else None,
-            ) if value),
+            (value for value in (last_answer.get(uid), last_task.get(uid)) if value),
             default=None,
         )
         if last_lesson and (last_lesson.date or timezone.localdate()) >= month_start:
             lessons_this_month += 1
-        total_quiz_correct += report["correct_quizzes"]
-        total_quiz_answered += report["total_quizzes"]
-        completed_tasks += report["completed_tasks"]
+        total_quiz_correct += correct
+        total_quiz_answered += answered
+        completed_tasks += done_tasks
         enrolled_courses = [enrollment.course for enrollment in profile.user.enrollments.all()
                             if enrollment.is_active and enrollment.course.is_published]
         stale = not last_activity and not last_lesson
         if last_activity and (timezone.now() - last_activity).days >= 14:
             stale = True
-        low_results = report["total_quizzes"] and report["quiz_percent"] < 60
-        if stale or low_results or (report["total_tasks"] and report["task_percent"] < 50):
-            needs_attention += 1
+        low_results = answered and report["quiz_percent"] < 60
+        flagged = bool(stale or low_results or (total_tasks and report["task_percent"] < 50))
+        needs_attention += flagged
         students.append({
             "profile": profile,
             "report": report,
             "last_lesson": last_lesson,
             "last_activity": last_activity,
             "course_count": len(enrolled_courses),
-            "needs_attention": bool(stale or low_results or (
-                report["total_tasks"] and report["task_percent"] < 50
-            )),
+            "needs_attention": flagged,
         })
-        for session in report["sessions"][-3:]:
-            recent_sessions.append({
-                "student": profile,
-                "session": session,
-            })
+        for session in sessions[:3]:
+            recent_sessions.append({"student": profile, "session": session})
 
     recent_sessions.sort(
         key=lambda row: (row["session"]["lesson"].date or timezone.localdate(), row["session"]["lesson"].id),

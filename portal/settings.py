@@ -110,6 +110,9 @@ DATABASES = {
         "HOST": _database_host,
         "PORT": str(_parsed_database_url.port or ""),
         "OPTIONS": _database_options,
+        # Reuse connections: opening one to Supabase costs ~1s (TLS + pooler).
+        "CONN_MAX_AGE": 60,
+        "CONN_HEALTH_CHECKS": True,
     }
 }
 
