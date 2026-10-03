@@ -33,8 +33,19 @@ DEBUG = env("DJANGO_DEBUG", "False").lower() in ("1", "true", "yes")
 SECRET_KEY = env("DJANGO_SECRET_KEY", "insecure-dev-key-do-not-use" if DEBUG else None,
                  required=not DEBUG)
 
-ALLOWED_HOSTS = [h for h in env("DJANGO_ALLOWED_HOSTS", "127.0.0.1,localhost").split(",") if h]
-CSRF_TRUSTED_ORIGINS = [o for o in env("DJANGO_CSRF_TRUSTED_ORIGINS", "").split(",") if o]
+# Production domains are always allowed; env vars can add more.
+_SITE_HOSTS = ["umaircodelab.com", "www.umaircodelab.com"]
+_render_host = os.environ.get("RENDER_EXTERNAL_HOSTNAME")  # set automatically by Render
+if _render_host:
+    _SITE_HOSTS.append(_render_host)
+
+ALLOWED_HOSTS = list(dict.fromkeys(
+    [h for h in env("DJANGO_ALLOWED_HOSTS", "127.0.0.1,localhost").split(",") if h] + _SITE_HOSTS
+))
+CSRF_TRUSTED_ORIGINS = list(dict.fromkeys(
+    [o for o in env("DJANGO_CSRF_TRUSTED_ORIGINS", "").split(",") if o]
+    + [f"https://{h}" for h in _SITE_HOSTS]
+))
 
 INSTALLED_APPS = [
     "django.contrib.admin",
