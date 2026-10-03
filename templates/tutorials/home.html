@@ -28,7 +28,7 @@
       </p>
       <div class="mt-8 flex flex-wrap items-center gap-3 landing-reveal landing-delay-3">
         <a href="#domains" class="btn-primary landing-hero-button px-6 py-3 text-sm">Find your starting point <span aria-hidden="true">&rarr;</span></a>
-        <a href="{% url 'login' %}" class="btn-quiet px-6 py-3 text-sm">Student login</a>
+        <a href="{% url 'login' %}" class="landing-login-btn px-6 py-3 text-sm"><svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4M10 17l5-5-5-5M15 12H3"/></svg>Student login</a>
       </div>
       <div class="landing-hero-signature mt-10 flex flex-wrap items-center gap-x-5 gap-y-2 text-xs text-slate-500 landing-reveal landing-delay-3">
         <span><strong class="text-ink">1:1</strong> guidance</span>
@@ -62,25 +62,79 @@
 </section>
 <div class="landing-ticker mt-6" aria-hidden="true"><div class="landing-ticker-track"><span>Python for kids <b>&#10035;</b> build, break, learn <b>&#10035;</b> 1:1 online lessons <b>&#10035;</b> data science <b>&#10035;</b> machine learning <b>&#10035;</b> games &amp; projects <b>&#10035;</b> curiosity first <b>&#10035;</b> Django &amp; Flask <b>&#10035;</b> </span><span>Python for kids <b>&#10035;</b> build, break, learn <b>&#10035;</b> 1:1 online lessons <b>&#10035;</b> data science <b>&#10035;</b> machine learning <b>&#10035;</b> games &amp; projects <b>&#10035;</b> curiosity first <b>&#10035;</b> Django &amp; Flask <b>&#10035;</b> </span></div></div>
 
-<section class="landing-scroll-reveal mt-8 grid gap-3 sm:grid-cols-2 lg:grid-cols-4" data-scroll-reveal aria-label="Teaching highlights">
+<section class="landing-scroll-reveal mt-8 grid grid-cols-2 gap-3 lg:grid-cols-4" data-scroll-reveal aria-label="Teaching highlights">
   <div class="card landing-card p-5"><p class="landing-stat font-display text-3xl text-gradient" data-counter data-target="5000" data-suffix="+">5000+</p><p class="mt-1 text-sm text-slate-500">hours taught</p></div>
   <div class="card landing-card p-5"><p class="landing-stat font-display text-3xl text-gradient" data-counter data-target="5" data-decimals="1" data-suffix="/5">5.0/5</p><p class="mt-1 text-sm text-slate-500">student rating</p></div>
   <div class="card landing-card p-5"><p class="landing-stat font-display text-3xl text-gradient" data-counter data-target="200" data-suffix="+">200+</p><p class="mt-1 text-sm text-slate-500">projects completed</p></div>
   <div class="card landing-card p-5"><p class="landing-stat font-display text-3xl text-gradient" data-counter data-target="7" data-suffix="+">7+</p><p class="mt-1 text-sm text-slate-500">years with Python</p></div>
 </section>
 
+<section id="domains" class="landing-scroll-reveal mt-14 scroll-mt-24" data-scroll-reveal>
+  <p class="eyebrow">Explore</p>
+  <h2 class="mt-2 font-display text-2xl sm:text-3xl">Start learning Python and more</h2>
+
+  {% if domains %}
+  <div class="mt-8 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+    {% for domain in domains %}
+      <a href="{% url 'domain_detail' domain.slug %}" class="card is-interactive group block p-6">
+        <div class="flex items-start justify-between gap-3">
+          <span class="avatar-mark">{{ domain.name|slice:":1" }}</span>
+          <span class="chip text-[10px]">{{ domain.published_tutorial_count }} tutorial{{ domain.published_tutorial_count|pluralize }}</span>
+        </div>
+        <h3 class="mt-5 font-display text-xl">{{ domain.name }}</h3>
+        {% if domain.description %}<p class="mt-2 line-clamp-2 text-sm text-slate-500">{{ domain.description }}</p>{% endif %}
+        <p class="text-accent-1 mt-5 flex items-center gap-1 text-sm font-medium">
+          Start learning
+          <span class="transition-transform duration-200 group-hover:translate-x-1">&rarr;</span>
+        </p>
+      </a>
+    {% endfor %}
+    {% if domains|length < 3 %}
+      <a href="#plans" class="card is-interactive group block p-6">
+        <span class="avatar-mark">&#9776;</span>
+        <h3 class="mt-5 font-display text-xl">Learning plans</h3>
+        <p class="mt-2 text-sm text-slate-500">See how many sessions Python, Pandas, PyTorch, Django and more usually take.</p>
+        <p class="text-accent-1 mt-5 flex items-center gap-1 text-sm font-medium">View plans <span class="transition-transform duration-200 group-hover:translate-x-1">&rarr;</span></p>
+      </a>
+    {% endif %}
+    {% if domains|length < 2 %}
+      <a href="https://wa.me/923223405479" target="_blank" rel="noopener" class="card is-interactive group block border-[#25d366]/40 p-6">
+        <span class="avatar-mark">&#10022;</span>
+        <h3 class="mt-5 font-display text-xl">Not sure where to start?</h3>
+        <p class="mt-2 text-sm text-slate-500">Send a quick WhatsApp message and get a personal recommendation for your level and goals.</p>
+        <p class="mt-5 flex items-center gap-1 text-sm font-medium text-[#128c4a]">Chat on WhatsApp <span class="transition-transform duration-200 group-hover:translate-x-1">&rarr;</span></p>
+      </a>
+    {% endif %}
+  </div>
+  {% else %}
+  <div class="card mt-8 p-10 text-center">
+    <p class="font-display text-xl">Tutorials coming soon</p>
+    <p class="mt-2 text-sm text-slate-500">Check back shortly — new topics are being added.</p>
+  </div>
+  {% endif %}
+</section>
+
+
 <section class="landing-scroll-reveal mt-16" data-scroll-reveal>
   <div class="landing-section-heading flex flex-col justify-between gap-3 sm:flex-row sm:items-end">
     <div><p class="eyebrow">Choose your path</p><h2 class="mt-2 font-display text-2xl sm:text-3xl">Learn what moves you forward</h2></div>
     <p class="max-w-md text-sm text-slate-500">Start with the fundamentals or bring a real project. Each path is practical, focused, and adapted to your goals.</p>
   </div>
-  <div class="mt-7 grid gap-5 md:grid-cols-2 lg:grid-cols-3">
+  <div class="path-marquee mt-7">
+    <div class="path-track">
     <div class="card landing-card landing-path-card p-6"><span class="avatar-mark inline-flex h-10 w-10 items-center justify-center rounded-xl font-display text-xl">Py</span><h3 class="mt-5 font-display text-xl">Python from scratch</h3><p class="mt-2 text-sm text-slate-500">Variables, functions, OOP, problem solving, and clean code for complete beginners and young learners.</p></div>
     <div class="card landing-card landing-path-card p-6"><span class="avatar-mark inline-flex h-10 w-10 items-center justify-center rounded-xl font-display text-xl">DS</span><h3 class="mt-5 font-display text-xl">Data science</h3><p class="mt-2 text-sm text-slate-500">Use NumPy, Pandas, Matplotlib, and Seaborn to turn messy data into clear answers and useful stories.</p></div>
     <div class="card landing-card landing-path-card p-6"><span class="avatar-mark inline-flex h-10 w-10 items-center justify-center rounded-xl font-display text-xl">AI</span><h3 class="mt-5 font-display text-xl">Machine learning</h3><p class="mt-2 text-sm text-slate-500">Build models with Scikit-learn, TensorFlow, and PyTorch, then understand why they work.</p></div>
     <div class="card landing-card landing-path-card p-6"><span class="avatar-mark inline-flex h-10 w-10 items-center justify-center rounded-xl font-display text-xl">DJ</span><h3 class="mt-5 font-display text-xl">Django and Flask</h3><p class="mt-2 text-sm text-slate-500">Create useful web applications, APIs, authentication flows, and deployable projects with Python.</p></div>
     <div class="card landing-card landing-path-card p-6"><span class="avatar-mark inline-flex h-10 w-10 items-center justify-center rounded-xl font-display text-xl">CV</span><h3 class="mt-5 font-display text-xl">Computer vision</h3><p class="mt-2 text-sm text-slate-500">Explore image processing, deep learning, and real-world AI applications through guided projects.</p></div>
     <div class="card landing-card landing-path-card p-6"><span class="avatar-mark inline-flex h-10 w-10 items-center justify-center rounded-xl font-display text-xl">PR</span><h3 class="mt-5 font-display text-xl">Project and interview prep</h3><p class="mt-2 text-sm text-slate-500">Debug with confidence, explain your decisions, and build a portfolio you can talk about.</p></div>
+    <div aria-hidden="true" class="card landing-card landing-path-card p-6"><span class="avatar-mark inline-flex h-10 w-10 items-center justify-center rounded-xl font-display text-xl">Py</span><h3 class="mt-5 font-display text-xl">Python from scratch</h3><p class="mt-2 text-sm text-slate-500">Variables, functions, OOP, problem solving, and clean code for complete beginners and young learners.</p></div>
+    <div aria-hidden="true" class="card landing-card landing-path-card p-6"><span class="avatar-mark inline-flex h-10 w-10 items-center justify-center rounded-xl font-display text-xl">DS</span><h3 class="mt-5 font-display text-xl">Data science</h3><p class="mt-2 text-sm text-slate-500">Use NumPy, Pandas, Matplotlib, and Seaborn to turn messy data into clear answers and useful stories.</p></div>
+    <div aria-hidden="true" class="card landing-card landing-path-card p-6"><span class="avatar-mark inline-flex h-10 w-10 items-center justify-center rounded-xl font-display text-xl">AI</span><h3 class="mt-5 font-display text-xl">Machine learning</h3><p class="mt-2 text-sm text-slate-500">Build models with Scikit-learn, TensorFlow, and PyTorch, then understand why they work.</p></div>
+    <div aria-hidden="true" class="card landing-card landing-path-card p-6"><span class="avatar-mark inline-flex h-10 w-10 items-center justify-center rounded-xl font-display text-xl">DJ</span><h3 class="mt-5 font-display text-xl">Django and Flask</h3><p class="mt-2 text-sm text-slate-500">Create useful web applications, APIs, authentication flows, and deployable projects with Python.</p></div>
+    <div aria-hidden="true" class="card landing-card landing-path-card p-6"><span class="avatar-mark inline-flex h-10 w-10 items-center justify-center rounded-xl font-display text-xl">CV</span><h3 class="mt-5 font-display text-xl">Computer vision</h3><p class="mt-2 text-sm text-slate-500">Explore image processing, deep learning, and real-world AI applications through guided projects.</p></div>
+    <div aria-hidden="true" class="card landing-card landing-path-card p-6"><span class="avatar-mark inline-flex h-10 w-10 items-center justify-center rounded-xl font-display text-xl">PR</span><h3 class="mt-5 font-display text-xl">Project and interview prep</h3><p class="mt-2 text-sm text-slate-500">Debug with confidence, explain your decisions, and build a portfolio you can talk about.</p></div>
+    </div>
   </div>
 </section>
 
@@ -116,35 +170,6 @@
   {% endfor %}
 
   <p class="mt-6 text-sm text-slate-500">Not sure where to start? <a href="https://wa.me/923223405479" target="_blank" rel="noopener" class="font-medium text-teal-700 hover:underline">Message me on WhatsApp</a> and we will choose the right plan together.</p>
-</section>
-
-<section id="domains" class="landing-scroll-reveal mt-6 scroll-mt-24" data-scroll-reveal>
-  <p class="eyebrow">Explore</p>
-  <h2 class="mt-2 font-display text-2xl sm:text-3xl">Start learning Python and more</h2>
-
-  {% if domains %}
-  <div class="mt-8 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
-    {% for domain in domains %}
-      <a href="{% url 'domain_detail' domain.slug %}" class="card is-interactive group block p-6">
-        <div class="flex items-start justify-between gap-3">
-          <span class="avatar-mark">{{ domain.name|slice:":1" }}</span>
-          <span class="chip text-[10px]">{{ domain.published_tutorial_count }} tutorial{{ domain.published_tutorial_count|pluralize }}</span>
-        </div>
-        <h3 class="mt-5 font-display text-xl">{{ domain.name }}</h3>
-        {% if domain.description %}<p class="mt-2 line-clamp-2 text-sm text-slate-500">{{ domain.description }}</p>{% endif %}
-        <p class="text-accent-1 mt-5 flex items-center gap-1 text-sm font-medium">
-          Start learning
-          <span class="transition-transform duration-200 group-hover:translate-x-1">&rarr;</span>
-        </p>
-      </a>
-    {% endfor %}
-  </div>
-  {% else %}
-  <div class="card mt-8 p-10 text-center">
-    <p class="font-display text-xl">Tutorials coming soon</p>
-    <p class="mt-2 text-sm text-slate-500">Check back shortly — new topics are being added.</p>
-  </div>
-  {% endif %}
 </section>
 
 <section class="landing-scroll-reveal mt-16 grid gap-6 lg:grid-cols-[1.1fr_.9fr]" data-scroll-reveal>
@@ -212,14 +237,17 @@
   </div>
 </section>
 
-<section class="landing-scroll-reveal mt-16 rounded-3xl bg-card px-6 py-10 text-center sm:px-10" data-scroll-reveal>
+<section class="contact-band landing-scroll-reveal mt-16 overflow-hidden rounded-3xl px-6 py-12 text-center sm:px-12 sm:py-14" data-scroll-reveal>
   <p class="eyebrow">Ready when you are</p>
-  <h2 class="mt-2 font-display text-2xl sm:text-3xl">Start with a tutorial or say hello</h2>
-  <p class="mx-auto mt-3 max-w-xl text-sm text-slate-500">Browse the free lessons, sign in to your student space, or message Umair about a learning plan.</p>
-  <div class="mt-6 flex flex-wrap justify-center gap-3">
-    <a href="#domains" class="btn-primary px-5 py-2.5 text-sm">Explore tutorials</a>
-    <a href="{% url 'login' %}" class="btn-quiet px-5 py-2.5 text-sm">Student login</a>
-    <a href="https://wa.me/923223405479" target="_blank" rel="noopener noreferrer" class="btn-quiet px-5 py-2.5 text-sm">WhatsApp +92 322 3405479</a>
+  <h2 class="mt-2 font-display text-3xl sm:text-4xl">Book a lesson or ask a question</h2>
+  <p class="mx-auto mt-3 max-w-xl text-[#d5e1e8]">Message me with your goals and time zone and we will plan your first Python lesson together. I usually reply within a few hours.</p>
+  <div class="mt-8 flex flex-wrap justify-center gap-3">
+    <a href="https://wa.me/923223405479" target="_blank" rel="noopener noreferrer" class="btn-whatsapp px-6 py-3.5 text-base">
+      <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2a10 10 0 0 0-8.6 15.1L2 22l5-1.3A10 10 0 1 0 12 2Zm5.3 14.2c-.2.6-1.3 1.2-1.8 1.2-.5.1-1 .2-3.3-.7-2.8-1.1-4.6-4-4.7-4.2-.1-.2-1.1-1.5-1.1-2.9s.7-2 1-2.3c.2-.3.5-.3.7-.3h.5c.2 0 .4 0 .6.5l.9 2.1c.1.2.1.4 0 .5l-.4.6-.4.4c-.1.2-.3.3-.1.6.2.3.8 1.3 1.7 2.1 1.2 1 2.1 1.3 2.4 1.5.3.1.5.1.6-.1l.9-1c.2-.3.4-.2.6-.1l2 1c.3.1.5.2.5.3.1.2.1.7-.1 1.3Z"/></svg>
+      WhatsApp +92 322 3405479
+    </a>
+    <a href="mailto:eeumairali@gmail.com" class="btn-outline-light px-6 py-3.5 text-base">Email me</a>
+    <a href="{% url 'login' %}" class="btn-outline-light px-6 py-3.5 text-base">Student login</a>
   </div>
 </section>
 </div>
@@ -262,7 +290,7 @@
           if (last && last.nodeType === 3) last.textContent += piece; else parent.appendChild(document.createTextNode(piece));
         } else parent.appendChild(piece);
         line.appendChild(cursor);
-        setTimeout(step, typeof piece === 'string' && piece.trim() ? 28 + Math.random() * 40 : 0);
+        setTimeout(step, typeof piece === 'string' && piece.trim() ? 14 + Math.random() * 22 : 0);
       };
       step();
     };
@@ -282,7 +310,7 @@
       next();
     };
     win.classList.add('is-typing');
-    setTimeout(run, 900);
+    setTimeout(run, 300);
   }());
   (function () {
     const counterElements = Array.from(document.querySelectorAll('[data-counter]'));

@@ -36,8 +36,8 @@ module.exports = {
         mono: ['"JetBrains Mono"', "ui-monospace", "monospace"],
       },
       boxShadow: {
-        card: "0 2px 10px rgba(102,73,48,.06), 0 12px 28px -18px rgba(102,73,48,.22)",
-        glow: "0 0 0 1px rgba(102,73,48,.16), 0 10px 26px -10px rgba(102,73,48,.30)",
+        card: "0 2px 10px rgba(28,25,23,.05), 0 12px 28px -18px rgba(180,83,9,.25)",
+        glow: "0 0 0 1px rgba(180,83,9,.16), 0 10px 26px -10px rgba(180,83,9,.32)",
       },
     },
   },

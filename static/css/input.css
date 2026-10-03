@@ -10,20 +10,20 @@
        the warm beige-gray (quiet fills); --c-peach a soft highlight tint.
        [data-theme="dark"] on <html> switches to the dark palette below,
        toggled and persisted by static/js/theme-toggle.js. */
-    --c-ink: 43 33 26;
+    --c-ink: 28 25 23;
     --c-paper: 255 255 255;
-    --c-card: 250 246 241;
-    --c-line: 224 213 199;
-    --c-slate-500: 130 108 89;
-    --c-accent-1: 102 73 48;
-    --c-accent-1-dark: 77 55 34;
-    --c-accent-1-tint: 251 243 236;
-    --c-accent-2: 153 126 103;
-    --c-accent-2-light: 183 160 141;
-    --c-accent-2-tint: 243 234 224;
-    --c-accent-3: 204 190 177;
-    --c-peach: 255 219 187;
-    --c-glow: 102 73 48;
+    --c-card: 255 250 244;
+    --c-line: 238 225 209;
+    --c-slate-500: 104 98 92;
+    --c-accent-1: 180 83 9;
+    --c-accent-1-dark: 146 64 14;
+    --c-accent-1-tint: 255 247 237;
+    --c-accent-2: 13 148 136;
+    --c-accent-2-light: 94 196 186;
+    --c-accent-2-tint: 230 247 245;
+    --c-accent-3: 230 210 186;
+    --c-peach: 254 215 170;
+    --c-glow: 180 83 9;
     --grain-opacity: 0.02;
   }
   :root[data-theme="dark"] {
@@ -32,15 +32,15 @@
     --c-card: 30 26 22;
     --c-line: 61 52 43;
     --c-slate-500: 176 160 145;
-    --c-accent-1: 199 168 138;
-    --c-accent-1-dark: 224 202 176;
-    --c-accent-1-tint: 46 39 32;
+    --c-accent-1: 245 158 11;
+    --c-accent-1-dark: 252 196 92;
+    --c-accent-1-tint: 46 36 22;
     --c-accent-2: 153 126 103;
     --c-accent-2-light: 183 160 141;
     --c-accent-2-tint: 46 39 32;
     --c-accent-3: 90 75 62;
     --c-peach: 120 92 66;
-    --c-glow: 199 168 138;
+    --c-glow: 245 158 11;
     --grain-opacity: 0.04;
   }
 
@@ -131,8 +131,8 @@
   .landing-hero {
     isolation: isolate;
     color: #f7f3ed;
-    background: #102a43;
-    box-shadow: 0 24px 70px -38px rgba(16, 42, 67, .7);
+    background: linear-gradient(135deg, #0b2239 0%, #123a5a 55%, #0e4f5c 100%);
+    box-shadow: 0 30px 80px -40px rgba(11, 34, 57, .85);
   }
   .landing-hero::after {
     position: absolute;
@@ -170,7 +170,7 @@
   }
   .landing-kicker-dot { height: .5rem; width: .5rem; border-radius: 999px; background: #f3b562; box-shadow: 0 0 0 .25rem rgba(243,181,98,.13); }
   .landing-hero-accent { color: #f3b562; font-style: italic; }
-  .landing-hero .text-slate-500 { color: #b7c6ce; }
+  .landing-hero .text-slate-500 { color: #d5e1e8; }
   .landing-hero-button { background: #f3b562; color: #102a43; box-shadow: 0 12px 28px -14px rgba(243,181,98,.85); }
   .landing-hero-button:hover { background: #fff0d2; color: #102a43; }
   .landing-hero .btn-quiet { border-color: rgba(255,255,255,.25); background: rgba(255,255,255,.08); color: #f7f3ed; }
@@ -202,6 +202,25 @@
   .code-prompt { color: #f3b562; }
   .code-check { color: #8ec5a3; }
   .landing-code-caption { display: flex; justify-content: space-between; border-top: 1px solid rgba(255,255,255,.1); padding: .7rem 1rem; color: #7891a5; font-family: "JetBrains Mono", ui-monospace, monospace; font-size: .62rem; letter-spacing: .04em; text-transform: uppercase; }
+  /* hero login button: as visible as the primary CTA */
+  .landing-login-btn { display: inline-flex; align-items: center; gap: .5rem; border-radius: .75rem; background: #fff; color: #0b2239; font-weight: 600; box-shadow: 0 12px 28px -14px rgba(255,255,255,.6); transition: transform .2s ease, box-shadow .2s ease; }
+  .landing-login-btn:hover { transform: translateY(-2px); box-shadow: 0 16px 32px -14px rgba(255,255,255,.75); }
+
+  /* moving path strip */
+  .path-marquee { overflow: hidden; mask-image: linear-gradient(90deg, transparent, black 6%, black 94%, transparent); }
+  .path-track { display: flex; gap: 1.25rem; width: max-content; padding: .5rem 0 1rem; animation: hero-marquee 45s linear infinite; }
+  .path-marquee:hover .path-track, .path-marquee:focus-within .path-track { animation-play-state: paused; }
+  .path-track > .landing-path-card { width: 20rem; flex: none; }
+  @media (prefers-reduced-motion: reduce) { .path-track { animation: none; flex-wrap: wrap; width: auto; } }
+
+  /* contact band */
+  .contact-band { background: linear-gradient(135deg, #0b2239, #123a5a 60%, #0e4f5c); color: #f7f3ed; }
+  .contact-band .eyebrow { color: #f3b562; }
+  .btn-whatsapp { display: inline-flex; align-items: center; gap: .6rem; border-radius: .9rem; background: #25d366; color: #06270f; font-weight: 700; box-shadow: 0 14px 30px -14px rgba(37,211,102,.8); transition: transform .2s ease, background .2s ease; }
+  .btn-whatsapp:hover { background: #3ee07a; transform: translateY(-2px); }
+  .btn-outline-light { display: inline-flex; align-items: center; gap: .5rem; border-radius: .9rem; border: 1px solid rgba(255,255,255,.35); color: #fff; font-weight: 600; transition: background .2s ease; }
+  .btn-outline-light:hover { background: rgba(255,255,255,.12); }
+
   /* learning plans */
   .plan-tab { @apply rounded-full border border-line bg-card px-4 py-2 text-sm text-slate-500 transition hover:border-teal-500 hover:text-ink; }
   .plan-tab.is-active { @apply border-teal-600 bg-teal-600 text-white; }

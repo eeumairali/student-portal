@@ -32,7 +32,7 @@
 
 <header class="glass-nav sticky top-0 z-40" x-data="{ open: false, menu: false }" @keyup.escape.window="open = false; menu = false">
   {% with current=request.resolver_match.url_name|default:"" %}
-  <nav class="mx-auto flex h-16 max-w-6xl items-center gap-6 px-5" aria-label="Main">
+  <nav class="mx-auto flex h-16 max-w-7xl items-center gap-6 px-5" aria-label="Main">
     <a href="{% url 'home' %}" class="group flex shrink-0 items-center gap-2.5">
       <span class="brand-mark flex h-9 w-9 items-center justify-center rounded-lg text-sm font-display font-bold text-white shadow-glow transition-transform duration-300 group-hover:rotate-6">UA</span>
       <span class="font-display text-lg leading-none text-ink">Umair Code Lab</span>
@@ -98,7 +98,7 @@
   {% if user.is_authenticated %}
   <div x-show="open" x-cloak x-transition.duration.150ms @click.outside="open = false"
        class="border-t border-line/70 bg-paper/95 backdrop-blur-xl md:hidden">
-    <div class="mx-auto flex max-w-6xl flex-col gap-0.5 px-5 py-3 text-sm">
+    <div class="mx-auto flex max-w-7xl flex-col gap-0.5 px-5 py-3 text-sm">
       <p class="px-4 pb-2 text-xs text-slate-500">Signed in as <strong class="text-ink">{{ user.student_profile.display_name|default:user.username }}</strong></p>
       <a href="{% url 'dashboard' %}" class="menu-item rounded-lg {% if current == 'dashboard' %}font-semibold text-ink{% endif %}">Dashboard</a>
       <a href="{% url 'leaderboard' %}" class="menu-item rounded-lg {% if current == 'leaderboard' %}font-semibold text-ink{% endif %}">Leaderboard</a>
@@ -127,12 +127,37 @@
   {% endwith %}
 </header>
 
-<main id="main" class="mx-auto w-full max-w-6xl flex-1 px-5 py-10 sm:py-14">
+<main id="main" class="mx-auto w-full max-w-7xl flex-1 px-5 py-10 sm:py-14">
   {% block content %}{% endblock %}
 </main>
 
-<footer class="border-t border-line/70 bg-card/40 py-8 text-center text-xs text-slate-500">
-  <p>Umair Code Lab · Python, data science, machine learning, and practical web development.</p>
+<footer class="border-t border-line/70 bg-card">
+  <div class="mx-auto grid max-w-7xl gap-8 px-5 py-10 text-sm sm:grid-cols-[1.4fr_1fr_1fr]">
+    <div>
+      <a href="{% url 'home' %}" class="flex items-center gap-2.5">
+        <span class="brand-mark flex h-9 w-9 items-center justify-center rounded-lg text-sm font-display font-bold text-white">UA</span>
+        <span class="font-display text-lg text-ink">Umair Code Lab</span>
+      </a>
+      <p class="mt-3 max-w-sm text-slate-500">One-to-one online Python lessons for kids, teens and adults, from first steps to data science, AI and web apps.</p>
+    </div>
+    <div>
+      <p class="font-semibold text-ink">Learn</p>
+      <ul class="mt-3 space-y-2 text-slate-500">
+        <li><a class="hover:text-ink" href="{% url 'home' %}#plans">Learning plans</a></li>
+        <li><a class="hover:text-ink" href="{% url 'home' %}#domains">Free tutorials</a></li>
+        <li><a class="hover:text-ink" href="{% url 'login' %}">Student login</a></li>
+      </ul>
+    </div>
+    <div>
+      <p class="font-semibold text-ink">Contact</p>
+      <ul class="mt-3 space-y-2">
+        <li><a class="inline-flex items-center gap-2 font-medium text-[#128c4a] hover:underline" href="https://wa.me/923223405479" target="_blank" rel="noopener">WhatsApp +92 322 3405479</a></li>
+        <li><a class="text-slate-500 hover:text-ink" href="mailto:eeumairali@gmail.com">eeumairali@gmail.com</a></li>
+        <li><a class="text-slate-500 hover:text-ink" href="https://eeumairali.github.io/" target="_blank" rel="noopener">Personal site</a></li>
+      </ul>
+    </div>
+  </div>
+  <p class="border-t border-line/70 py-4 text-center text-xs text-slate-500">&copy; Umair Code Lab &middot; Python, data science, machine learning and web development</p>
 </footer>
 
 </body>
