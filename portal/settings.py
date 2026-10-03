@@ -91,7 +91,8 @@ _database_options = {
     for key, values in _database_query.items()
     if key == "sslmode"
 }
-_database_options["options"] = f"endpoint={_database_host.split('.')[0]}"
+if _database_host.endswith(".neon.tech"):
+    _database_options["options"] = f"endpoint={_database_host.split('.')[0]}"
 try:
     _database_ipv4_hosts = socket.getaddrinfo(
         _database_host, _parsed_database_url.port or 5432,
